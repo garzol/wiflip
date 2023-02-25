@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="/x">
+    <file>ledon.png</file>
+    <file>ledyellow</file>
+    <file>ledgreen</file>
+    <file>ledgrey.png</file>
+    <file>images/panthera-bg.png</file>
+  </qresource>
+</RCC>
