@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1101</width>
-    <height>812</height>
+    <height>811</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -50,7 +50,7 @@
            <x>0</x>
            <y>0</y>
            <width>689</width>
-           <height>466</height>
+           <height>465</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -164,7 +164,7 @@
            </rect>
           </property>
           <property name="styleSheet">
-           <string notr="true">background-image: url(:/x/images/panthera-bg.png);</string>
+           <string notr="true">background-image: url(:/x/images/panthera-bgpng.png);</string>
           </property>
           <property name="text">
            <string/>

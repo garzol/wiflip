@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1101, 812)
+        MainWindow.resize(1101, 811)
         MainWindow.setMinimumSize(QtCore.QSize(0, 0))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/icon/images/aa55_logo_2.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -32,7 +32,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName("scrollArea_2")
         self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 689, 466))
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 689, 465))
         self.scrollAreaWidgetContents_2.setStyleSheet("")
         self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
         self.lcdNumber_1 = QtWidgets.QLCDNumber(self.scrollAreaWidgetContents_2)
@@ -71,7 +71,7 @@ class Ui_MainWindow(object):
         self.lcdNumber_4.setObjectName("lcdNumber_4")
         self.label = QtWidgets.QLabel(self.scrollAreaWidgetContents_2)
         self.label.setGeometry(QtCore.QRect(0, 0, 640, 521))
-        self.label.setStyleSheet("background-image: url(:/x/images/panthera-bg.png);")
+        self.label.setStyleSheet("background-image: url(:/x/images/panthera-bgpng.png);")
         self.label.setText("")
         self.label.setObjectName("label")
         self.lcdNumber_5 = QtWidgets.QLCDNumber(self.scrollAreaWidgetContents_2)
