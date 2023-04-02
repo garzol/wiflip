@@ -123,7 +123,9 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.pushButton.clicked.disconnect(self.connect)
         self.ui.pushButton.setText("disconnect")
         if  True:
-            self.thread = Worker(HOST=self.HOST, PORT=self.PORT)
+            #self.thread = Worker(HOST=self.HOST, PORT=self.PORT)
+            self.thread = Worker(HOST=self.ui.lineEdit.text(), 
+                                 PORT=self.ui.lineEdit_2.text())
 
             self.thread.finished.connect(self.pipo)
             self.thread.output.connect(self.cmdMng)
@@ -458,7 +460,7 @@ class Worker(QThread):
         # Note: This is never called directly. It is called by Qt once the
         # thread environment has been set up.
         
-        print("Hi, ")
+        print("Hi, connection to", (self.HOST, self.PORT))
 
         while True:
             self.connled.emit("yellow")
@@ -466,10 +468,13 @@ class Worker(QThread):
             try:
                 self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.sock.settimeout(10.0)
-                self.sock.connect((self.HOST, self.PORT))
+                self.sock.connect((self.HOST, int(self.PORT)))
                 break
-            except:
+            except Exception as e:
+                print("connection delayed")
+                print(e)
                 print("waiting for host...")
+                
                 #self.connled.emit("grey")
                 time.sleep(2)
             
