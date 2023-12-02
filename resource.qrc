@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="/x">
+    <file>images/1x/pinballbell480.png</file>
+    <file>images/1x/pinballbell.png</file>
+    <file>images/pinballbell.jpg</file>
     <file>images/panthera-bgpng.png</file>
     <file>ledon.png</file>
     <file>ledyellow</file>
