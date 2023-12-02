@@ -109,6 +109,13 @@ class MainForm(QtWidgets.QMainWindow):
 
         self.jingle = os.path.join(CURRENT_DIR, "alarm1-b238.wav")
  
+        # font = QtGui.QFont()
+        # font.setPointSize(5)
+        # #font.setBold(True)
+        # #font.setWeight(75)
+        # self.ui.pushButton.setFont(font)
+ 
+ 
     def disconnect(self):
         print("disconnect")
         self.ui.label_12.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
@@ -178,6 +185,22 @@ class MainForm(QtWidgets.QMainWindow):
         #print("received", data, typ, type(typ))
         if typ == 0:
             print("typ=0", str(data))
+        elif typ == 3:
+            # 8b ROM data
+            #12b ROM addr
+            # 1b reset state
+            # 1b read/write state
+            # 1b w_io state
+            # 1b bagotting checker
+            romdata  = data[0]
+            romaddr  = data[1]+(data[2]&0x0F)*0x100
+            bagotti  = 1 if data[2]&0x80 else 0
+            wiostate = 1 if data[2]&0x40 else 0
+            rwstate  = 1 if data[2]&0x20 else 0
+            rststate = 1 if data[2]&0x10 else 0
+            #print(f"{romaddr:03X}\t{romdata:02X} rst={rststate} rw={rwstate} wio={wiostate} bagot={bagotti}")
+            self.write2Console(f"{romaddr:03X}\t{romdata:02X} rst={rststate} rw={rwstate} wio={wiostate} bagot={bagotti}\r\n", insertMode=True)
+            #print("typ=3", str(data))
         #print(str(data), len(data), typ)
         else:
             if  typ == 65:  #'A'
@@ -361,7 +384,7 @@ class MainForm(QtWidgets.QMainWindow):
                 #self.write2Console(f"diag {data[0]:08b} {data[1]:08b} {data[2]:08b}{data[3]:08b}", insertMode=True)
                 self.msg68 = f"diag {data[0]:08b} {data[1]:08b} {data[2]:08b}{data[3]:08b}"
 
-        self.write2Console(self.msg83+"\n"+self.msg68, insertMode=False)
+        #self.write2Console(self.msg83+"\n"+self.msg68, insertMode=False)
             
             #int_val = int.from_bytes(data, "big", signed=False)
             #int_val *= 10
@@ -467,7 +490,7 @@ class Worker(QThread):
 
             try:
                 self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self.sock.settimeout(10.0)
+                #self.sock.settimeout(20.0)
                 self.sock.connect((self.HOST, int(self.PORT)))
                 break
             except Exception as e:
@@ -497,15 +520,18 @@ class Worker(QThread):
             except Exception as e:
                 print("unexpected exception when checking if a socket is closed")
                 break
+            #modifs for tracer device 
             if received == b'A' or received == b'B':
-                framesz = 8
+                framesz = 2
             elif received == b'C':
                 #3 bytes
-                framesz = 3
+                framesz = 2
             elif received == b'D':
-                framesz = 4
+                framesz = 2
             elif received == b'S':
-                framesz = 5
+                framesz = 2
+            else:
+                framesz = 2
                   
             if  framesz > 0:               
                 tsz = framesz
@@ -520,10 +546,10 @@ class Worker(QThread):
                     if lm == framesz:
                         #print(f"message type {received} : {msg}")
                         #self.ui.lcdNumber_1.value = 345
-                        self.output.emit(bytearray(msg), received[0])
+                        self.output.emit(bytearray(received+msg), 3)
                         break
                     tsz -= lm
-                print(received, msg)
+                #print(received, msg)
             else:
                 pass
                 #print(received)
