@@ -1,10 +1,13 @@
 '''
 Created on 23 mars 2022
 
+dockWidget_2
+dockWidget
 @author: garzol
 '''
 
 import os, sys, time
+from pickle import TRUE
 sys.path += ['.']
 
 
@@ -96,33 +99,58 @@ class MainForm(QtWidgets.QMainWindow):
         
         # Then we look at our settings to see if there is a setting called geometry saved. Otherwise we default to an empty string
         geometry = self.settings.value('geometry', None)
+        state    = self.settings.value('state', None)
         self.HOST     = self.settings.value('host', '192.168.1.26')
         self.PORT     = int(self.settings.value('port', '23'))
         # Then we call a Qt built in function called restoreGeometry that will restore whatever values we give it.
         # In this case we give it the values from the settings file.
         if geometry is not None:
             self.restoreGeometry(geometry)
-        
+            
+        if state is not None:
+            self.restoreState(state)
+
         self.ui.pushButton.clicked.connect(self.connect)
         self.ui.lineEdit.setText(self.HOST)
         self.ui.lineEdit_2.setText(str(self.PORT))
 
         self.jingle = os.path.join(CURRENT_DIR, "alarm1-b238.wav")
+
+        #trace button
+        self.ui.pushButton_3.clicked.connect(self.send_trace)
+        #dump button
+        self.ui.pushButton_2.clicked.connect(self.send_dump)
  
         # font = QtGui.QFont()
         # font.setPointSize(5)
         # #font.setBold(True)
         # #font.setWeight(75)
         # self.ui.pushButton.setFont(font)
- 
- 
+        self.linenb = 0
+
+    def send_trace(self): 
+        try:
+            self.thread.sock.send(b' t')
+        except:
+            pass
+        
+    def send_dump(self): 
+        self.linenb = 0
+        try:
+            self.thread.sock.send(b' d')
+        except:
+            pass
+        
     def disconnect(self):
         print("disconnect")
         self.ui.label_12.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
         self.ui.pushButton.clicked.connect(self.connect)
         self.ui.pushButton.clicked.disconnect(self.disconnect)
         self.ui.pushButton.setText("connect")
-        self.thread.sock.close()
+        # try:
+        #     self.thread.sock.close()
+        # except:
+        #     pass
         self.thread.terminate()
         
     def connect(self):
@@ -145,8 +173,12 @@ class MainForm(QtWidgets.QMainWindow):
         if state == "green":
             self.ui.label_12.setPixmap(QtGui.QPixmap(":/x/ledgreen"))
         elif state == "grey":
-            self.ui.pushButton.clicked.connect(self.connect)
-            self.ui.pushButton.clicked.disconnect(self.disconnect)
+            try:
+                self.ui.pushButton.clicked.connect(self.connect)
+                self.ui.pushButton.clicked.disconnect(self.disconnect)
+            except:
+                pass
+            
             self.ui.pushButton.setText("connect")
             self.ui.label_12.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
             QtMultimedia.QSound.play(self.jingle)
@@ -175,7 +207,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.plainTextEdit.centerCursor()
            
     def pipo(self):
-        print("pipoptage")
+        print("close conn. thread")
         self.thread.quit()
     
     def pipo2(self):
@@ -185,21 +217,26 @@ class MainForm(QtWidgets.QMainWindow):
         #print("received", data, typ, type(typ))
         if typ == 0:
             print("typ=0", str(data))
-        elif typ == 3:
+        elif typ == 84:   #T
             # 8b ROM data
             #12b ROM addr
             # 1b reset state
             # 1b read/write state
             # 1b w_io state
             # 1b bagotting checker
-            romdata  = data[0]
-            romaddr  = data[1]+(data[2]&0x0F)*0x100
-            bagotti  = 1 if data[2]&0x80 else 0
-            wiostate = 1 if data[2]&0x40 else 0
-            rwstate  = 1 if data[2]&0x20 else 0
-            rststate = 1 if data[2]&0x10 else 0
+            #print("recu", data[0], data[1], data[2])
+            #print("typ=54", str(data))
+            self.linenb      += 1
+            ramdata      = data[0]
+            romdata      = data[1]
+            romaddr      = data[2]+(data[3]&0x0F)*0x100
+            bagotti  = 1 if data[3]&0x80 else 0
+            wiostate = 1 if data[3]&0x40 else 0
+            rwstate  = 1 if data[3]&0x20 else 0
+            rststate = 1 if data[3]&0x10 else 0
+            ramaddr      = data[4]+256*bagotti
             #print(f"{romaddr:03X}\t{romdata:02X} rst={rststate} rw={rwstate} wio={wiostate} bagot={bagotti}")
-            self.write2Console(f"{romaddr:03X}\t{romdata:02X} rst={rststate} rw={rwstate} wio={wiostate} bagot={bagotti}\r\n", insertMode=True)
+            self.write2Console(f"{self.linenb:03d} {romaddr:03X} {romdata:02X}\t{ramaddr:03X} {ramdata:02X}\t  rst={rststate} rw={rwstate} wio={wiostate} bgt={bagotti}\r\n", insertMode=True)
             #print("typ=3", str(data))
         #print(str(data), len(data), typ)
         else:
@@ -208,6 +245,16 @@ class MainForm(QtWidgets.QMainWindow):
                 tableau1   = data[1:4]
                 freeplay   = data[4:5]
                 tableau2   = data[5:]
+                aff1 = [self.ui.lcd1_6, self.ui.lcd1_5, self.ui.lcd1_4, self.ui.lcd1_3, self.ui.lcd1_2, self.ui.lcd1_1]
+                aff2 = [self.ui.lcd2_6, self.ui.lcd2_5, self.ui.lcd2_4, self.ui.lcd2_3, self.ui.lcd2_2, self.ui.lcd2_1]
+                aff5 = [self.ui.lcd5_2, self.ui.lcd5_1]
+                aff6 = [self.ui.lcd6_2, self.ui.lcd6_1]
+                
+                afflcdi(aff1, data[1:])
+                afflcdi(aff2, data[5:])
+                afflcdi(aff5, data[0:])
+                afflcdi(aff6, data[4:])
+                    
                 x = fromBcd2Int(tableau1)
                 if x == -1:
                     self.ui.lcdNumber_1.setDigitCount(0)
@@ -237,6 +284,13 @@ class MainForm(QtWidgets.QMainWindow):
                 else:
                     self.ui.lcdNumber_4.setDigitCount(6)
                     self.ui.lcdNumber_4.setProperty("value", x)
+                    
+                aff3 = [self.ui.lcd3_6, self.ui.lcd3_5, self.ui.lcd3_4, self.ui.lcd3_3, self.ui.lcd3_2, self.ui.lcd3_1]
+                aff4 = [self.ui.lcd4_6, self.ui.lcd4_5, self.ui.lcd4_4, self.ui.lcd4_3, self.ui.lcd4_2, self.ui.lcd4_1]
+                afflcdi(aff3, data[1:])
+                afflcdi(aff4, data[5:])
+                    
+                    
             elif typ == 67:  #'C'
                 #print("typ=67", str(data))
                 if not data[0]&0x08:
@@ -398,10 +452,13 @@ class MainForm(QtWidgets.QMainWindow):
         # First we need to get the current size and position of the window.
         # This can be fetchesd using the built in saveGeometry() method. 
         # This is got back as a byte array. It won't really make sense to a human directly, but it makes sense to Qt.
+        print("bye")
         geometry = self.saveGeometry()
-
+        
+        #print(geometry)
         # Once we know the geometry we can save it in our settings under geometry
         self.settings.setValue('geometry', geometry)
+        self.settings.setValue('state', self.saveState())
         self.settings.setValue('host', self.ui.lineEdit.text())
         self.settings.setValue('port', self.ui.lineEdit_2.text())
 
@@ -476,7 +533,7 @@ class Worker(QThread):
 
     
     def quit(self):
-        print("zzz")
+        print("socket close")
         self.sock.close()
         
     def run(self):        
@@ -506,6 +563,7 @@ class Worker(QThread):
         self.connled.emit("green")
 
         # Receive data from the server and shut down
+
         while True:
             framesz = 0
 
@@ -520,18 +578,22 @@ class Worker(QThread):
             except Exception as e:
                 print("unexpected exception when checking if a socket is closed")
                 break
-            #modifs for tracer device 
+            
+            #print("received", received[0])
             if received == b'A' or received == b'B':
-                framesz = 2
+                framesz = 8
             elif received == b'C':
                 #3 bytes
-                framesz = 2
+                framesz = 3
             elif received == b'D':
-                framesz = 2
+                framesz = 4
             elif received == b'S':
-                framesz = 2
+                framesz = 5
+            elif received == b'T':
+                framesz = 5
             else:
-                framesz = 2
+                framesz = 0
+
                   
             if  framesz > 0:               
                 tsz = framesz
@@ -544,9 +606,9 @@ class Worker(QThread):
                         break
                     lm  = len(msg)
                     if lm == framesz:
-                        #print(f"message type {received} : {msg}")
+                        #print(f"message ack {received} : {msg[0]} {msg[1]} ")
                         #self.ui.lcdNumber_1.value = 345
-                        self.output.emit(bytearray(received+msg), 3)
+                        self.output.emit(bytearray(msg), received[0])
                         break
                     tsz -= lm
                 #print(received, msg)
@@ -633,7 +695,6 @@ class MSCGui:
         self.mainWindow.show()
 
 
-
 def fromBcd2Int(barr):
     ret=0
     nbf = 0
@@ -652,6 +713,27 @@ def fromBcd2Int(barr):
         ret = -1
     return ret
         
-        
+def afflcdi(afftab, data):
+    for idx in range(len(afftab)):
+        afftab[idx].setHexMode()
+        if not idx%2:
+            #pair
+            dx = (~data[idx//2]&0xF0)>>4
+        else:
+            #impair
+            dx = (~data[idx//2]&0x0F)
+            
+        if dx == 0xF:
+            afftab[idx].setDigitCount(0)
+        else:
+            afftab[idx].setDigitCount(1)
+            afftab[idx].display(dx)
+            
+
+    
+    
+    
+    
+            
 if __name__ == '__main__':
     MSCGui().runApp(argv=sys.argv)
