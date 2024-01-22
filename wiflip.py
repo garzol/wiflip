@@ -62,6 +62,9 @@ class MainForm(QtWidgets.QMainWindow):
         self.msg68 = ""
         self.msg83 = ""
         
+        
+        self.lastAstate = 0
+        self.lastBstate = 0
         # Create the server, binding to localhost on port 9999
         # HOST, PORT = "192.168.1.26", 23
         # server = Server()
@@ -121,6 +124,12 @@ class MainForm(QtWidgets.QMainWindow):
         #dump button
         self.ui.pushButton_2.clicked.connect(self.send_dump)
  
+        #gpdump button
+        self.ui.pushButton_4.clicked.connect(self.send_gpdump)
+ 
+        #dpdump button
+        self.ui.pushButton_5.clicked.connect(self.send_dpdump)
+ 
         # font = QtGui.QFont()
         # font.setPointSize(5)
         # #font.setBold(True)
@@ -138,6 +147,20 @@ class MainForm(QtWidgets.QMainWindow):
         self.linenb = 0
         try:
             self.thread.sock.send(b' d')
+        except:
+            pass
+        
+    def send_gpdump(self): 
+        self.linenb = 0
+        try:
+            self.thread.sock.send(b' G')
+        except:
+            pass
+        
+    def send_dpdump(self): 
+        self.linenb = 0
+        try:
+            self.thread.sock.send(b' C')
         except:
             pass
         
@@ -239,21 +262,48 @@ class MainForm(QtWidgets.QMainWindow):
             self.write2Console(f"{self.linenb:03d} {romaddr:03X} {romdata:02X}\t{ramaddr:03X} {ramdata:02X}\t  rst={rststate} rw={rwstate} wio={wiostate} bgt={bagotti}\r\n", insertMode=True)
             #print("typ=3", str(data))
         #print(str(data), len(data), typ)
+        elif typ == 71:   #G
+            # 8b ROM data
+            # 8b RAM data
+            #12b ROM addr
+            # "1010"
+            self.linenb      += 1
+            romdata      = data[0]
+            ramdata      = data[1]
+            romaddr      = data[2]+(data[3]&0x0F)*0x100
+            gpaddr       = ((data[3]&0x30 )>>4)*0x100 + data[4]
+            #print(f"{romaddr:03X}\t{romdata:02X} rst={rststate} rw={rwstate} wio={wiostate} bagot={bagotti}")
+            self.write2Console(f"{self.linenb:03d} romaddr={romaddr:03X} romdata={romdata:02X}\t ramdata={ramdata:02X}\t gpaddr={gpaddr:03X}\r\n", insertMode=True)
+            #print("typ=3", str(data))
+        #print(str(data), len(data), typ)
         else:
             if  typ == 65:  #'A'
-                ballinplay = data[0:1]
-                tableau1   = data[1:4]
-                freeplay   = data[4:5]
-                tableau2   = data[5:]
+                dspAstate = 1 if data[0]&0x80 else 0
+                dspBstate = 1 if data[0]&0x40 else 0
+                if   dspAstate == 0 and self.lastAstate == 1:
+                    self.ui.label_DAState.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+                elif dspAstate == 1 and self.lastAstate == 0:
+                    self.ui.label_DAState.setPixmap(QtGui.QPixmap(":/x/ledon.png"))
+                self.lastAstate = dspAstate
+                if   dspBstate == 0 and self.lastBstate == 1:
+                    self.ui.label_DBState.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+                elif dspBstate == 1 and self.lastBstate == 0:
+                    self.ui.label_DBState.setPixmap(QtGui.QPixmap(":/x/ledon.png"))
+                self.lastBstate = dspBstate
+                    
+                ballinplay = data[1:2]
+                tableau1   = data[2:5]
+                freeplay   = data[5:6]
+                tableau2   = data[6:]
                 aff1 = [self.ui.lcd1_6, self.ui.lcd1_5, self.ui.lcd1_4, self.ui.lcd1_3, self.ui.lcd1_2, self.ui.lcd1_1]
                 aff2 = [self.ui.lcd2_6, self.ui.lcd2_5, self.ui.lcd2_4, self.ui.lcd2_3, self.ui.lcd2_2, self.ui.lcd2_1]
                 aff5 = [self.ui.lcd5_2, self.ui.lcd5_1]
                 aff6 = [self.ui.lcd6_2, self.ui.lcd6_1]
                 
-                afflcdi(aff1, data[1:])
-                afflcdi(aff2, data[5:])
-                afflcdi(aff5, data[0:])
-                afflcdi(aff6, data[4:])
+                afflcdi(aff1, data[2:])
+                afflcdi(aff2, data[6:])
+                afflcdi(aff5, data[1:])
+                afflcdi(aff6, data[5:])
                     
                 x = fromBcd2Int(tableau1)
                 if x == -1:
@@ -270,14 +320,27 @@ class MainForm(QtWidgets.QMainWindow):
                 self.ui.lcdNumber_6.setProperty("value", fromBcd2Int(ballinplay))
                 self.ui.lcdNumber_5.setProperty("value", fromBcd2Int(freeplay))
             elif typ == 66:  #'B'
-                tableau3   = data[1:4]
+                dspAstate = 1 if data[0]&0x80 else 0
+                dspBstate = 1 if data[0]&0x40 else 0
+                if   dspAstate == 0 and self.lastAstate == 1:
+                    self.ui.label_DAState.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+                elif dspAstate == 1 and self.lastAstate == 0:
+                    self.ui.label_DAState.setPixmap(QtGui.QPixmap(":/x/ledon.png"))
+                self.lastAstate = dspAstate
+                if   dspBstate == 0 and self.lastBstate == 1:
+                    self.ui.label_DBState.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+                elif dspBstate == 1 and self.lastBstate == 0:
+                    self.ui.label_DBState.setPixmap(QtGui.QPixmap(":/x/ledon.png"))
+                self.lastBstate = dspBstate
+
+                tableau3   = data[2:5]
                 x = fromBcd2Int(tableau3)
                 if x == -1:
                     self.ui.lcdNumber_3.setDigitCount(0)
                 else:
                     self.ui.lcdNumber_3.setDigitCount(6)
                     self.ui.lcdNumber_3.setProperty("value", x)
-                tableau4   = data[5:]
+                tableau4   = data[6:]
                 x = fromBcd2Int(tableau4)
                 if x == -1:
                     self.ui.lcdNumber_4.setDigitCount(0)
@@ -287,9 +350,9 @@ class MainForm(QtWidgets.QMainWindow):
                     
                 aff3 = [self.ui.lcd3_6, self.ui.lcd3_5, self.ui.lcd3_4, self.ui.lcd3_3, self.ui.lcd3_2, self.ui.lcd3_1]
                 aff4 = [self.ui.lcd4_6, self.ui.lcd4_5, self.ui.lcd4_4, self.ui.lcd4_3, self.ui.lcd4_2, self.ui.lcd4_1]
-                afflcdi(aff3, data[1:])
-                afflcdi(aff4, data[5:])
-                    
+                afflcdi(aff3, data[2:])
+                afflcdi(aff4, data[6:])
+                
                     
             elif typ == 67:  #'C'
                 #print("typ=67", str(data))
@@ -334,83 +397,83 @@ class MainForm(QtWidgets.QMainWindow):
                     self.ui.checkBox_8.setCheckState(QtCore.Qt.Unchecked)
 
 
-                if not data[1]&0x08:
+                if not data[1]&0x01:
                     self.ui.checkBox_9.setCheckState(QtCore.Qt.Checked)
                 else:
                     self.ui.checkBox_9.setCheckState(QtCore.Qt.Unchecked)
 
-                if not data[1]&0x04:
+                if not data[1]&0x02:
                     self.ui.checkBox_10.setCheckState(QtCore.Qt.Checked)
                 else:
                     self.ui.checkBox_10.setCheckState(QtCore.Qt.Unchecked)
 
-                if not data[1]&0x02:
+                if not data[1]&0x04:
                     self.ui.checkBox_11.setCheckState(QtCore.Qt.Checked)
                 else:
                     self.ui.checkBox_11.setCheckState(QtCore.Qt.Unchecked)
 
-                if not data[1]&0x01:
+                if not data[1]&0x08:
                     self.ui.checkBox_12.setCheckState(QtCore.Qt.Checked)
                 else:
                     self.ui.checkBox_12.setCheckState(QtCore.Qt.Unchecked)
 
-                if not data[1]&0x80:
+                if not data[1]&0x10:
                     self.ui.checkBox_13.setCheckState(QtCore.Qt.Checked)
                 else:
                     self.ui.checkBox_13.setCheckState(QtCore.Qt.Unchecked)
 
-                if not data[1]&0x40:
+                if not data[1]&0x20:
                     self.ui.checkBox_14.setCheckState(QtCore.Qt.Checked)
                 else:
                     self.ui.checkBox_14.setCheckState(QtCore.Qt.Unchecked)
 
-                if not data[1]&0x20:
+                if not data[1]&0x40:
                     self.ui.checkBox_15.setCheckState(QtCore.Qt.Checked)
                 else:
                     self.ui.checkBox_15.setCheckState(QtCore.Qt.Unchecked)
 
-                if not data[1]&0x10:
+                if not data[1]&0x80:
                     self.ui.checkBox_16.setCheckState(QtCore.Qt.Checked) 
                 else:
                     self.ui.checkBox_16.setCheckState(QtCore.Qt.Unchecked)
 
                     
-                if not data[2]&0x08:
+                if not data[2]&0x01:
                     self.ui.checkBox_17.setCheckState(QtCore.Qt.Checked)
                 else:
                     self.ui.checkBox_17.setCheckState(QtCore.Qt.Unchecked)
 
-                if not data[2]&0x04:
+                if not data[2]&0x02:
                     self.ui.checkBox_18.setCheckState(QtCore.Qt.Checked)
                 else:
                     self.ui.checkBox_18.setCheckState(QtCore.Qt.Unchecked)
 
-                if not data[2]&0x02:
+                if not data[2]&0x04:
                     self.ui.checkBox_19.setCheckState(QtCore.Qt.Checked)
                 else:
                     self.ui.checkBox_19.setCheckState(QtCore.Qt.Unchecked)
 
-                if not data[2]&0x01:
+                if not data[2]&0x08:
                     self.ui.checkBox_20.setCheckState(QtCore.Qt.Checked)
                 else:
                     self.ui.checkBox_20.setCheckState(QtCore.Qt.Unchecked)
 
-                if not data[2]&0x80:
+                if not data[2]&0x10:
                     self.ui.checkBox_21.setCheckState(QtCore.Qt.Checked)
                 else:
                     self.ui.checkBox_21.setCheckState(QtCore.Qt.Unchecked)
 
-                if not data[2]&0x40:
+                if not data[2]&0x20:
                     self.ui.checkBox_22.setCheckState(QtCore.Qt.Checked)
                 else:
                     self.ui.checkBox_22.setCheckState(QtCore.Qt.Unchecked)
 
-                if not data[2]&0x20:
+                if not data[2]&0x40:
                     self.ui.checkBox_23.setCheckState(QtCore.Qt.Checked)
                 else:
                     self.ui.checkBox_23.setCheckState(QtCore.Qt.Unchecked)
 
-                if not data[2]&0x10:
+                if not data[2]&0x80:
                     self.ui.checkBox_24.setCheckState(QtCore.Qt.Checked) 
                 else:
                     self.ui.checkBox_24.setCheckState(QtCore.Qt.Unchecked)
@@ -559,6 +622,7 @@ class Worker(QThread):
                 time.sleep(2)
             
         print("connected")
+        print("hostname ", socket.gethostname())
 
         self.connled.emit("green")
 
@@ -581,7 +645,7 @@ class Worker(QThread):
             
             #print("received", received[0])
             if received == b'A' or received == b'B':
-                framesz = 8
+                framesz = 9
             elif received == b'C':
                 #3 bytes
                 framesz = 3
@@ -590,6 +654,8 @@ class Worker(QThread):
             elif received == b'S':
                 framesz = 5
             elif received == b'T':
+                framesz = 5
+            elif received == b'G':
                 framesz = 5
             else:
                 framesz = 0
