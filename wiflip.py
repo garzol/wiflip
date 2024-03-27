@@ -7,7 +7,8 @@ dockWidget
 '''
 
 import os, sys, time
-from pickle import TRUE
+from time import sleep
+
 sys.path += ['.']
 
 
@@ -129,6 +130,10 @@ class MainForm(QtWidgets.QMainWindow):
  
         #dpdump button
         self.ui.pushButton_5.clicked.connect(self.send_dpdump)
+        
+        #IOL control
+        self.ui.iolButton.clicked.connect(self.send_iol)
+        
  
         # font = QtGui.QFont()
         # font.setPointSize(5)
@@ -164,6 +169,68 @@ class MainForm(QtWidgets.QMainWindow):
         except:
             pass
         
+    def send_iol(self): 
+        try:
+            cmd = self.ui.lineEdit_Cmd.text()
+            cmd = int(cmd, 16)+0x90
+        except:
+            cmd = 0
+        try:
+            acc = self.ui.lineEdit_Acc.text()
+            acc = int(acc, 16)+0xA0
+        except:
+            acc = 0
+        startcode = 0xB0
+        mybytes = bytearray()
+        #mybytes.append(startcode)
+        mybytes.append(cmd)
+        mybytes.append(acc)
+        mybytes.append(startcode)
+        
+        
+        try:
+            self.thread.sock.send(mybytes)
+        except:
+            print("error not sending anything")
+            pass
+        
+        print("sent:", mybytes)
+        
+        # mybytes = bytearray([
+        #                         0xB0,0x08,0x0, 
+        #                      ])   
+        # #                     #     0x09,0x0,0xB0, 0x0A,0x0,0xB0, 0x0B,0x0,0xB0,
+        # #                     #     0x0C,0x0,0xB0, 0x0D,0x0,0xB0, 0x0E,0x0,0xB0, 0x0F,0x0,0xB0,
+        # #                     #     0xB1
+        # #                     # ])
+        #
+        # sleep(1.1)
+        # try:
+        #     self.thread.sock.send(mybytes)
+        # except:
+        #     print("error2 not sending anything")
+        #     pass
+        #
+        # print("sent:", mybytes)
+        # mybytes = bytearray([
+        #                         0xB0,0x09,0x0, 
+        #                      ])   
+        # #                     #     0x09,0x0,0xB0, 0x0A,0x0,0xB0, 0x0B,0x0,0xB0,
+        # #                     #     0x0C,0x0,0xB0, 0x0D,0x0,0xB0, 0x0E,0x0,0xB0, 0x0F,0x0,0xB0,
+        # #                     #     0xB1
+        # #                     # ])
+        #
+        # sleep(1.1)
+        # try:
+        #     self.thread.sock.send(mybytes)
+        # except:
+        #     print("error2 not sending anything")
+        #     pass
+        #
+        # print("sent:", mybytes)
+        #
+        #
+
     def disconnect(self):
         print("disconnect")
         self.ui.label_12.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
@@ -272,8 +339,12 @@ class MainForm(QtWidgets.QMainWindow):
             ramdata      = data[1]
             romaddr      = data[2]+(data[3]&0x0F)*0x100
             gpaddr       = ((data[3]&0x30 )>>4)*0x100 + data[4]
+            ramaddr      = data[4]
             #print(f"{romaddr:03X}\t{romdata:02X} rst={rststate} rw={rwstate} wio={wiostate} bagot={bagotti}")
-            self.write2Console(f"{self.linenb:03d} romaddr={romaddr:03X} romdata={romdata:02X}\t ramdata={ramdata:02X}\t gpaddr={gpaddr:03X}\r\n", insertMode=True)
+            #next line for GP case (game prom spying
+            #self.write2Console(f"{self.linenb:03d} romaddr={romaddr:03X} romdata={romdata:02X}\t ramdata={ramdata:02X}\t gpaddr={gpaddr:03X}\r\n", insertMode=True)
+            #next line for standard trace of specific instruction
+            self.write2Console(f"{self.linenb:03d} {romaddr:03X} {romdata:02X}\t ramaddr={ramaddr:03X}\t ramdata={ramdata:02X}\r\n", insertMode=True)
             #print("typ=3", str(data))
         #print(str(data), len(data), typ)
         else:
@@ -483,6 +554,17 @@ class MainForm(QtWidgets.QMainWindow):
                 # self.ui.ldip1_2.setText(f"{data[0]:08b}")
                 # self.ui.ldip2_2.setText(f"{data[1]:08b}")
                 # self.ui.ldip3_2.setText(f"{data[2]:08b}")
+
+            elif typ == 80: #'P'
+                uilabels = [
+                    self.ui.label_D0_F, self.ui.label_D0_E, self.ui.label_D0_D, self.ui.label_D0_C,
+                    self.ui.label_D0_B, self.ui.label_D0_A, self.ui.label_D0_9, self.ui.label_D0_8,
+                    self.ui.label_D0_7, self.ui.label_D0_6, self.ui.label_D0_5, self.ui.label_D0_4,
+                    self.ui.label_D0_3, self.ui.label_D0_2, self.ui.label_D0_1, self.ui.label_D0_0
+                            ]
+                for i in range(16):
+                    uilabels[i].setText(f"{data[2*i]:02X} {data[2*i+1]:02X}")
+                        
                 
             elif typ == 83:  #'S'
                 #print(str(data))
@@ -657,6 +739,8 @@ class Worker(QThread):
                 framesz = 5
             elif received == b'G':
                 framesz = 5
+            elif received == b'P':
+                framesz = 32
             else:
                 framesz = 0
 
