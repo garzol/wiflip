@@ -142,6 +142,17 @@ class MainForm(QtWidgets.QMainWindow):
         # self.ui.pushButton.setFont(font)
         self.linenb = 0
 
+
+        uilabels = [
+            self.ui.label_D0_F, self.ui.label_D0_E, self.ui.label_D0_D, self.ui.label_D0_C,
+            self.ui.label_D0_B, self.ui.label_D0_A, self.ui.label_D0_9, self.ui.label_D0_8,
+            self.ui.label_D0_7, self.ui.label_D0_6, self.ui.label_D0_5, self.ui.label_D0_4,
+            self.ui.label_D0_3, self.ui.label_D0_2, self.ui.label_D0_1, self.ui.label_D0_0
+                    ]
+        for i in range(16):
+            print(uilabels[i].text()[-2:])
+            uilabels[i].
+
     def send_trace(self): 
         try:
             self.thread.sock.send(b' t')
@@ -556,14 +567,18 @@ class MainForm(QtWidgets.QMainWindow):
                 # self.ui.ldip3_2.setText(f"{data[2]:08b}")
 
             elif typ == 80: #'P'
+                #print(str(data))
                 uilabels = [
                     self.ui.label_D0_F, self.ui.label_D0_E, self.ui.label_D0_D, self.ui.label_D0_C,
                     self.ui.label_D0_B, self.ui.label_D0_A, self.ui.label_D0_9, self.ui.label_D0_8,
                     self.ui.label_D0_7, self.ui.label_D0_6, self.ui.label_D0_5, self.ui.label_D0_4,
                     self.ui.label_D0_3, self.ui.label_D0_2, self.ui.label_D0_1, self.ui.label_D0_0
                             ]
+                #for i in range(16):
                 for i in range(16):
+                    print(uilabels[i].text[:2])
                     uilabels[i].setText(f"{data[2*i]:02X} {data[2*i+1]:02X}")
+                    
                         
                 
             elif typ == 83:  #'S'
@@ -693,6 +708,7 @@ class Worker(QThread):
             try:
                 self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 #self.sock.settimeout(20.0)
+                #self.sock.setblocking(False)
                 self.sock.connect((self.HOST, int(self.PORT)))
                 break
             except Exception as e:
@@ -712,7 +728,6 @@ class Worker(QThread):
 
         while True:
             framesz = 0
-
             try:
                 received = self.sock.recv(1)
             except socket.error as e:
@@ -740,7 +755,8 @@ class Worker(QThread):
             elif received == b'G':
                 framesz = 5
             elif received == b'P':
-                framesz = 32
+                #print("P")
+                framesz = 32 #32
             else:
                 framesz = 0
 
@@ -750,17 +766,19 @@ class Worker(QThread):
                 msg = b''
                 while tsz > 0:
                     try:
-                        msg += self.sock.recv(tsz)
+                        msg += self.sock.recv(1)  #(tsz)
                     except socket.error as e:
                         print(f"socket read error 2: {e}")
                         break
                     lm  = len(msg)
+                    #print("lm", framesz, lm, msg)
                     if lm == framesz:
                         #print(f"message ack {received} : {msg[0]} {msg[1]} ")
                         #self.ui.lcdNumber_1.value = 345
                         self.output.emit(bytearray(msg), received[0])
                         break
-                    tsz -= lm
+                    #tsz -= lm
+                    tsz -= 1
                 #print(received, msg)
             else:
                 pass
