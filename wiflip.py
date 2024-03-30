@@ -149,10 +149,11 @@ class MainForm(QtWidgets.QMainWindow):
             self.ui.label_D0_7, self.ui.label_D0_6, self.ui.label_D0_5, self.ui.label_D0_4,
             self.ui.label_D0_3, self.ui.label_D0_2, self.ui.label_D0_1, self.ui.label_D0_0
                     ]
-        for i in range(16):
-            print(uilabels[i].text()[-2:])
-            uilabels[i].
+        self.last_uilabels = ["00"]*16
+        self.vientdecliquer = 0
 
+        
+        
     def send_trace(self): 
         try:
             self.thread.sock.send(b' t')
@@ -205,6 +206,7 @@ class MainForm(QtWidgets.QMainWindow):
             print("error not sending anything")
             pass
         
+        self.vientdecliquer = 1
         print("sent:", mybytes)
         
         # mybytes = bytearray([
@@ -576,7 +578,20 @@ class MainForm(QtWidgets.QMainWindow):
                             ]
                 #for i in range(16):
                 for i in range(16):
-                    print(uilabels[i].text[:2])
+                    #print(uilabels[i].text()[-2:])
+                    if  uilabels[i].text()[-2:] != f"{data[2*i+1]:02X}":
+                        uilabels[i].setStyleSheet("QLabel { background-color : red; color : white; }")
+                    else:
+                        if self.vientdecliquer >= 50:
+                            uilabels[i].setStyleSheet("QLabel { background-color : green; color : white; }")
+                            self.vientdecliquer = 0
+                        else:
+                            self.vientdecliquer += 1
+                            
+                    
+                    
+                    
+                    self.last_uilabels[i] = uilabels[i].text()[-2:]
                     uilabels[i].setText(f"{data[2*i]:02X} {data[2*i+1]:02X}")
                     
                         
