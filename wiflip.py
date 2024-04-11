@@ -122,6 +122,7 @@ class MainForm(QtWidgets.QMainWindow):
 
         #trace button
         self.ui.pushButton_3.clicked.connect(self.send_trace)
+        self.ui.pushButton_6.clicked.connect(self.send_gptrace)
         #dump button
         self.ui.pushButton_2.clicked.connect(self.send_dump)
  
@@ -134,7 +135,10 @@ class MainForm(QtWidgets.QMainWindow):
         #IOL control
         self.ui.iolButton.clicked.connect(self.send_iol)
         
- 
+        #Selection of hm6508 mode
+        self.ui.pushButton_iram.clicked.connect(self.send_hmintern)
+        self.ui.pushButton_hram.clicked.connect(self.send_hmreal)
+        
         # font = QtGui.QFont()
         # font.setPointSize(5)
         # #font.setBold(True)
@@ -166,6 +170,13 @@ class MainForm(QtWidgets.QMainWindow):
             self.thread.sock.send(b' d')
         except:
             pass
+
+    def send_gptrace(self): 
+        try:
+            self.thread.sock.send(b' U')
+        except:
+            pass
+        
         
     def send_gpdump(self): 
         self.linenb = 0
@@ -178,6 +189,20 @@ class MainForm(QtWidgets.QMainWindow):
         self.linenb = 0
         try:
             self.thread.sock.send(b' C')
+        except:
+            pass
+        
+    def send_hmreal(self): 
+        self.linenb = 0
+        try:
+            self.thread.sock.send(b' h')
+        except:
+            pass
+        
+    def send_hmintern(self): 
+        self.linenb = 0
+        try:
+            self.thread.sock.send(b' i')
         except:
             pass
         

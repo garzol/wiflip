@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1386</width>
-    <height>815</height>
+    <height>807</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -52,8 +52,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>536</width>
-           <height>467</height>
+           <width>974</width>
+           <height>395</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -1549,7 +1549,7 @@ All closed switches noted by a code number in ball-in-play display.***
        <x>20</x>
        <y>150</y>
        <width>291</width>
-       <height>162</height>
+       <height>264</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
@@ -1568,6 +1568,13 @@ All closed switches noted by a code number in ball-in-play display.***
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="pushButton_6">
+        <property name="text">
+         <string>trace GP</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="pushButton_4">
         <property name="text">
          <string>dump GP</string>
@@ -1578,6 +1585,20 @@ All closed switches noted by a code number in ball-in-play display.***
        <widget class="QPushButton" name="pushButton_5">
         <property name="text">
          <string>get config DIP</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_iram">
+        <property name="text">
+         <string>Use internal CMOSRAM</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_hram">
+        <property name="text">
+         <string>Use real HM6508</string>
         </property>
        </widget>
       </item>
