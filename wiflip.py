@@ -144,6 +144,12 @@ class MainForm(QtWidgets.QMainWindow):
         # #font.setBold(True)
         # #font.setWeight(75)
         # self.ui.pushButton.setFont(font)
+        font = QtGui.QFont("courier new")
+        font.setPointSize(14)
+        font.setBold(True)
+        font.setWeight(75)
+        self.ui.label_inp.setFont(font)
+        self.ui.label_out.setFont(font)
         self.linenb = 0
 
 
@@ -385,6 +391,12 @@ class MainForm(QtWidgets.QMainWindow):
             self.write2Console(f"{self.linenb:03d} {romaddr:03X} {romdata:02X}\t ramaddr={ramaddr:03X}\t ramdata={ramdata:02X}\r\n", insertMode=True)
             #print("typ=3", str(data))
         #print(str(data), len(data), typ)
+        elif typ == 89:   #Y for IO status
+            io_os = data[0]*256 + data[1]
+            io_is = data[2]*256 + data[3]
+            #print("Y got", data[0], data[1], data[2], data[3], io_os, io_is)
+            self.ui.label_out.setText(f"{io_os:016b}")
+            self.ui.label_inp.setText(f"{io_is:016b}")
         else:
             if  typ == 65:  #'A'
                 dspAstate = 1 if data[0]&0x80 else 0
@@ -787,6 +799,8 @@ class Worker(QThread):
                 #3 bytes
                 framesz = 3
             elif received == b'D':
+                framesz = 4
+            elif received == b'Y':   #IO status 4 bytes Oh, Ol, Ih, Il
                 framesz = 4
             elif received == b'S':
                 framesz = 5
