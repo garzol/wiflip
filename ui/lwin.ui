@@ -20,8 +20,8 @@
    <string>WiFlip</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/icon/images/aa55_logo_2.ico</normaloff>:/icon/images/aa55_logo_2.ico</iconset>
+   <iconset resource="../resource.qrc">
+    <normaloff>:/x/images/aa55_logo_2.ico</normaloff>:/x/images/aa55_logo_2.ico</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
