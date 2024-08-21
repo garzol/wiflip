@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1369</width>
-    <height>810</height>
+    <width>1098</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -30,11 +30,23 @@
    <property name="enabled">
     <bool>true</bool>
    </property>
+   <property name="baseSize">
+    <size>
+     <width>512</width>
+     <height>480</height>
+    </size>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
        <widget class="QScrollArea" name="scrollArea_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="baseSize">
          <size>
           <width>640</width>
@@ -52,8 +64,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>957</width>
-           <height>462</height>
+           <width>484</width>
+           <height>452</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -863,7 +875,7 @@ All closed switches noted by a code number in ball-in-play display.***
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1369</width>
+     <width>1098</width>
      <height>24</height>
     </rect>
    </property>
@@ -893,13 +905,8 @@ All closed switches noted by a code number in ball-in-play display.***
     <addaction name="actionLoad"/>
     <addaction name="actionSave"/>
     <addaction name="separator"/>
-    <addaction name="actionSave_image"/>
-    <addaction name="actionSave_img_to_clipboard"/>
-    <addaction name="separator"/>
-    <addaction name="actionTest"/>
-    <addaction name="separator"/>
-    <addaction name="actionBuild_STL_file"/>
-    <addaction name="actionBuild_binary_STL"/>
+    <addaction name="actionLoad_nvr"/>
+    <addaction name="actionSave_nvram"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -908,21 +915,38 @@ All closed switches noted by a code number in ball-in-play display.***
      <string>?</string>
     </property>
     <addaction name="actionHelp"/>
-    <addaction name="actionbirbol"/>
     <addaction name="actionAbout_wiflip"/>
-    <addaction name="actiongarzol"/>
-    <addaction name="actionpipo"/>
-    <addaction name="actionchienvert"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
      <string>View</string>
     </property>
-    <addaction name="actionSave_3D_view_to_file"/>
-    <addaction name="actionSave_3D_view_to_clipboard"/>
+    <widget class="QMenu" name="menuFaces">
+     <property name="title">
+      <string>Facelifts</string>
+     </property>
+     <widget class="QMenu" name="menuGottlieb">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="title">
+       <string>Gottlieb</string>
+      </property>
+      <addaction name="actionPinball_Bell"/>
+     </widget>
+     <widget class="QMenu" name="menuRecel_2">
+      <property name="title">
+       <string>Recel</string>
+      </property>
+      <addaction name="actionFair_Fight"/>
+      <addaction name="actionCrazy_Race"/>
+     </widget>
+     <addaction name="menuGottlieb"/>
+     <addaction name="menuRecel_2"/>
+    </widget>
+    <addaction name="menuFaces"/>
     <addaction name="separator"/>
-    <addaction name="actionOrthographic_view"/>
-    <addaction name="actionPerspective_view"/>
+    <addaction name="actionClear_all_2"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -1276,7 +1300,7 @@ All closed switches noted by a code number in ball-in-play display.***
   <widget class="QDockWidget" name="dockWidget">
    <property name="minimumSize">
     <size>
-     <width>320</width>
+     <width>220</width>
      <height>249</height>
     </size>
    </property>
@@ -1287,68 +1311,172 @@ All closed switches noted by a code number in ball-in-play display.***
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
-    <widget class="QWidget" name="gridLayoutWidget">
+    <widget class="QScrollArea" name="scrollArea_3">
      <property name="geometry">
       <rect>
-       <x>60</x>
-       <y>10</y>
-       <width>251</width>
-       <height>121</height>
+       <x>10</x>
+       <y>50</y>
+       <width>201</width>
+       <height>401</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEdit"/>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit_2"/>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_10">
-        <property name="text">
-         <string>Host:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_11">
-        <property name="text">
-         <string>Port:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="2" column="1">
-       <widget class="QPushButton" name="pushButton">
-        <property name="text">
-         <string>connect</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents_3">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>210</width>
+        <height>423</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_14">
+       <item>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEdit"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEdit_2"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>Host:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Port:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="2" column="1">
+          <widget class="QPushButton" name="pushButton">
+           <property name="text">
+            <string>connect</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QPushButton" name="pushButton_3">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>trace</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_2">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>dump</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_6">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>trace GP</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_4">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>dump GP</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_5">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>get config DIP</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_iram">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Use internal CMOSRAM</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_hram">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Use real HM6508</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_R_dump">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Dump NVRAM</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTimeEdit" name="timeEdit"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
     </widget>
     <widget class="QLabel" name="label_12">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>20</x>
        <y>10</y>
        <width>31</width>
        <height>31</height>
@@ -1364,77 +1492,6 @@ All closed switches noted by a code number in ball-in-play display.***
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QWidget" name="verticalLayoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>150</y>
-       <width>291</width>
-       <height>298</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QPushButton" name="pushButton_3">
-        <property name="text">
-         <string>trace</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_2">
-        <property name="text">
-         <string>dump</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_6">
-        <property name="text">
-         <string>trace GP</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_4">
-        <property name="text">
-         <string>dump GP</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_5">
-        <property name="text">
-         <string>get config DIP</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_iram">
-        <property name="text">
-         <string>Use internal CMOSRAM</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_hram">
-        <property name="text">
-         <string>Use real HM6508</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_R_dump">
-        <property name="text">
-         <string>Dump NVRAM</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QTimeEdit" name="timeEdit"/>
-      </item>
-     </layout>
-    </widget>
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_4">
@@ -1442,7 +1499,7 @@ All closed switches noted by a code number in ball-in-play display.***
     <string>PIO Control</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>2</number>
+    <number>8</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_5">
     <widget class="QWidget" name="layoutWidget">
@@ -2227,6 +2284,289 @@ All closed switches noted by a code number in ball-in-play display.***
     </widget>
    </widget>
   </widget>
+  <widget class="QDockWidget" name="dockWidget_8">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="windowTitle">
+    <string>Memory inspection</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_8">
+    <layout class="QVBoxLayout" name="verticalLayout_11">
+     <item>
+      <widget class="QScrollArea" name="scrollArea">
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAsNeeded</enum>
+       </property>
+       <property name="horizontalScrollBarPolicy">
+        <enum>Qt::ScrollBarAsNeeded</enum>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
+       </property>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>338</width>
+          <height>480</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_10">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_10">
+           <item>
+            <widget class="QRadioButton" name="rb_sysconf">
+             <property name="text">
+              <string>Sys Conf</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="rb_mnprn">
+             <property name="text">
+              <string>Miniprinter</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="rb_nvram">
+             <property name="text">
+              <string>NVRAM</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>60</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_11">
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QGroupBox" name="groupBox_3">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>120</height>
+              </size>
+             </property>
+             <property name="title">
+              <string>Control</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_13">
+              <item>
+               <widget class="QPushButton" name="pb_rmem">
+                <property name="text">
+                 <string>Read from WiFlip RAM</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pb_wmem">
+                <property name="text">
+                 <string>Write to WiFlip RAM</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pb_flash">
+                <property name="text">
+                 <string>Flash</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_12">
+           <property name="bottomMargin">
+            <number>20</number>
+           </property>
+           <item>
+            <widget class="QGroupBox" name="groupBox_2">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>200</height>
+              </size>
+             </property>
+             <property name="title">
+              <string>Byte write</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_12">
+              <item>
+               <widget class="QPushButton" name="pb_write_byte">
+                <property name="text">
+                 <string>write byte</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>Byte (0..255):</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEdit_byte"/>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_9">
+                <property name="text">
+                 <string>Address (0..127): </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEdit_addr"/>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Expanding</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_7">
+           <property name="bottomMargin">
+            <number>10</number>
+           </property>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
   <action name="actionQuit">
    <property name="icon">
     <iconset>
@@ -2246,12 +2586,15 @@ All closed switches noted by a code number in ball-in-play display.***
    </property>
   </action>
   <action name="actionLoad">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>:/Images/app_icon.ico</normaloff>:/Images/app_icon.ico</iconset>
    </property>
    <property name="text">
-    <string>Load rules...</string>
+    <string>Load game (Recel)...</string>
    </property>
    <property name="statusTip">
     <string>Load and parse an MSC file (xml or text)</string>
@@ -2266,17 +2609,6 @@ All closed switches noted by a code number in ball-in-play display.***
    </property>
    <property name="toolTip">
     <string extracomment="About box">About WiFlip</string>
-   </property>
-  </action>
-  <action name="actionTest">
-   <property name="text">
-    <string>(Re)Draw</string>
-   </property>
-   <property name="statusTip">
-    <string>Update drawing view</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+D</string>
    </property>
   </action>
   <action name="actionGrid">
@@ -2319,8 +2651,11 @@ All closed switches noted by a code number in ball-in-play display.***
    </property>
   </action>
   <action name="actionSave">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
-    <string>Save rules...</string>
+    <string>Save game (Recel)...</string>
    </property>
    <property name="statusTip">
     <string>Export to an xml file.</string>
@@ -2380,14 +2715,20 @@ All closed switches noted by a code number in ball-in-play display.***
     <string>Import from arkitect</string>
    </property>
   </action>
-  <action name="actionSave_image">
+  <action name="actionLoad_nvr">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>Save image...</string>
+    <string>Load miniprinter data...</string>
    </property>
   </action>
-  <action name="actionSave_img_to_clipboard">
+  <action name="actionSave_nvram">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>Save image to clipboard</string>
+    <string>Save miniprinter data...</string>
    </property>
   </action>
   <action name="actionHelp">
@@ -2459,9 +2800,9 @@ All closed switches noted by a code number in ball-in-play display.***
     <string>200%</string>
    </property>
   </action>
-  <action name="actionSave_3D_view_to_file">
+  <action name="actionClear_all_2">
    <property name="text">
-    <string>Save 3D view to file...</string>
+    <string>Reset layout</string>
    </property>
   </action>
   <action name="actionOrthographic_view">
@@ -2508,6 +2849,36 @@ All closed switches noted by a code number in ball-in-play display.***
   <action name="actionchienvert">
    <property name="text">
     <string>chienvert</string>
+   </property>
+  </action>
+  <action name="actionGottlieb">
+   <property name="text">
+    <string>Gottlieb</string>
+   </property>
+  </action>
+  <action name="actionFair_Fight">
+   <property name="text">
+    <string>Fair Fight</string>
+   </property>
+  </action>
+  <action name="actionCrazy_Race">
+   <property name="text">
+    <string>Crazy Race</string>
+   </property>
+  </action>
+  <action name="actionPinball_Bell">
+   <property name="text">
+    <string>Pinball (Bell)</string>
+   </property>
+  </action>
+  <action name="actionFair_Fight_2">
+   <property name="text">
+    <string>Fair Fight</string>
+   </property>
+  </action>
+  <action name="actionCrazy_Race_2">
+   <property name="text">
+    <string>Crazy Race</string>
    </property>
   </action>
  </widget>

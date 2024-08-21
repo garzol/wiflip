@@ -8,6 +8,7 @@ dockWidget
 
 import os, sys, time
 from time import sleep
+from functools import partial
 
 sys.path += ['.']
 
@@ -68,6 +69,28 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.setWindowTitle("WiFlip "+ self.game_type)
 
+        self.settings = QtCore.QSettings('AA55', 'wiflip')
+
+        self.settings.setValue("MainWindow/default/geometry", 
+                             self.saveGeometry())
+        self.settings.setValue("MainWindow/default/windowState", 
+                             self.saveState())        
+
+        
+        # Then we look at our settings to see if there is a setting called geometry saved. Otherwise we default to an empty string
+        geometry = self.settings.value('geometry', None)
+        state    = self.settings.value('state', None)
+        self.HOST     = self.settings.value('host', '192.168.1.26')
+        self.PORT     = int(self.settings.value('port', '23'))
+        self.face     = self.settings.value('face', 'fair_fight')
+        # Then we call a Qt built in function called restoreGeometry that will restore whatever values we give it.
+        # In this case we give it the values from the settings file.
+        if geometry is not None:
+            self.restoreGeometry(geometry)
+            
+        if state is not None:
+            self.restoreState(state)
+
         
         
         if self.game_type == "Recel":
@@ -76,7 +99,13 @@ class MainForm(QtWidgets.QMainWindow):
             BX = 10
 
             self.setupmatchleds()
-            self.ui.label.setStyleSheet("background-image: url(images/1x/fair_fight_480.png);")
+            if self.face == 'crazy_race':
+                self.ui.label.setPixmap(QtGui.QPixmap(":/x/images/1x/crazy_race_480.png"))
+                #self.ui.label.setStyleSheet("background-image: url(images/1x/crazy_race_480.png);")
+            else:
+                self.ui.label.setPixmap(QtGui.QPixmap(":/x/images/1x/fair_fight_480.png"))
+                #self.ui.label.setStyleSheet("background-image: url(images/1x/fair_fight_480.png);")
+                
             self.ui.wplayer1.setGeometry(QtCore.QRect(200, 350, 220, 38))
             self.ui.wplayer2.setGeometry(QtCore.QRect(200, 350, 220, 38))
             self.ui.wplayer3.setGeometry(QtCore.QRect(200, 350, 220, 38))
@@ -98,14 +127,17 @@ class MainForm(QtWidgets.QMainWindow):
             self.tiltIndicator.setVisible(True)
         
         elif self.game_type == "Gottlieb":   
-            self.ui.label.setStyleSheet("background-image: url(images/1x/pinballbell480.png);")
-            
+            #self.ui.label.setStyleSheet("background-image: url(images/1x/pinballbell480.png);")
+            self.ui.label.setPixmap(QtGui.QPixmap(":/x/images/1x/pinballbell480.png"))
+
         if self.game_type == "Gottlieb":
             self.swmRows, self.swmCols = (8, 5)
         else:
             self.swmRows, self.swmCols = (10, 4)
 
         self.setupleds()
+
+        self.setupnvram()
             
         self.msg68 = ""
         self.msg83 = ""
@@ -113,6 +145,9 @@ class MainForm(QtWidgets.QMainWindow):
         
         self.lastAstate = 0
         self.lastBstate = 0
+        
+        
+        
         # Create the server, binding to localhost on port 9999
         # HOST, PORT = "192.168.1.26", 23
         # server = Server()
@@ -146,20 +181,7 @@ class MainForm(QtWidgets.QMainWindow):
         # # self.tcp = Messenger()
         # # self.tcp.slotSendMessage()
         
-        self.settings = QtCore.QSettings('AA55', 'wiflip')
-        
-        # Then we look at our settings to see if there is a setting called geometry saved. Otherwise we default to an empty string
-        geometry = self.settings.value('geometry', None)
-        state    = self.settings.value('state', None)
-        self.HOST     = self.settings.value('host', '192.168.1.26')
-        self.PORT     = int(self.settings.value('port', '23'))
-        # Then we call a Qt built in function called restoreGeometry that will restore whatever values we give it.
-        # In this case we give it the values from the settings file.
-        if geometry is not None:
-            self.restoreGeometry(geometry)
-            
-        if state is not None:
-            self.restoreState(state)
+
 
         self.ui.pushButton.clicked.connect(self.connect)
         self.ui.lineEdit.setText(self.HOST)
@@ -190,6 +212,14 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.pushButton_iram.clicked.connect(self.send_hmintern)
         self.ui.pushButton_hram.clicked.connect(self.send_hmreal)
         
+        
+        #nvrams read/write
+        self.ui.pb_rmem.clicked.connect(self.send_reqrread)
+        self.ui.pb_flash.clicked.connect(self.send_reqflash)
+        self.ui.pb_write_byte.clicked.connect(self.send_reqwrbyte)
+        self.ui.pb_wmem.clicked.connect(self.send_reqwriteall)
+        
+
         # font = QtGui.QFont()
         # font.setPointSize(5)
         # #font.setBold(True)
@@ -212,6 +242,99 @@ class MainForm(QtWidgets.QMainWindow):
                     ]
         self.last_uilabels = ["00"]*16
         self.vientdecliquer = 0
+
+        #Reset the window settings on this event
+        # QtCore.QObject.connect(self.ui.actionClear_all, 
+        #                        QtCore.SIGNAL("triggered()"), 
+        #                        self.clearSettin)
+        self.ui.actionClear_all_2.triggered.connect(self.clearSettin)
+        self.ui.actionFair_Fight.triggered.connect(self.actionFair_Fight)
+        self.ui.actionCrazy_Race.triggered.connect(self.actionCrazy_Race)
+
+        self.ui.actionSave_nvram.triggered.connect(self.actionSaveNvr)
+        self.ui.actionLoad_nvr.triggered.connect(self.actionLoadNvr)
+
+
+            
+    def actionSaveNvr(self):
+        nvrfileStr = self.settings.value('nvrfileStr', None)
+        filename, _ = QtWidgets.QFileDialog.getSaveFileName(self,
+                                                            "Save nvr data",
+                                                            nvrfileStr,
+                                                            "Nvr data (*.nvr)")
+        
+
+        if filename:
+            self.settings.setValue("nvrfileStr", filename)
+            #print (filename)
+            #print(self.nvrlist)
+            with open(filename, "w") as f:
+                # write contents      
+                for i in range(128):
+                    val = self.nvrlist[i][1]
+                    f.write(f"0X{i:02X}:0X{val:02X}"+os.linesep)      
+            
+        
+    def actionLoadNvr(self):
+        nvrfileStr = self.settings.value('nvrfileStr', None)
+        filename, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Load File",
+                                       nvrfileStr,
+                                       "NVR data file (*.nvr)")
+
+        if filename:
+            with open(filename, "r") as f:
+                # read contents      
+                lines = f.read().splitlines() 
+                print("lines", lines)
+                for ln in lines:
+                    mycod = ln.split(":")
+                    if len(mycod) == 2:
+                        #print(mycod)
+                        try:
+                            addr = int(mycod[0], 0)
+                            byte = int(mycod[1], 0)
+                        except:
+                            addr = byte = -1
+                        print(addr, byte)
+                        if addr >= 0 and addr <= 127 and byte >= 0 and byte <= 255:
+                            lb = byte&0xF
+                            hb = (byte&0xF0)>>4
+                            r  = (addr//8)
+                            l  = (addr%8)
+                            print(addr, r, l)
+                            self.nvrlist[addr] = ( byte, byte)
+                            self.nibbleField[r][2*l].setText(f"{lb:1X}")
+                            self.nibbleField[r][2*l+1].setText(f"{hb:1X}")
+                            self.nibbleField[r][2*l].setStyleSheet("background:rgb(120, 120, 120);color:rgb(255, 255, 255);")
+                            self.nibbleField[r][2*l+1].setStyleSheet("background:rgb(120, 120, 120);color:rgb(255, 255, 255);")
+                print(self.nvrlist)        
+    def actionFair_Fight(self):
+        #self.ui.label.setStyleSheet("background-image: url(images/1x/fair_fight_480.png);")
+        self.ui.label.setPixmap(QtGui.QPixmap(":/x/images/1x/fair_fight_480.png"))
+        self.face = 'fair_fight'
+    def actionCrazy_Race(self):
+        #self.ui.label.setStyleSheet("background-image: url(images/1x/crazy_race_480.png);")
+        self.ui.label.setPixmap(QtGui.QPixmap(":/x/images/1x/crazy_race_480.png"))
+        self.face = 'crazy_race'
+        
+    def clearSettin(self):
+        """
+        Called by a menu item of the menu bar
+        Used to reset windowing to factory default
+        """
+        print("clearsettings")
+        reply = QMessageBox.question(self, 
+                                           'Please confirm',
+                                           "You are about to clear your window settings. Are you sure ?", 
+                                           QMessageBox.Yes | 
+                                           QMessageBox.No, 
+                                           QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.restoreGeometry(self.settings.value("MainWindow/default/geometry"))
+            self.restoreState(self.settings.value("MainWindow/default/windowState"))
+            self.settings.setValue("geometry", self.saveGeometry())
+            self.settings.setValue("state", self.saveState())
+            self.settings.sync()
 
         
         
@@ -270,7 +393,101 @@ class MainForm(QtWidgets.QMainWindow):
             self.thread.sock.send(b' i')
         except:
             pass
+ 
+    def send_reqwriteall(self): 
+        self.linenb = 0
+        if   self.ui.rb_sysconf.isChecked():
+            memtyp = 0
+        elif self.ui.rb_mnprn.isChecked():
+            memtyp = 2
+        elif self.ui.rb_nvram.isChecked():
+            memtyp = 1
+        else:
+            memtyp = 3
+        print("global write to nvram", memtyp)
+
+        for addr in range(128):
+            init_byte = self.nvrlist[addr][0]
+            byte      = self.nvrlist[addr][1]
+            
+            if byte != init_byte:
+                #print("want to write", byte, "at address", addr)
+                baddr = addr.to_bytes(1)
+                bbyt = byte.to_bytes(1)
+
+                print("message request is", b'YW'+memtyp.to_bytes(1)+baddr+bbyt)
+
+                try:
+                    self.thread.sock.send(b'YW'+memtyp.to_bytes(1)+baddr+bbyt)
+                except:
+                    pass
+                
+    def send_reqwrbyte(self):
+        self.linenb = 0
+        if   self.ui.rb_sysconf.isChecked():
+            memtyp = 0
+        elif self.ui.rb_mnprn.isChecked():
+            memtyp = 2
+        elif self.ui.rb_nvram.isChecked():
+            memtyp = 1
+        else:
+            memtyp = 3
         
+        try:
+            addr = int(self.ui.lineEdit_addr.text(), 0)&0x7F
+        except:
+            addr = 0
+        addr = addr.to_bytes(1)
+            
+        try:
+            mybyte = int(self.ui.lineEdit_byte.text(), 0)&0xFF
+        except:
+            mybyte = 0
+        mybyte = mybyte.to_bytes(1)
+            
+        print("message request is", b'YW'+memtyp.to_bytes(1)+addr+mybyte)
+
+        try:
+            self.thread.sock.send(b'YW'+memtyp.to_bytes(1)+addr+mybyte)
+        except:
+            pass
+        
+    def send_reqflash(self):
+        self.linenb = 0
+        if   self.ui.rb_sysconf.isChecked():
+            memtyp = 0
+        elif self.ui.rb_mnprn.isChecked():
+            memtyp = 2
+        elif self.ui.rb_nvram.isChecked():
+            memtyp = 1
+        else:
+            memtyp = 3
+            
+        print("message request is", b'YF'+memtyp.to_bytes(1)+b'XX')
+
+        try:
+            self.thread.sock.send(b'YF'+memtyp.to_bytes(1)+b'XX')
+        except:
+            pass
+                
+    def send_reqrread(self):    
+        self.linenb = 0
+        if   self.ui.rb_sysconf.isChecked():
+            memtyp = 0
+        elif self.ui.rb_mnprn.isChecked():
+            memtyp = 2
+        elif self.ui.rb_nvram.isChecked():
+            memtyp = 1
+        else:
+            memtyp = 3
+            
+        print("message request is", b'YR'+memtyp.to_bytes(1)+b'XX')
+
+        try:
+            self.thread.sock.send(b'YR'+memtyp.to_bytes(1)+b'XX')
+        except:
+            pass
+            
     def send_iol(self): 
         try:
             cmd = self.ui.lineEdit_Cmd.text()
@@ -433,13 +650,37 @@ class MainForm(QtWidgets.QMainWindow):
             #print("typ=3", str(data))
         #print(str(data), len(data), typ)
         elif typ == 82:    #R
-            print("Dump RAM in progress")
-            self.write2Console(f"NVRAM Current\r\n", insertMode=True)
+            if   self.ui.rb_sysconf.isChecked():
+                memtyp = "sys conf"
+            elif self.ui.rb_mnprn.isChecked():
+                memtyp = "miniprinter"
+            elif self.ui.rb_nvram.isChecked():
+                memtyp = "nvram live"
+            else:
+                memtyp = "unknown source"
+
+            print(f"Dump RAM {memtyp} in progress")
+            self.write2Console(f"NVRAM Current ({memtyp})\r\n", insertMode=True)
+            
             for r in range(16):
-                self.write2Console(f"{r:02X}\t")
                 for l in range(8):
-                    self.write2Console(f"{data[r*8+l]:02X} ", insertMode=True)
+                    lb = data[r*8+l]&0xF
+                    hb = data[r*8+l]&0xF0
+                    hb = hb>>4
+                    self.nibbleField[r][2*l].setText(f"0X{lb:01X}")
+                    self.nibbleField[r][2*l].setStyleSheet("background:rgb(21, 120, 34);color:rgb(255, 255, 255);")
+                    self.nibbleField[r][2*l+1].setText(f"0X{hb:01X}")
+                    self.nibbleField[r][2*l+1].setStyleSheet("background:rgb(21, 120, 34);color:rgb(255, 255, 255);")
+
+                    self.nvrlist[r*8+l] = (data[r*8+l], data[r*8+l]) #(init value, current value)
+                    
+            for r in range(8):
+                self.write2Console(f"{r:02X}\t")
+                for l in range(16):
+                    self.write2Console(f"{data[r*16+l]:02X} ", insertMode=True)
                 self.write2Console(f"\r\n", insertMode=True)
+            
+            print("Dump RAM terminated")
                     
             
         elif typ == 71:   #G
@@ -840,10 +1081,108 @@ class MainForm(QtWidgets.QMainWindow):
         self.settings.setValue('state', self.saveState())
         self.settings.setValue('host', self.ui.lineEdit.text())
         self.settings.setValue('port', self.ui.lineEdit_2.text())
+        self.settings.setValue('face', self.face)
 
         # Finally we pass the event to the class we inherit from. It can choose to accept or reject the event, but we don't need to deal with it ourselves
         super(MainForm, self).closeEvent(event)
 
+
+    def magarzolerie(self, i, j):
+        '''
+        slot for handling signal textchanged in nibbleField
+        which is changing color to red
+        '''
+        #print("zobi", i, j)
+        try:
+            mynibble   = int(self.nibbleField[i][j].text(), 0)
+        except:
+            try:
+                mynibble = int("0x"+self.nibbleField[i][j].text(), 16)
+            except:
+                mynibble = -1
+
+        if mynibble != mynibble&0xF:
+            badentry = True
+            mynibble = 0
+        else:
+            badentry =  False    
+        #print("mynibble", mynibble)    
+        pnibblenum = i*16+j
+        pbytenum   = pnibblenum//2
+        
+        #modify current ([1])
+        if pnibblenum%2:
+            #this is a hi nibble
+            mynewbyte = (mynibble<<4) + (self.nvrlist[pbytenum][1] & 0x0F)
+            self.nvrlist[pbytenum] = (self.nvrlist[pbytenum][0], mynewbyte)
+        else:
+            #this is a lo nibble
+            mynewbyte = mynibble    + (self.nvrlist[pbytenum][1] & 0xF0)
+            self.nvrlist[pbytenum] = (self.nvrlist[pbytenum][0], mynewbyte)
+
+        if badentry == True:
+            self.nibbleField[i][j].setStyleSheet("background:rgb(160, 160, 10);color:rgb(255, 255, 255);")
+            self.nibbleField[i][j].setToolTip("Bad entry. Will take it as 0")
+        elif self.nvrlist[pbytenum][1] == self.nvrlist[pbytenum][0]:            
+            self.nibbleField[i][j].setStyleSheet("background:rgb(22, 140, 35);color:rgb(255, 255, 255);")
+            self.nibbleField[i][j].setToolTip("Nibble OK")
+        else:
+            self.nibbleField[i][j].setStyleSheet("background:rgb(140, 34, 35);color:rgb(255, 255, 255);")
+            self.nibbleField[i][j].setToolTip("Nibble OK")
+            
+        
+    def setupnvram(self):
+        self.nibbleField = [0]*16
+        myfont   =  QtGui.QFont("Courier New",14)
+        
+        myfont10 =  QtGui.QFont("Courier New", 10)
+        fm = QFontMetrics(myfont)
+        w = fm.boundingRect("0B0000").width()
+        
+        for i in range(16):
+            etiq=QtWidgets.QLabel(self.ui.scrollAreaWidgetContents)
+            etiq.setText(f"{i:02X}")
+            etiq.setObjectName(f"SRlab_{i}")
+            #etiq.setStyleSheet("text-align:center;")
+            etiq.setAlignment(Qt.AlignCenter)
+            etiq.setFont(myfont)
+            self.ui.gridLayout_7.addWidget(etiq, 0, i+1, 1, 1)
+            
+
+        for i in range(16):
+            etiq=QtWidgets.QLabel(self.ui.scrollAreaWidgetContents)
+            etiq.setText(f"{i:02X}")
+            etiq.setObjectName(f"RRlab_{i}")
+            #etiq.setStyleSheet("text-align:center;")
+            etiq.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            etiq.setFont(myfont)
+            self.ui.gridLayout_7.addWidget(etiq, i+1, 0, 1, 1)
+
+        # for i in range(cols):
+        #     rled=QtWidgets.QLabel(self.ui.groupBox)
+        #     rled.setGeometry(QtCore.QRect(60-28, 90+i*36, 20, 20))
+        #     rled.setText(f"R{i}")
+        #     rled.setObjectName(f"rled_{i}")
+
+        self.nvrlist = [(0, 0)]*128        
+
+        for i in range(16):
+            self.nibbleField[i] = [0]*16
+            for j in range(16):
+                self.nibbleField[i][j] = QtWidgets.QLineEdit(self.ui.scrollAreaWidgetContents)
+                self.nibbleField[i][j].setObjectName(f"nibbles_{i}{j}")
+                #self.nibbleField[i][j].setGeometry(QtCore.QRect(60+i*28, 90+j*36, 20, 20))
+                self.nibbleField[i][j].setText("0")
+                self.nibbleField[i][j].setStyleSheet("background:rgb(120, 120, 120);color:rgb(255, 255, 255);")
+                self.nibbleField[i][j].setAlignment(Qt.AlignCenter)
+                self.nibbleField[i][j].setFont(myfont)
+
+                self.nibbleField[i][j].setFixedWidth(w+10)
+                self.ui.gridLayout_7.addWidget(self.nibbleField[i][j], i+1, j+1, 1, 1)
+                self.nibbleField[i][j].textChanged.connect(partial(self.magarzolerie, i, j))
+
+                #self.nibbleField[i][j].setTextMargins (left, top, right, bottom)
+                self.nibbleField[i][j].setTextMargins (1, 3, 1, 3)
 
     def setupleds(self):
         rows, cols = self.swmRows, self.swmCols    
@@ -1081,7 +1420,8 @@ class Worker(QThread):
                         break
                     #tsz -= lm
                     tsz -= 1
-                #print(received, msg)
+                if received == b'R':
+                    print(received, msg)
             else:
                 pass
                 #print(received)
