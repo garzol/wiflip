@@ -254,7 +254,9 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.actionSave_nvram.triggered.connect(self.actionSaveNvr)
         self.ui.actionLoad_nvr.triggered.connect(self.actionLoadNvr)
 
-
+        self.ui.dockWidget_4.hide()
+        self.ui.dockWidget_5.setEnabled(False)
+        self.ui.dockWidget_6.hide()
             
     def actionSaveNvr(self):
         nvrfileStr = self.settings.value('nvrfileStr', None)
@@ -1133,7 +1135,7 @@ class MainForm(QtWidgets.QMainWindow):
         
     def setupnvram(self):
         self.nibbleField = [0]*16
-        myfont   =  QtGui.QFont("Courier New",14)
+        myfont   =  QtGui.QFont("Courier New",12)
         
         myfont10 =  QtGui.QFont("Courier New", 10)
         fm = QFontMetrics(myfont)
