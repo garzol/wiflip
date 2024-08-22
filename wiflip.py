@@ -55,7 +55,8 @@ class MainForm(QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.__init__(self, parent)
         #print sys.getdefaultencoding()
 
-
+        self.version = "0.7"
+        self.date    = "2024-08-22"
         self.game_type = "Recel"
         #self.game_type = "Gottlieb"
 
@@ -67,7 +68,7 @@ class MainForm(QtWidgets.QMainWindow):
         
 
         self.ui.setupUi(self)
-        self.setWindowTitle("WiFlip "+ self.game_type)
+        self.setWindowTitle("WiFlip "+ self.game_type + " - V" + self.version + "(" +self.date +")")
 
         self.settings = QtCore.QSettings('AA55', 'wiflip')
 
@@ -414,13 +415,13 @@ class MainForm(QtWidgets.QMainWindow):
             
             if byte != init_byte:
                 #print("want to write", byte, "at address", addr)
-                baddr = addr.to_bytes(1)
-                bbyt = byte.to_bytes(1)
+                baddr = addr.to_bytes(1, byteorder='big')
+                bbyt = byte.to_bytes(1, byteorder='big')
 
-                print("message request is", b'YW'+memtyp.to_bytes(1)+baddr+bbyt)
+                print("message request is", b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
 
                 try:
-                    self.thread.sock.send(b'YW'+memtyp.to_bytes(1)+baddr+bbyt)
+                    self.thread.sock.send(b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
                 except:
                     pass
                 
@@ -439,18 +440,18 @@ class MainForm(QtWidgets.QMainWindow):
             addr = int(self.ui.lineEdit_addr.text(), 0)&0x7F
         except:
             addr = 0
-        addr = addr.to_bytes(1)
+        addr = addr.to_bytes(1, byteorder='big')
             
         try:
             mybyte = int(self.ui.lineEdit_byte.text(), 0)&0xFF
         except:
             mybyte = 0
-        mybyte = mybyte.to_bytes(1)
+        mybyte = mybyte.to_bytes(1, byteorder='big')
             
-        print("message request is", b'YW'+memtyp.to_bytes(1)+addr+mybyte)
+        print("message request is", b'YW'+memtyp.to_bytes(1, byteorder='big')+addr+mybyte)
 
         try:
-            self.thread.sock.send(b'YW'+memtyp.to_bytes(1)+addr+mybyte)
+            self.thread.sock.send(b'YW'+memtyp.to_bytes(1, byteorder='big')+addr+mybyte)
         except:
             pass
         
@@ -465,10 +466,10 @@ class MainForm(QtWidgets.QMainWindow):
         else:
             memtyp = 3
             
-        print("message request is", b'YF'+memtyp.to_bytes(1)+b'XX')
+        print("message request is", b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
 
         try:
-            self.thread.sock.send(b'YF'+memtyp.to_bytes(1)+b'XX')
+            self.thread.sock.send(b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
         except:
             pass
                 
@@ -483,10 +484,10 @@ class MainForm(QtWidgets.QMainWindow):
         else:
             memtyp = 3
             
-        print("message request is", b'YR'+memtyp.to_bytes(1)+b'XX')
+        print("message request is", b'YR'+memtyp.to_bytes(1, byteorder='big')+b'XX')
 
         try:
-            self.thread.sock.send(b'YR'+memtyp.to_bytes(1)+b'XX')
+            self.thread.sock.send(b'YR'+memtyp.to_bytes(1, byteorder='big')+b'XX')
         except:
             pass
             

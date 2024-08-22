@@ -2439,6 +2439,9 @@ All closed switches noted by a code number in ball-in-play display.***
              <layout class="QVBoxLayout" name="verticalLayout_13">
               <item>
                <widget class="QPushButton" name="pb_rmem">
+                <property name="styleSheet">
+                 <string notr="true">background-color:CornflowerBlue;</string>
+                </property>
                 <property name="text">
                  <string>Read from WiFlip RAM</string>
                 </property>
@@ -2446,6 +2449,9 @@ All closed switches noted by a code number in ball-in-play display.***
               </item>
               <item>
                <widget class="QPushButton" name="pb_wmem">
+                <property name="styleSheet">
+                 <string notr="true">background-color:orange;</string>
+                </property>
                 <property name="text">
                  <string>Write to WiFlip RAM</string>
                 </property>
@@ -2453,6 +2459,9 @@ All closed switches noted by a code number in ball-in-play display.***
               </item>
               <item>
                <widget class="QPushButton" name="pb_flash">
+                <property name="styleSheet">
+                 <string notr="true">background-color:Crimson;color:white;</string>
+                </property>
                 <property name="text">
                  <string>Flash</string>
                 </property>
@@ -2521,6 +2530,9 @@ All closed switches noted by a code number in ball-in-play display.***
              <layout class="QVBoxLayout" name="verticalLayout_12">
               <item>
                <widget class="QPushButton" name="pb_write_byte">
+                <property name="styleSheet">
+                 <string notr="true">background-color:orange;</string>
+                </property>
                 <property name="text">
                  <string>write byte</string>
                 </property>
