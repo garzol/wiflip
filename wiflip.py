@@ -38,6 +38,9 @@ import socket, socketserver
 
 from lwin import Ui_MainWindow
 
+from about import Ui_AboutDialog
+from help import Ui_HelpDialog
+
 # import sys
 # from PyQt5.QtGui import *
 # from PyQt5.QtWidgets import *
@@ -46,6 +49,54 @@ CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 #Here is the main window   
 MSGLEN = 5
+
+aboutContent = '''
+<table cellpadding="10"><tr>
+<td><img src=":/x/images/aa55_logo_2.ico"/></td>
+<td valign="middle"></td>
+<p><span style=" font-size:18pt; font-weight:600;">%(productName)s</span></p>
+<p><span style=" font-size:12pt;">%(copyright)s</span></p>
+<p><span style=" font-size:12pt;">Software product from AA55</span></p>
+<p><span style=" font-size:12pt;">Version %(version)s</span></p>
+<p><span style=" font-size:10pt;">WiFlip allows user to connect to a Pinball MPU and collect data from the pinball</span></p>
+<p><span style=" font-size:10pt;">One can emulate Gottlieb and Recel pinball machines</span></p>
+<p><span style=" font-size:10pt;">On Recel, this interface is required to replace the obsolete miniprinter</span></p>
+<p><span style=" font-size:10pt;"><a href="http://www.pps4.fr">http://www.pps4.fr</a></span></p>
+</td></tr></table>
+'''
+
+VERSION = "0.78"
+
+#Here is the about dialog box
+class MyAbout(QtWidgets.QDialog):
+    """
+    This dialog box was created with QT
+    in about.ui
+    """
+    def __init__(self, parent=None):
+        super(MyAbout, self).__init__(parent)
+        #QtGui.QWidget.__init__(self, parent)
+        self.ui = Ui_AboutDialog()
+        self.ui.setupUi(self)
+        self.ui.aboutContent.setText( aboutContent % {
+            'productName': 'WiFlip',
+            'version': "V "+ VERSION,
+            'copyright': 'by AA55 Consulting'} )
+
+#Here is the about dialog box
+class MyHelp(QtWidgets.QDialog):
+    """
+    This dialog box was created with QT
+    in about.ui
+    """
+    def __init__(self, parent=None):
+        super(MyHelp, self).__init__(parent)
+        #QtGui.QWidget.__init__(self, parent)
+        self.ui = Ui_HelpDialog()
+        self.ui.setupUi(self)
+        #self.ui.webView.load(QtCore.QUrl('qrc:///help/index.htm'))
+        self.ui.textBrowser.append("<b>Nothing at the moment</b>")
+        
 class MainForm(QtWidgets.QMainWindow):
     """
     This is the main window of the application
@@ -55,7 +106,7 @@ class MainForm(QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.__init__(self, parent)
         #print sys.getdefaultencoding()
 
-        self.version = "0.7"
+        self.version = VERSION
         self.date    = "2024-08-22"
         self.game_type = "Recel"
         #self.game_type = "Gottlieb"
@@ -182,6 +233,8 @@ class MainForm(QtWidgets.QMainWindow):
         # # self.tcp = Messenger()
         # # self.tcp.slotSendMessage()
         
+        self.ui.actionAbout_wiflip.triggered.connect(self.launchAbout)
+        self.ui.actionHelp.triggered.connect(self.launchHelp)
 
 
         self.ui.pushButton.clicked.connect(self.connect)
@@ -288,7 +341,7 @@ class MainForm(QtWidgets.QMainWindow):
             with open(filename, "r") as f:
                 # read contents      
                 lines = f.read().splitlines() 
-                print("lines", lines)
+                #print("lines", lines)
                 for ln in lines:
                     mycod = ln.split(":")
                     if len(mycod) == 2:
@@ -298,19 +351,35 @@ class MainForm(QtWidgets.QMainWindow):
                             byte = int(mycod[1], 0)
                         except:
                             addr = byte = -1
-                        print(addr, byte)
+                        #print(addr, byte)
                         if addr >= 0 and addr <= 127 and byte >= 0 and byte <= 255:
                             lb = byte&0xF
                             hb = (byte&0xF0)>>4
                             r  = (addr//8)
                             l  = (addr%8)
-                            print(addr, r, l)
+                            #print(addr, r, l)
                             self.nvrlist[addr] = ( byte, byte)
                             self.nibbleField[r][2*l].setText(f"{lb:1X}")
                             self.nibbleField[r][2*l+1].setText(f"{hb:1X}")
                             self.nibbleField[r][2*l].setStyleSheet("background:rgb(120, 120, 120);color:rgb(255, 255, 255);")
                             self.nibbleField[r][2*l+1].setStyleSheet("background:rgb(120, 120, 120);color:rgb(255, 255, 255);")
-                print(self.nvrlist)        
+                #print(self.nvrlist)      
+                
+    def launchAbout(self):
+        """
+        Starts the about dialog box
+        """
+        myabout=MyAbout(self)
+        myabout.show()
+
+    def launchHelp(self):
+        """
+        Starts the about dialog box
+        """
+        myhelp=MyHelp(self)
+        myhelp.show()
+                
+                  
     def actionFair_Fight(self):
         #self.ui.label.setStyleSheet("background-image: url(images/1x/fair_fight_480.png);")
         self.ui.label.setPixmap(QtGui.QPixmap(":/x/images/1x/fair_fight_480.png"))

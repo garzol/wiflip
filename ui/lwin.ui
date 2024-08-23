@@ -70,8 +70,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>481</width>
-           <height>387</height>
+           <width>484</width>
+           <height>323</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -2342,7 +2342,7 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>341</width>
+          <width>338</width>
           <height>480</height>
          </rect>
         </property>
@@ -2546,7 +2546,14 @@ All closed switches noted by a code number in ball-in-play display.***
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit_byte"/>
+               <widget class="QLineEdit" name="lineEdit_byte">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QLabel" name="label_9">
@@ -2556,7 +2563,14 @@ All closed switches noted by a code number in ball-in-play display.***
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit_addr"/>
+               <widget class="QLineEdit" name="lineEdit_addr">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
