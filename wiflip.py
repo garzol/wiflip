@@ -61,7 +61,7 @@ aboutContent = '''
 <p><span style=" font-size:10pt;">WiFlip allows user to connect to a Pinball MPU and collect data from the pinball</span></p>
 <p><span style=" font-size:10pt;">One can emulate Gottlieb and Recel pinball machines</span></p>
 <p><span style=" font-size:10pt;">On Recel, this interface is required to replace the obsolete miniprinter</span></p>
-<p><span style=" font-size:10pt;"><a href="http://www.pps4.fr">http://www.pps4.fr</a></span></p>
+<p><span style=" font-size:10pt;"><a href="https://www.pps4.fr">https://www.pps4.fr</a></span></p>
 </td></tr></table>
 '''
 
