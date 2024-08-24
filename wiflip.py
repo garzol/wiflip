@@ -57,15 +57,16 @@ aboutContent = '''
 <p><span style=" font-size:18pt; font-weight:600;">%(productName)s</span></p>
 <p><span style=" font-size:12pt;">%(copyright)s</span></p>
 <p><span style=" font-size:12pt;">Software product from AA55</span></p>
-<p><span style=" font-size:12pt;">Version %(version)s</span></p>
-<p><span style=" font-size:10pt;">WiFlip allows user to connect to a Pinball MPU and collect data from the pinball</span></p>
+<p><span style=" font-size:12pt;">Version %(version)s - %(date)s</span></p>
+<p><span style=" font-size:10pt;">WiFlip allows user to connect to a pinball MPU and collect data from the pinball</span></p>
 <p><span style=" font-size:10pt;">One can emulate Gottlieb and Recel pinball machines</span></p>
-<p><span style=" font-size:10pt;">On Recel, this interface is required to replace the obsolete miniprinter</span></p>
+<p><span style=" font-size:10pt;">On Recel, this interface is required to replace the original miniprinter, which now became nowhere to be found</span></p>
 <p><span style=" font-size:10pt;"><a href="https://www.pps4.fr">https://www.pps4.fr</a></span></p>
 </td></tr></table>
 '''
 
-VERSION = "0.78"
+VERSION = "0.80"
+DATE    = "2024-08-24"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
@@ -80,8 +81,9 @@ class MyAbout(QtWidgets.QDialog):
         self.ui.setupUi(self)
         self.ui.aboutContent.setText( aboutContent % {
             'productName': 'WiFlip',
-            'version': "V "+ VERSION,
-            'copyright': 'by AA55 Consulting'} )
+            'version'    : "V "+ VERSION,
+            'date'       : DATE,
+            'copyright'  : 'by AA55 Consulting'} )
 
 #Here is the about dialog box
 class MyHelp(QtWidgets.QDialog):
@@ -94,8 +96,13 @@ class MyHelp(QtWidgets.QDialog):
         #QtGui.QWidget.__init__(self, parent)
         self.ui = Ui_HelpDialog()
         self.ui.setupUi(self)
-        #self.ui.webView.load(QtCore.QUrl('qrc:///help/index.htm'))
-        self.ui.textBrowser.append("<b>Nothing at the moment</b>")
+        self.ui.webEngineView.load(QtCore.QUrl('qrc:///help/index.htm'))
+        #self.ui.webEngineView.load(QtCore.QUrl.fromLocalFile('/Users/garzol/git/wiflip_tracer/index.htm'))
+        self.ui.textBrowser.append('''
+<b>V0.80</b><br>correction of bug when loading nvr data file was not actually sending data<br>
+<b>V0.78</b><br>original version<br>
+'''
+)
         
 class MainForm(QtWidgets.QMainWindow):
     """
@@ -106,8 +113,8 @@ class MainForm(QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.__init__(self, parent)
         #print sys.getdefaultencoding()
 
-        self.version = VERSION
-        self.date    = "2024-08-22"
+        self.version   = VERSION
+        self.date      = DATE
         self.game_type = "Recel"
         #self.game_type = "Gottlieb"
 
@@ -358,7 +365,7 @@ class MainForm(QtWidgets.QMainWindow):
                             r  = (addr//8)
                             l  = (addr%8)
                             #print(addr, r, l)
-                            self.nvrlist[addr] = ( byte, byte)
+                            self.nvrlist[addr] = ( -1, byte)
                             self.nibbleField[r][2*l].setText(f"{lb:1X}")
                             self.nibbleField[r][2*l+1].setText(f"{hb:1X}")
                             self.nibbleField[r][2*l].setStyleSheet("background:rgb(120, 120, 120);color:rgb(255, 255, 255);")

@@ -13,4 +13,7 @@
     <file>ledgrey.png</file>
     <file>images/panthera-bg.png</file>
   </qresource>
+  <qresource prefix="help">
+    <file>index.htm</file>
+  </qresource>
 </RCC>

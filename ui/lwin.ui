@@ -956,9 +956,19 @@ All closed switches noted by a code number in ball-in-play display.***
      <addaction name="menuGottlieb"/>
      <addaction name="menuRecel_2"/>
     </widget>
+    <widget class="QMenu" name="menuFont_size">
+     <property name="title">
+      <string>Mem View font size</string>
+     </property>
+     <addaction name="action10pt"/>
+     <addaction name="action12pt"/>
+     <addaction name="action14pt"/>
+    </widget>
     <addaction name="menuFaces"/>
     <addaction name="separator"/>
     <addaction name="actionClear_all_2"/>
+    <addaction name="separator"/>
+    <addaction name="menuFont_size"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -2932,6 +2942,21 @@ All closed switches noted by a code number in ball-in-play display.***
   <action name="actionCrazy_Race_2">
    <property name="text">
     <string>Crazy Race</string>
+   </property>
+  </action>
+  <action name="action10pt">
+   <property name="text">
+    <string>10pt</string>
+   </property>
+  </action>
+  <action name="action12pt">
+   <property name="text">
+    <string>12pt</string>
+   </property>
+  </action>
+  <action name="action14pt">
+   <property name="text">
+    <string>14pt</string>
    </property>
   </action>
  </widget>
