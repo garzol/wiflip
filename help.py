@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_HelpDialog(object):
     def setupUi(self, HelpDialog):
         HelpDialog.setObjectName("HelpDialog")
-        HelpDialog.resize(623, 512)
+        HelpDialog.resize(746, 512)
         HelpDialog.setModal(True)
         self.gridLayout = QtWidgets.QGridLayout(HelpDialog)
         self.gridLayout.setObjectName("gridLayout")
@@ -35,16 +35,10 @@ class Ui_HelpDialog(object):
         self.pushButton.setObjectName("pushButton")
         self.horizontalLayout.addWidget(self.pushButton)
         self.gridLayout.addLayout(self.horizontalLayout, 2, 0, 1, 1)
-        self.webEngineView = QtWebEngineWidgets.QWebEngineView(HelpDialog)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.webEngineView.sizePolicy().hasHeightForWidth())
-        self.webEngineView.setSizePolicy(sizePolicy)
-        self.webEngineView.setMinimumSize(QtCore.QSize(0, 300))
-        self.webEngineView.setUrl(QtCore.QUrl("about:blank"))
-        self.webEngineView.setObjectName("webEngineView")
-        self.gridLayout.addWidget(self.webEngineView, 0, 0, 1, 1)
+        self.textBrowser_2 = QtWidgets.QTextBrowser(HelpDialog)
+        self.textBrowser_2.setOpenExternalLinks(True)
+        self.textBrowser_2.setObjectName("textBrowser_2")
+        self.gridLayout.addWidget(self.textBrowser_2, 0, 0, 1, 1)
 
         self.retranslateUi(HelpDialog)
         self.pushButton.clicked.connect(HelpDialog.close)
@@ -54,4 +48,3 @@ class Ui_HelpDialog(object):
         _translate = QtCore.QCoreApplication.translate
         HelpDialog.setWindowTitle(_translate("HelpDialog", "Help"))
         self.pushButton.setText(_translate("HelpDialog", "OK"))
-from PyQt5 import QtWebEngineWidgets

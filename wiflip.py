@@ -96,13 +96,14 @@ class MyHelp(QtWidgets.QDialog):
         #QtGui.QWidget.__init__(self, parent)
         self.ui = Ui_HelpDialog()
         self.ui.setupUi(self)
-        self.ui.webEngineView.load(QtCore.QUrl('qrc:///help/index.htm'))
         #self.ui.webEngineView.load(QtCore.QUrl.fromLocalFile('/Users/garzol/git/wiflip_tracer/index.htm'))
         self.ui.textBrowser.append('''
 <b>V0.80</b><br>correction of bug when loading nvr data file was not actually sending data<br>
 <b>V0.78</b><br>original version<br>
 '''
 )
+        self.ui.textBrowser_2.setSource(QtCore.QUrl('qrc:///help/index.htm'))
+      
         
 class MainForm(QtWidgets.QMainWindow):
     """
@@ -142,6 +143,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.HOST     = self.settings.value('host', '192.168.1.26')
         self.PORT     = int(self.settings.value('port', '23'))
         self.face     = self.settings.value('face', 'fair_fight')
+        self.fontsz   = self.settings.value('font-sz', '12')
         # Then we call a Qt built in function called restoreGeometry that will restore whatever values we give it.
         # In this case we give it the values from the settings file.
         if geometry is not None:
@@ -150,7 +152,13 @@ class MainForm(QtWidgets.QMainWindow):
         if state is not None:
             self.restoreState(state)
 
+        for act in  self.ui.menuFont_size.actions():                 
+            if act.text() == self.fontsz:
+                act.setChecked(True)
+            else:
+                act.setChecked(False)                 
         
+        self.fontsz = int(self.fontsz)
         
         if self.game_type == "Recel":
             DP = 92
@@ -243,6 +251,8 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.actionAbout_wiflip.triggered.connect(self.launchAbout)
         self.ui.actionHelp.triggered.connect(self.launchHelp)
 
+        self.ui.menuFont_size.triggered.connect(self.changefontpt)
+
 
         self.ui.pushButton.clicked.connect(self.connect)
         self.ui.lineEdit.setText(self.HOST)
@@ -318,6 +328,32 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.dockWidget_4.hide()
         self.ui.dockWidget_5.setEnabled(False)
         self.ui.dockWidget_6.hide()
+
+    def changefontpt(self, action):
+
+        
+        sz = int(action.text())     
+
+        for act in  self.ui.menuFont_size.actions():                 
+            if act.text() == action.text():
+                act.setChecked(True)
+            else:
+                act.setChecked(False)                 
+        myfont   =  QtGui.QFont("Courier New", sz)
+        
+        self.settings.setValue('font-sz', str(sz))
+        self.fontsz = sz
+        
+        fm = QFontMetrics(myfont)
+        w = fm.boundingRect("0B0000").width()
+        h = fm.boundingRect("0B0000").height()
+    
+        for i in range(16):
+            for j in range(16):
+                self.nibbleField[i][j].setFixedWidth(w+10)
+                self.nibbleField[i][j].setFixedHeight(h+10)
+                self.nibbleField[i][j].setFont(myfont)
+            
             
     def actionSaveNvr(self):
         nvrfileStr = self.settings.value('nvrfileStr', None)
@@ -1212,7 +1248,7 @@ class MainForm(QtWidgets.QMainWindow):
         
     def setupnvram(self):
         self.nibbleField = [0]*16
-        myfont   =  QtGui.QFont("Courier New",12)
+        myfont   =  QtGui.QFont("Courier New", self.fontsz)
         
         myfont10 =  QtGui.QFont("Courier New", 10)
         fm = QFontMetrics(myfont)

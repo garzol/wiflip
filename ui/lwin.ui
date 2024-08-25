@@ -960,9 +960,12 @@ All closed switches noted by a code number in ball-in-play display.***
      <property name="title">
       <string>Mem View font size</string>
      </property>
+     <addaction name="action9"/>
      <addaction name="action10pt"/>
      <addaction name="action12pt"/>
      <addaction name="action14pt"/>
+     <addaction name="action16"/>
+     <addaction name="action18"/>
     </widget>
     <addaction name="menuFaces"/>
     <addaction name="separator"/>
@@ -2945,18 +2948,51 @@ All closed switches noted by a code number in ball-in-play display.***
    </property>
   </action>
   <action name="action10pt">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>10pt</string>
+    <string>10</string>
    </property>
   </action>
   <action name="action12pt">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>12pt</string>
+    <string>12</string>
    </property>
   </action>
   <action name="action14pt">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>14pt</string>
+    <string>14</string>
+   </property>
+  </action>
+  <action name="action16">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>16</string>
+   </property>
+  </action>
+  <action name="action18">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>18</string>
+   </property>
+  </action>
+  <action name="action9">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>9</string>
    </property>
   </action>
  </widget>
