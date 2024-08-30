@@ -71,7 +71,7 @@
            <x>0</x>
            <y>0</y>
            <width>484</width>
-           <height>323</height>
+           <height>221</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -762,12 +762,12 @@ All closed switches noted by a code number in ball-in-play display.***
    <property name="minimumSize">
     <size>
      <width>320</width>
-     <height>54</height>
+     <height>200</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>380</width>
+     <width>480</width>
      <height>524287</height>
     </size>
    </property>
@@ -784,7 +784,10 @@ All closed switches noted by a code number in ball-in-play display.***
     <number>4</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_2">
-    <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout_13">
+     <property name="spacing">
+      <number>0</number>
+     </property>
      <property name="leftMargin">
       <number>0</number>
      </property>
@@ -797,14 +800,59 @@ All closed switches noted by a code number in ball-in-play display.***
      <property name="bottomMargin">
       <number>0</number>
      </property>
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <item row="1" column="0" colspan="2">
+     <item>
       <widget class="QGroupBox" name="groupBox">
        <property name="title">
         <string>switch matrix</string>
        </property>
+       <layout class="QVBoxLayout" name="verticalLayout_15">
+        <item>
+         <spacer name="verticalSpacer_6">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Preferred</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>400</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_4">
+          <property name="title">
+           <string>Simu</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_16">
+           <item>
+            <widget class="QLineEdit" name="lineEdit_swstrb">
+             <property name="placeholderText">
+              <string>strobe</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="lineEdit_swret">
+             <property name="placeholderText">
+              <string>return</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_sw">
+             <property name="text">
+              <string>go</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
     </layout>

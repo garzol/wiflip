@@ -9,6 +9,7 @@ dockWidget
 import os, sys, time
 from time import sleep
 from functools import partial
+from builtins import staticmethod
 
 sys.path += ['.']
 
@@ -104,7 +105,9 @@ class MyHelp(QtWidgets.QDialog):
 )
         self.ui.textBrowser_2.setSource(QtCore.QUrl('qrc:///help/index.htm'))
       
-        
+ 
+ 
+ 
 class MainForm(QtWidgets.QMainWindow):
     """
     This is the main window of the application
@@ -202,6 +205,19 @@ class MainForm(QtWidgets.QMainWindow):
         else:
             self.swmRows, self.swmCols = (10, 4)
 
+        self.Swtttext = [[None for x in range(self.swmCols)] for y in range(self.swmRows)]       
+
+        if self.game_type == "Recel":
+            self.Swtttext[0][0] = "Ball Home"
+            self.Swtttext[8][0] = "Fault"
+            self.Swtttext[8][1] = "Coin 3"
+            self.Swtttext[8][2] = "Coin 1"
+            self.Swtttext[8][3] = "Coin 2"
+            self.Swtttext[9][0] = "Tilt"
+            self.Swtttext[9][1] = "Replays"
+            self.Swtttext[9][2] = "Button 2"
+            self.Swtttext[9][3] = "Button 1"
+
         self.setupleds()
 
         self.setupnvram()
@@ -289,6 +305,9 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.pb_flash.clicked.connect(self.send_reqflash)
         self.ui.pb_write_byte.clicked.connect(self.send_reqwrbyte)
         self.ui.pb_wmem.clicked.connect(self.send_reqwriteall)
+        
+        #switch simu
+        self.ui.pushButton_sw.clicked.connect(self.send_reqswclose)
         
 
         # font = QtGui.QFont()
@@ -452,7 +471,26 @@ class MainForm(QtWidgets.QMainWindow):
             self.settings.sync()
 
         
-        
+
+    def send_reqswclose(self):
+        try:
+            strb = int(self.ui.lineEdit_swstrb.text(), 0)
+        except:
+            strb = 0
+        strb = strb.to_bytes(1, byteorder='big')
+        try:
+            ret = int(self.ui.lineEdit_swret.text(), 0)
+        except:
+            ret = 0
+        ret = ret.to_bytes(1, byteorder='big')
+     
+        print("message request is", b'YS'+strb+ret+ret)
+        try:
+            self.thread.sock.send(b'YS'+strb+ret+ret)
+        except:
+            pass
+    
+          
     def send_trace(self): 
         try:
             self.thread.sock.send(b' t')
@@ -1157,12 +1195,15 @@ class MainForm(QtWidgets.QMainWindow):
 
                 #self.write2Console(f"switches:\n{data[0]:08b}\n{data[1]:08b}\n{data[2]:08b}\n{data[3]:08b}\n{data[4]:08b}", insertMode=False)
                 self.msg83 = f"switches:\n{data[0]:08b}\n{data[1]:08b}\n{data[2]:08b}\n{data[3]:08b}\n{data[4]:08b}"
-                #print(self.msg83)
+                print(self.msg83)
                 for i in range(rows*cols):
                     bitnumber  = i%8
                     bytenumber = i//8
-                    r = i//cols
-                    c = i%cols
+                    c = cols-1 - i%cols
+                    r = bytenumber*2
+                    if bitnumber<4:
+                        r+=1
+                    print(i, bitnumber, bytenumber, r,c)
                     if data[bytenumber]&(1<<bitnumber):
                         self.led[r][c].setPixmap(QtGui.QPixmap(":/x/ledon.png"))
                     else:
@@ -1312,7 +1353,7 @@ class MainForm(QtWidgets.QMainWindow):
         for i in range(cols):
             rled=QtWidgets.QLabel(self.ui.groupBox)
             rled.setGeometry(QtCore.QRect(60-28, 90+i*36, 20, 20))
-            rled.setText(f"R{i}")
+            rled.setText(f"R{chr(i+0x41)}")
             rled.setObjectName(f"rled_{i}")
             
         for i in range(rows):
@@ -1327,6 +1368,9 @@ class MainForm(QtWidgets.QMainWindow):
                     self.led[i][j].setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
                 self.led[i][j].setScaledContents(True)
                 self.led[i][j].setObjectName(f"led_{i}{j}")
+                self.led[i][j].mousePressEvent = lambda _, x=i, y=j : self.foo(x, y)
+                self.led[i][j].setToolTip(self.Swtttext[i][j])
+
 
         # print (self.led)
         # for i in range(8):
@@ -1334,6 +1378,17 @@ class MainForm(QtWidgets.QMainWindow):
         #         if i%2 and j%2:
         #             self.led[i][j].setPixmap(QtGui.QPixmap(":/x/ledon.png"))
 
+
+    def foo(self, i, j):
+        strb = i.to_bytes(1, byteorder='big')
+        ret  = (1<<j).to_bytes(1, byteorder='big')
+
+        print("message request is", b'YS'+strb+ret+ret)
+        try:
+            self.thread.sock.send(b'YS'+strb+ret+ret)
+        except:
+            print("error switch closin")
+   
     def setupballinplay(self):
         self.bip = [0]*6
         self.bipt = [0]*6
