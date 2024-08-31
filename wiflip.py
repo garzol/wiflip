@@ -67,7 +67,7 @@ aboutContent = '''
 '''
 
 VERSION = "0.80"
-DATE    = "2024-08-24"
+DATE    = "2024-08-31"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
