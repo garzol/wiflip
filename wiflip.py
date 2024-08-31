@@ -1203,7 +1203,7 @@ class MainForm(QtWidgets.QMainWindow):
                     r = bytenumber*2
                     if bitnumber<4:
                         r+=1
-                    print(i, bitnumber, bytenumber, r,c)
+                    #print(i, bitnumber, bytenumber, r,c)
                     if data[bytenumber]&(1<<bitnumber):
                         self.led[r][c].setPixmap(QtGui.QPixmap(":/x/ledon.png"))
                     else:
@@ -1387,7 +1387,7 @@ class MainForm(QtWidgets.QMainWindow):
         try:
             self.thread.sock.send(b'YS'+strb+ret+ret)
         except:
-            print("error switch closin")
+            pass
    
     def setupballinplay(self):
         self.bip = [0]*6
@@ -1590,8 +1590,8 @@ class Worker(QThread):
                         break
                     #tsz -= lm
                     tsz -= 1
-                if received == b'R':
-                    print(received, msg)
+                # if received == b'R':
+                #     print(received, msg)
             else:
                 pass
                 #print(received)
