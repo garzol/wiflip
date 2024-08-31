@@ -3,7 +3,7 @@ Created on 23 mars 2022
 
 dockWidget_2
 dockWidget
-@author: garzol
+@author: garzol switches
 '''
 
 import os, sys, time
@@ -1195,7 +1195,7 @@ class MainForm(QtWidgets.QMainWindow):
 
                 #self.write2Console(f"switches:\n{data[0]:08b}\n{data[1]:08b}\n{data[2]:08b}\n{data[3]:08b}\n{data[4]:08b}", insertMode=False)
                 self.msg83 = f"switches:\n{data[0]:08b}\n{data[1]:08b}\n{data[2]:08b}\n{data[3]:08b}\n{data[4]:08b}"
-                print(self.msg83)
+                #print(self.msg83)
                 for i in range(rows*cols):
                     bitnumber  = i%8
                     bytenumber = i//8
