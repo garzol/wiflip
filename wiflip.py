@@ -41,6 +41,7 @@ from lwin import Ui_MainWindow
 
 from about import Ui_AboutDialog
 from help import Ui_HelpDialog
+from settings import Ui_DialogSettings
 
 # import sys
 # from PyQt5.QtGui import *
@@ -90,7 +91,7 @@ class MyAbout(QtWidgets.QDialog):
 class MyHelp(QtWidgets.QDialog):
     """
     This dialog box was created with QT
-    in about.ui
+    in help.ui
     """
     def __init__(self, parent=None):
         super(MyHelp, self).__init__(parent)
@@ -106,8 +107,183 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.textBrowser_2.setSource(QtCore.QUrl('qrc:///help/index.htm'))
       
  
- 
- 
+class MySettings(QtWidgets.QDialog): 
+    """
+    This dialog box was created with QT
+    in settings.ui
+    """
+    statusCmd = pyqtSignal(int, str)
+    def __init__(self, parent=None):
+        super(MySettings, self).__init__(parent)
+        #QtGui.QWidget.__init__(self, parent)
+        self.ui = Ui_DialogSettings()
+        self.ui.setupUi(self)
+
+        self.ui.label.setText("")
+        
+        self.flags=[self.ui.checkBox_flag0, self.ui.checkBox_flag1, self.ui.checkBox_flag2, self.ui.checkBox_flag3,
+                    self.ui.checkBox_flag4, self.ui.checkBox_flag5, self.ui.checkBox_flag6, self.ui.checkBox_flag7]
+
+        #self.ui.groupBox.stateChanged.connect(self.test)
+        for cb in self.flags:
+            cb.stateChanged.connect(self.modsc)
+
+        self.ui.radioButton_startnormal.clicked.connect(self.modscr)
+        self.ui.radioButton_startmnprn.clicked.connect(self.modscr)
+        self.ui.radioButton_startfactory.clicked.connect(self.modscr)
+        
+        
+        self.ui.toolButton_reset.clicked.connect(self.resetthepin)
+        
+
+        self.refreshdlg()
+        
+        
+    def refreshdlg(self):
+        #select sys config
+        memtyp = 0
+        papa = self.parent()
+    
+        print("message request is", b'YR'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+
+        try:
+            papa.thread.sock.send(b'YR'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+        except:
+            dlg = QMessageBox(self.parent())
+            dlg.setWindowTitle("www")
+            dlg.setText("No connection.")
+            dlg.setIcon(QMessageBox.Warning)
+            dlg.exec()
+            self.ui.label.setText("Not connected")
+            
+            self.ui.groupBox.setDisabled(True)
+            self.ui.groupBox_2.setDisabled(True)
+
+
+        self.timertout = QTimer(singleShot=True, timeout=self.timeoutt)
+        self.timertout.start(5000)
+        
+        self.statusCmd.connect(self.cmdDone)   
+        #next lines to emulate the thing
+        self.timerpipo = QTimer(singleShot=True, timeout=self.fpipo)
+        self.timerpipo.start(4000)
+              
+        
+        
+    def resetthepin(self):
+        papa = self.parent()
+        print("message request is", b'YBXQZ')
+        try:
+            papa.thread.sock.send(b'YBXQZ')
+        except:
+            pass
+        
+        self.refreshdlg()
+        
+    def modscr(self):
+        sc_mode = 0
+        if self.ui.radioButton_startmnprn.isChecked():
+            sc_mode = 1
+        elif self.ui.radioButton_startnormal.isChecked():
+            sc_mode = 2
+
+        papa = self.parent()
+        
+        memtyp = 0
+        addr   = 3
+        bbyt   = sc_mode
+        baddr = addr.to_bytes(1, byteorder='big')
+        bbyt = bbyt.to_bytes(1, byteorder='big')
+        print("message request is", b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
+        try:
+            papa.thread.sock.send(b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
+        except:
+            pass
+            
+        print("message request is", b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+
+        try:
+            papa.thread.sock.send(b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+        except:
+            pass
+             
+    def modsc(self):
+        sc_flags1 = 0
+        for i in range(8):
+            sc_flags1 |= ((1 if (self.flags[i].isChecked()==True) else 0)<<i)
+
+        
+
+        papa = self.parent()
+
+        memtyp = 0
+        addr   = 4
+        bbyt   = sc_flags1
+        baddr = addr.to_bytes(1, byteorder='big')
+        bbyt = bbyt.to_bytes(1, byteorder='big')
+        print("message request is", b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
+        try:
+            papa.thread.sock.send(b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
+        except:
+            pass
+            
+        print("message request is", b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+
+        try:
+            papa.thread.sock.send(b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+        except:
+            pass
+                
+         
+               
+    def cmdDone(self, cmdcode, status):   
+        print(cmdcode, status)
+        self.timertout.stop()
+        papa = self.parent()
+        if cmdcode == 82 and status == "done":
+            papa.ui.rb_sysconf.setChecked(True)  #we expect the others to turn unchecked...
+            sc_formatString =  f"{papa.nvrlist[0][1]:02X}"+f"{papa.nvrlist[1][1]:02X}"+f"{papa.nvrlist[2][1]:02X}"
+            sc_mode         =  papa.nvrlist[3][1]
+            sc_flags1       =  papa.nvrlist[4][1]
+            print(f"sc_formatString: {sc_formatString} sc_mode: {sc_mode} sc_flags1: {sc_flags1:08b}")
+            if sc_mode == 1:
+                self.ui.radioButton_startmnprn.setChecked(True)
+            elif sc_mode == 2:
+                self.ui.radioButton_startnormal.setChecked(True)
+            else:
+                self.ui.radioButton_startfactory.setChecked(True)
+                
+            for i in range(8):
+                self.flags[i].setChecked(sc_flags1&(1<<i)!=0)
+                
+            if sc_formatString != "AA55C3":
+                self.ui.label.setText(f"Bad format string : {sc_formatString}")
+                
+    def test(self):
+        self.statusCmd.emit("zobi")
+
+    def processOneThing(self):
+        print("elapsed")
+        
+    def timeoutt(self):
+        print("Time out")
+        dlg = QMessageBox(self.parent())
+        dlg.setWindowTitle("I have a question!")
+        dlg.setText("Time out. Please, check your connection")
+        dlg.setIcon(QMessageBox.Warning)
+        button = dlg.exec()
+
+        if button == QMessageBox.Ok:
+            self.ui.label.setText("Can't find device")
+        
+    def fpipo(self):
+        pass
+        #self.statusCmd.emit(82, "done")
+        
+    def closeEvent(self, event):
+        QtWidgets.QDialog.closeEvent(self, event)
+        
+        
 class MainForm(QtWidgets.QMainWindow):
     """
     This is the main window of the application
@@ -122,6 +298,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.game_type = "Recel"
         #self.game_type = "Gottlieb"
 
+    
 
         self.ui = Ui_MainWindow()
         
@@ -217,6 +394,9 @@ class MainForm(QtWidgets.QMainWindow):
             self.Swtttext[9][1] = "Replays"
             self.Swtttext[9][2] = "Button 2"
             self.Swtttext[9][3] = "Button 1"
+            
+            self.setupgpios()
+            self.setupb2s()
 
         self.setupleds()
 
@@ -266,6 +446,8 @@ class MainForm(QtWidgets.QMainWindow):
         
         self.ui.actionAbout_wiflip.triggered.connect(self.launchAbout)
         self.ui.actionHelp.triggered.connect(self.launchHelp)
+        self.ui.actionSettings.triggered.connect(self.launchSettings)
+
 
         self.ui.menuFont_size.triggered.connect(self.changefontpt)
 
@@ -441,6 +623,13 @@ class MainForm(QtWidgets.QMainWindow):
         myhelp=MyHelp(self)
         myhelp.show()
                 
+    def launchSettings(self):
+        """
+        Starts the about dialog box
+        """
+        self.mysettings=MySettings(self)
+        #self.mysettings.show()
+        self.mysettings.exec()
                   
     def actionFair_Fight(self):
         #self.ui.label.setStyleSheet("background-image: url(images/1x/fair_fight_480.png);")
@@ -814,7 +1003,8 @@ class MainForm(QtWidgets.QMainWindow):
 
             print(f"Dump RAM {memtyp} in progress")
             self.write2Console(f"NVRAM Current ({memtyp})\r\n", insertMode=True)
-            
+
+            #write into memory inspection area            
             for r in range(16):
                 for l in range(8):
                     lb = data[r*8+l]&0xF
@@ -827,6 +1017,7 @@ class MainForm(QtWidgets.QMainWindow):
 
                     self.nvrlist[r*8+l] = (data[r*8+l], data[r*8+l]) #(init value, current value)
                     
+            #write again but  to  console, this time.        
             for r in range(8):
                 self.write2Console(f"{r:02X}\t")
                 for l in range(16):
@@ -834,7 +1025,10 @@ class MainForm(QtWidgets.QMainWindow):
                 self.write2Console(f"\r\n", insertMode=True)
             
             print("Dump RAM terminated")
-                    
+            try:
+                self.mysettings.statusCmd.emit(82, "done")   
+            except:
+                pass     
             
         elif typ == 71:   #G
             # 8b ROM data
@@ -857,9 +1051,46 @@ class MainForm(QtWidgets.QMainWindow):
         elif typ == 89:   #Y for IO status
             io_os = data[0]*256 + data[1]
             io_is = data[2]*256 + data[3]
-            #print("Y got", data[0], data[1], data[2], data[3], io_os, io_is)
+            #print("Y got", data[0], data[1], data[2], data[3], data[4], io_os, io_is)
             self.ui.label_out.setText(f"{io_os:016b}")
             self.ui.label_inp.setText(f"{io_is:016b}")
+            
+            self.ui.lcdNumber.setProperty("value", data[4]&0x0F)
+            
+            for i in range(24):
+                byten = 6 - (i // 8)
+                if data[byten]&(1<<(i%8)):
+                    self.gpioled[i].setPixmap(QtGui.QPixmap(":/x/ledon.png"))
+                else:
+                    self.gpioled[i].setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+
+            for i in range(16):
+                byten = 8 - (i // 8)
+                if data[byten]&(1<<(i%8)):
+                    self.b2led[i].setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+                else:
+                    self.b2led[i].setPixmap(QtGui.QPixmap(":/x/ledon.png"))
+                    
+
+            # if data[4]&0x01:
+            #     self.ui.label_bonus1.setPixmap(QtGui.QPixmap(":/x/ledon.png"))
+            # else:
+            #     self.ui.label_bonus1.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+            # if data[4]&0x02:
+            #     self.ui.label_bonus2.setPixmap(QtGui.QPixmap(":/x/ledon.png"))
+            # else:
+            #     self.ui.label_bonus2.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+            # if data[4]&0x04:
+            #     self.ui.label_bonus4.setPixmap(QtGui.QPixmap(":/x/ledon.png"))
+            # else:
+            #     self.ui.label_bonus4.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+            # if data[4]&0x08:
+            #     self.ui.label_bonus8.setPixmap(QtGui.QPixmap(":/x/ledon.png"))
+            # else:
+            #     self.ui.label_bonus8.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+                
+                
+                
         else:
             if  typ == 65:  #'A'
                 dspAstate = 1 if data[0]&0x80 else 0
@@ -1286,7 +1517,95 @@ class MainForm(QtWidgets.QMainWindow):
             self.nibbleField[i][j].setStyleSheet("background:rgb(140, 34, 35);color:rgb(255, 255, 255);")
             self.nibbleField[i][j].setToolTip("Nibble OK")
             
+
+    def setupb2s(self):
+        self.b2led = [0]*16
+        self.b2tooltip = [
+            "L/51",   #IO-0
+            "L/52",   #IO-1
+            "L/54",   #IO-2
+            "L/58",   #IO-3
+            "L/41",   #IO-4
+            "L/42",   #IO-5
+            "L/44",   #IO-6
+            "L/48",   #IO-7
+            "L/31",   #IO-8
+            "L/32",   #IO-9
+            "L/34",   #IO-10
+            "L/38",   #IO-11
+            "L/21",   #IO-12
+            "L/22",   #IO-13
+            "L/24",   #IO-14
+            "L/28",   #IO-15
+            ]
+
+        for i in range(16):
+            self.b2led[i]=QtWidgets.QLabel(self.ui.groupBox_7)
+            #self.gpioled[i].setGeometry(QtCore.QRect(60+i*28, 90, 20, 20))
+            self.b2led[i].setText("")
+            self.b2led[i].setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+            self.ui.horizontalLayout_16.addWidget(self.b2led[i])
+            self.b2led[i].setMaximumSize(QtCore.QSize(31, 31))
+            self.b2led[i].setScaledContents(True)
+            self.b2led[i].setObjectName(f"b2led_{i}")
+            #self.gpioled[i].mousePressEvent = lambda _, x=i, y=j : self.foo(x, y)
+            try:
+                self.b2led[i].setToolTip(self.b2tooltip[i])
+            except:
+                self.b2led[i].setToolTip(f"b2led_{i}")
         
+        
+    def setupgpios(self):
+        self.gpioled = [0]*24
+        self.gpiotooltip = [
+            "C/#F",  #0     group 3-1
+            "C/#E",  #1     group 3-2
+            "C/#D",  #2     group 3-4
+            "C/#C",  #3     group 3-8
+            
+            "C/#B",  #4     group 4-1
+            "C/#A",  #5     group 4-2
+            "C/#9",  #6     group 4-4
+            "C/#8",  #7     group 4-8
+            
+            "C/#7",  #8     group 5-1
+            "C/#6 (knocker)",  #9     group 5-2
+            "NC",    #10     group 5-4
+            "Sound-100K",    #11     group 5-8
+            
+            "Sound-10K",     #12     group 6-1
+            "Sound-1K",      #13     group 6-2
+            "Sound-100",     #14     group 6-4
+            "Sound-10",      #15     group 6-8
+            
+            "L/61 (bonus)",  #16    group 7-1
+            "L/62 (bonus)",  #17    group 7-2
+            "L/64 (bonus)",  #18    group 7-4
+            "L/68 (bonus)",  #19    group 7-8
+            
+            "L/71",   #20    group 8-1
+            "L/72",   #21    group 8-2
+            "L/74",   #22    group 8-4
+            "PLAY SIGNAL",   #23    group 8-8
+            
+            ]
+        
+        for i in range(24):
+            self.gpioled[i]=QtWidgets.QLabel(self.ui.groupBox_5)
+            #self.gpioled[i].setGeometry(QtCore.QRect(60+i*28, 90, 20, 20))
+            self.gpioled[i].setText("")
+            self.gpioled[i].setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+            self.ui.horizontalLayout_13.addWidget(self.gpioled[i])
+            self.gpioled[i].setMaximumSize(QtCore.QSize(31, 31))
+            self.gpioled[i].setScaledContents(True)
+            self.gpioled[i].setObjectName(f"gpioled_{i}")
+            #self.gpioled[i].mousePressEvent = lambda _, x=i, y=j : self.foo(x, y)
+            try:
+                self.gpioled[i].setToolTip(self.gpiotooltip[i])
+            except:
+                self.gpioled[i].setToolTip(f"gpioled_{i+1}")
+
+               
     def setupnvram(self):
         self.nibbleField = [0]*16
         myfont   =  QtGui.QFont("Courier New", self.fontsz)
@@ -1555,8 +1874,8 @@ class Worker(QThread):
                 framesz = 3
             elif received == b'D':
                 framesz = 4
-            elif received == b'Y':   #IO status 4 bytes Oh, Ol, Ih, Il
-                framesz = 4
+            elif received == b'Y':   #IO status 7 bytes Oh, Ol, Ih, Il gpioEF, gpioCD, gpioAB
+                framesz = 9
             elif received == b'S':
                 framesz = 5
             elif received == b'T':

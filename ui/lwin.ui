@@ -71,7 +71,7 @@
            <x>0</x>
            <y>0</y>
            <width>485</width>
-           <height>446</height>
+           <height>402</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -991,6 +991,8 @@ All closed switches noted by a code number in ball-in-play display.***
     <addaction name="actionLoad_nvr"/>
     <addaction name="actionSave_nvram"/>
     <addaction name="separator"/>
+    <addaction name="actionSettings"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menu">
@@ -1054,7 +1056,7 @@ All closed switches noted by a code number in ball-in-play display.***
    </property>
    <property name="minimumSize">
     <size>
-     <width>714</width>
+     <width>100</width>
      <height>104</height>
     </size>
    </property>
@@ -2712,7 +2714,7 @@ All closed switches noted by a code number in ball-in-play display.***
   </widget>
   <widget class="QDockWidget" name="dockWidget_7">
    <property name="windowTitle">
-    <string>Bonus replication</string>
+    <string>11696 GPIO Readings</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>4</number>
@@ -2729,94 +2731,81 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>202</width>
-          <height>91</height>
+          <width>332</width>
+          <height>116</height>
          </rect>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_20">
+        <layout class="QHBoxLayout" name="horizontalLayout_14">
          <item>
-          <widget class="QGroupBox" name="groupBox_5">
+          <widget class="QGroupBox" name="groupBox_6">
            <property name="title">
-            <string>Bonuses: 8 4 2 1</string>
+            <string>Bonus</string>
            </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_13">
+           <layout class="QVBoxLayout" name="verticalLayout_20">
             <item>
-             <widget class="QLabel" name="label_bonus8">
+             <widget class="QLCDNumber" name="lcdNumber">
               <property name="maximumSize">
                <size>
-                <width>31</width>
-                <height>31</height>
+                <width>16777215</width>
+                <height>100</height>
                </size>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="pixmap">
-               <pixmap resource="../resource.qrc">:/x/ledgrey.png</pixmap>
-              </property>
-              <property name="scaledContents">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_bonus4">
-              <property name="maximumSize">
-               <size>
-                <width>31</width>
-                <height>31</height>
-               </size>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="pixmap">
-               <pixmap resource="../resource.qrc">:/x/ledgrey.png</pixmap>
-              </property>
-              <property name="scaledContents">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_bonus2">
-              <property name="maximumSize">
-               <size>
-                <width>31</width>
-                <height>31</height>
-               </size>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="pixmap">
-               <pixmap resource="../resource.qrc">:/x/ledgrey.png</pixmap>
-              </property>
-              <property name="scaledContents">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_bonus1">
-              <property name="maximumSize">
-               <size>
-                <width>31</width>
-                <height>31</height>
-               </size>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="pixmap">
-               <pixmap resource="../resource.qrc">:/x/ledgrey.png</pixmap>
-              </property>
-              <property name="scaledContents">
-               <bool>true</bool>
               </property>
              </widget>
             </item>
            </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_5">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="title">
+            <string>GPIOs 1 to 24 (of B3 - 11696)</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_13"/>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_9">
+   <property name="windowTitle">
+    <string>A1762 B2 Readings</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>4</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_9">
+    <layout class="QVBoxLayout" name="verticalLayout_21">
+     <item>
+      <widget class="QScrollArea" name="scrollArea_6">
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents_6">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>155</width>
+          <height>116</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_15">
+         <item>
+          <widget class="QGroupBox" name="groupBox_7">
+           <property name="title">
+            <string>GPIOs 0 to 15</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_16"/>
           </widget>
          </item>
         </layout>
@@ -2979,7 +2968,7 @@ All closed switches noted by a code number in ball-in-play display.***
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Load miniprinter data...</string>
+    <string>Load ram/miniprinter data...</string>
    </property>
   </action>
   <action name="actionSave_nvram">
@@ -2987,7 +2976,7 @@ All closed switches noted by a code number in ball-in-play display.***
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Save miniprinter data...</string>
+    <string>Save ram/miniprinter data...</string>
    </property>
   </action>
   <action name="actionHelp">
@@ -3186,6 +3175,11 @@ All closed switches noted by a code number in ball-in-play display.***
    </property>
    <property name="text">
     <string>9</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings...</string>
    </property>
   </action>
  </widget>
