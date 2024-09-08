@@ -3,7 +3,7 @@ Created on 23 mars 2022
 
 dockWidget_2
 dockWidget
-@author: garzol switches
+@author: garzol switches reset
 '''
 
 import os, sys, time
@@ -178,7 +178,7 @@ class MySettings(QtWidgets.QDialog):
         except:
             pass
         
-        self.refreshdlg()
+        #self.refreshdlg()
         
     def modscr(self):
         sc_mode = 0
