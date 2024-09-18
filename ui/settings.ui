@@ -89,7 +89,7 @@
          <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>The returns of switch matrix (DIA) is inverted, so one can test the system without connecting any mux board</string>
+         <string>The returns of switch matrix (DIA) is inverted, so one can test the system without connecting any mux board (stand alone testing purpose)</string>
         </property>
         <property name="text">
          <string>Standalone switch matrix</string>
@@ -130,7 +130,7 @@
          <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>OC and CC coil tests are still performed, but the result of this test is ignored</string>
+         <string>OC and CC coil tests are still performed, but the result of this test will be ignored</string>
         </property>
         <property name="text">
          <string>Skip coils selftest</string>
@@ -140,7 +140,10 @@
       <item row="3" column="0">
        <widget class="QCheckBox" name="checkBox_flag3">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string/>
         </property>
         <property name="text">
          <string>Reserved b3</string>
@@ -150,7 +153,7 @@
       <item row="0" column="0">
        <widget class="QCheckBox" name="checkBox_flag0">
         <property name="toolTip">
-         <string>Immediate effect</string>
+         <string>disable coin rejector coil at next reset</string>
         </property>
         <property name="text">
          <string>Coin rejector off</string>

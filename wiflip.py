@@ -3,17 +3,17 @@ Created on 23 mars 2022
 
 dockWidget_2
 dockWidget
-@author: garzol switches reset
+@author: garzol switches reset open
 '''
 
-import os, sys, time
+import os, sys, time, struct
 from time import sleep
 from functools import partial
 from builtins import staticmethod
 
 sys.path += ['.']
 
-
+from fletcher import Fletcher
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import QtNetwork 
 from PyQt5 import QtMultimedia 
+from PyQt5.QtMultimedia import QAudio, QAudioDeviceInfo, QAudioFormat, QAudioOutput
 
 from PyQt5.QtCore import QByteArray, QDataStream, QIODevice
 from PyQt5.QtWidgets import QApplication, QDialog
@@ -42,6 +43,7 @@ from lwin import Ui_MainWindow
 from about import Ui_AboutDialog
 from help import Ui_HelpDialog
 from settings import Ui_DialogSettings
+from reprog   import Ui_ReprogDialog
 
 # import sys
 # from PyQt5.QtGui import *
@@ -67,8 +69,8 @@ aboutContent = '''
 </td></tr></table>
 '''
 
-VERSION = "0.80"
-DATE    = "2024-08-31"
+VERSION = "0.86"
+DATE    = "2024-09-16"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
@@ -105,8 +107,77 @@ class MyHelp(QtWidgets.QDialog):
 '''
 )
         self.ui.textBrowser_2.setSource(QtCore.QUrl('qrc:///help/index.htm'))
+   
       
- 
+class MyReprog(QtWidgets.QDialog): 
+    """
+    This dialog box was created with QT
+    in reprog.ui
+    """
+    def __init__(self, parent=None):
+        super(MyReprog, self).__init__(parent)
+        #QtGui.QWidget.__init__(self, parent)
+        self.ui = Ui_ReprogDialog()
+        self.ui.setupUi(self)
+
+        self.ui.toolButton_reset_2.clicked.connect(self.resetthepin)
+        self.ui.toolButton_reprog.clicked.connect(self.gotoreprog)
+        self.ui.toolButton_loadbin.clicked.connect(self.actionLoad1702)
+        
+    def gotoreprog(self):
+        papa = self.parent()
+        print("message request is", b'YBXQR')
+        try:
+            papa.thread.sock.send(b'YBXQR')
+        except:
+            pass
+        
+    def resetthepin(self):
+        papa = self.parent()
+        print("message request is", b'YBXQZ')
+        try:
+            papa.thread.sock.send(b'YBXQZ')
+        except:
+            pass
+        
+    def actionLoad1702(self):
+        papa = self.parent()
+        nvrfileStr = papa.settings.value('binfileStr', None)
+        filename, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Load File",
+                                       nvrfileStr,
+                                       "Raw binary prog file (*.bin)")
+
+        if filename:
+            papa.settings.setValue("binfileStr", filename)
+            with open(filename, "rb") as fb:
+                # read contents      
+                bn = fb.read()
+            
+            if len(bn) != 256:
+                #print("length  error")
+                self.ui.label_error.setText("file length error")
+                self.ui.label_crc.setText("")
+            else:    
+                addr = 0
+                memtyp = 4
+                for byte in bn:
+                    bbyt = byte.to_bytes(1, byteorder='big')
+                    baddr = addr.to_bytes(1, byteorder='big')
+                    print("message request is", b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
+    
+                    try:
+                        papa.thread.sock.send(b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
+                    except:
+                        pass
+                    addr += 1
+
+
+                        
+                fletcher = Fletcher(bn)
+                #print("fletcher's crc:", fletcher.crc)
+                self.ui.label_crc.setText(fletcher.crc)
+                self.ui.label_error.setText(f"{filename} loaded.")
+        
 class MySettings(QtWidgets.QDialog): 
     """
     This dialog box was created with QT
@@ -124,14 +195,7 @@ class MySettings(QtWidgets.QDialog):
         self.flags=[self.ui.checkBox_flag0, self.ui.checkBox_flag1, self.ui.checkBox_flag2, self.ui.checkBox_flag3,
                     self.ui.checkBox_flag4, self.ui.checkBox_flag5, self.ui.checkBox_flag6, self.ui.checkBox_flag7]
 
-        #self.ui.groupBox.stateChanged.connect(self.test)
-        for cb in self.flags:
-            cb.stateChanged.connect(self.modsc)
-
-        self.ui.radioButton_startnormal.clicked.connect(self.modscr)
-        self.ui.radioButton_startmnprn.clicked.connect(self.modscr)
-        self.ui.radioButton_startfactory.clicked.connect(self.modscr)
-        
+       
         
         self.ui.toolButton_reset.clicked.connect(self.resetthepin)
         
@@ -139,11 +203,14 @@ class MySettings(QtWidgets.QDialog):
         self.refreshdlg()
         
         
+        
     def refreshdlg(self):
         #select sys config
         memtyp = 0
         papa = self.parent()
-    
+        papa.ui.rb_sysconf.setChecked(True)  #we expect the others to turn unchecked...
+        self.ui.label.setText("Loading...")
+        
         print("message request is", b'YR'+memtyp.to_bytes(1, byteorder='big')+b'XX')
 
         try:
@@ -169,6 +236,14 @@ class MySettings(QtWidgets.QDialog):
         self.timerpipo.start(4000)
               
         
+        
+    def gotoreprog(self):
+        papa = self.parent()
+        print("message request is", b'YBXQR')
+        try:
+            papa.thread.sock.send(b'YBXQR')
+        except:
+            pass
         
     def resetthepin(self):
         papa = self.parent()
@@ -199,19 +274,24 @@ class MySettings(QtWidgets.QDialog):
             papa.thread.sock.send(b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
         except:
             pass
-            
+        
+        time.sleep(0.1) #to let time for the previous command to execute
+    
         print("message request is", b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
 
         try:
             papa.thread.sock.send(b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
         except:
             pass
+        
+        time.sleep(0.1) #to let time for the previous command to execute
              
     def modsc(self):
         sc_flags1 = 0
         for i in range(8):
             sc_flags1 |= ((1 if (self.flags[i].isChecked()==True) else 0)<<i)
 
+        print("modsc called", sc_flags1, self)
         
 
         papa = self.parent()
@@ -234,14 +314,26 @@ class MySettings(QtWidgets.QDialog):
         except:
             pass
                 
-         
+        time.sleep(0.4) #to let time for the previous command to execute
+                        #to be changed when ack will be implemented
                
     def cmdDone(self, cmdcode, status):   
-        print(cmdcode, status)
+        print("nvr read done", cmdcode, status)
         self.timertout.stop()
         papa = self.parent()
-        if cmdcode == 82 and status == "done":
-            papa.ui.rb_sysconf.setChecked(True)  #we expect the others to turn unchecked...
+
+        
+        if cmdcode == 82 and status == "done" and papa.ui.rb_sysconf.isChecked():
+            #self.ui.groupBox.stateChanged.connect(self.test)
+            for cb in self.flags:
+                cb.stateChanged.connect(self.modsc)
+
+                self.ui.radioButton_startnormal.clicked.connect(self.modscr)
+                self.ui.radioButton_startmnprn.clicked.connect(self.modscr)
+                self.ui.radioButton_startfactory.clicked.connect(self.modscr)
+ 
+
+            self.ui.label.setText("Current settings:")
             sc_formatString =  f"{papa.nvrlist[0][1]:02X}"+f"{papa.nvrlist[1][1]:02X}"+f"{papa.nvrlist[2][1]:02X}"
             sc_mode         =  papa.nvrlist[3][1]
             sc_flags1       =  papa.nvrlist[4][1]
@@ -324,6 +416,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.PORT     = int(self.settings.value('port', '23'))
         self.face     = self.settings.value('face', 'fair_fight')
         self.fontsz   = self.settings.value('font-sz', '12')
+        self.sound    = self.settings.value('sound', 'off')
         # Then we call a Qt built in function called restoreGeometry that will restore whatever values we give it.
         # In this case we give it the values from the settings file.
         if geometry is not None:
@@ -339,6 +432,12 @@ class MainForm(QtWidgets.QMainWindow):
                 act.setChecked(False)                 
         
         self.fontsz = int(self.fontsz)
+
+        print("initial sound state", self.sound)
+        if self.sound == "off":
+            self.ui.actionSound.setChecked(False)
+        else:
+            self.ui.actionSound.setChecked(True)
         
         if self.game_type == "Recel":
             DP = 92
@@ -447,6 +546,9 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.actionAbout_wiflip.triggered.connect(self.launchAbout)
         self.ui.actionHelp.triggered.connect(self.launchHelp)
         self.ui.actionSettings.triggered.connect(self.launchSettings)
+        self.ui.actionReprog.triggered.connect(self.launchReprog)
+
+        self.ui.actionSound.toggled.connect(self.toggleSound)
 
 
         self.ui.menuFont_size.triggered.connect(self.changefontpt)
@@ -456,8 +558,11 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.lineEdit.setText(self.HOST)
         self.ui.lineEdit_2.setText(str(self.PORT))
 
-        self.jingle = os.path.join(CURRENT_DIR, "alarm1-b238.wav")
+        #self.jingle = os.path.join(CURRENT_DIR, "alarm1-b238.wav")
 
+        self.jingle = ":/sound/alarm1-b238.wav"
+        #QtMultimedia.QSound.play(self.jingle)
+        self.setsound()
         #trace button
         self.ui.pushButton_3.clicked.connect(self.send_trace)
         self.ui.pushButton_6.clicked.connect(self.send_gptrace)
@@ -487,6 +592,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.pb_flash.clicked.connect(self.send_reqflash)
         self.ui.pb_write_byte.clicked.connect(self.send_reqwrbyte)
         self.ui.pb_wmem.clicked.connect(self.send_reqwriteall)
+        self.ui.pb_reset.clicked.connect(self.resetthepin)
         
         #switch simu
         self.ui.pushButton_sw.clicked.connect(self.send_reqswclose)
@@ -529,6 +635,71 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.dockWidget_4.hide()
         self.ui.dockWidget_5.setEnabled(False)
         self.ui.dockWidget_6.hide()
+
+        self.ui.comboBox.addItems(['Crazy Race', 'Fair Fight'])
+
+        # Connect signals to the methods.
+        #self.ui.comboBox.activated.connect(self.activated)
+        self.ui.comboBox.currentTextChanged.connect(self.text_changed)
+        #self.ui.comboBox.currentIndexChanged.connect(self.index_changed)
+        self.text_changed('Crazy Race')
+        
+    def text_changed(self, s):
+        if   s == 'Crazy Race':
+            self.Swtttext[0][1] = "Targets upper side"
+            self.Swtttext[0][2] = "Target 50000"
+            self.Swtttext[0][3] = "Upper hole"
+            self.Swtttext[3][1] = "Aisle 100"
+            self.Swtttext[3][2] = "Contact 30pts"
+            self.Swtttext[4][1] = "Aisle 5000 & Bonus"
+            self.Swtttext[5][0] = "Target Right"
+            self.Swtttext[5][1] = "Target Centre"
+            self.Swtttext[5][2] = "Target Left"
+            self.Swtttext[6][0] = "Bumper Left"
+            self.Swtttext[6][1] = "Bumper Right"
+            self.Swtttext[6][2] = "Slingshot Left"
+            self.Swtttext[6][3] = "Slingshot Right"
+            self.Swtttext[7][2] = "Passage 30000"
+            self.Swtttext[7][3] = "Slingshot Upper"
+        elif s == 'Fair Fight':
+            self.Swtttext[0][1] = "Target Lower Left"
+            self.Swtttext[0][2] = "Target Lower Right"
+            self.Swtttext[0][3] = "30pts SW"
+            self.Swtttext[1][0] = "Target Upper Left"
+            self.Swtttext[1][1] = "Target Upper Right"
+            self.Swtttext[1][2] = "LH DB Rollover"
+            self.Swtttext[1][3] = "10K SW"
+            self.Swtttext[2][3] = "RH DB Rollover"
+            self.Swtttext[3][3] = "500pts SW"
+            self.Swtttext[6][0] = "Bumper Upper"
+            self.Swtttext[6][1] = "Bumper Lower"
+            self.Swtttext[6][2] = "Slingshot Left"
+            self.Swtttext[6][3] = "Slingshot Right"
+            self.Swtttext[7][0] = "EB Target"
+            self.Swtttext[7][1] = "Special Rollover"
+            self.Swtttext[7][2] = "Special Rollover"
+
+        for i in range(self.swmRows):
+            for j in range(self.swmCols): 
+                self.led[i][j].setToolTip(self.Swtttext[i][j])
+       
+    def resetthepin(self):
+        print("message request is", b'YBXQZ')
+        try:
+            self.thread.sock.send(b'YBXQZ')
+        except:
+            pass
+        
+
+    def toggleSound(self):
+        #print("toggle sound", self.ui.actionSound.isChecked(), self.ui.actionSound.isCheckable())
+        if self.sound == "on":
+            self.sound = "off"
+            #self.ui.actionSound.setChecked(False)
+        else:
+            #self.ui.actionSound.setChecked(True)
+            self.sound = "on"
+            
 
     def changefontpt(self, action):
 
@@ -573,8 +744,9 @@ class MainForm(QtWidgets.QMainWindow):
                 for i in range(128):
                     val = self.nvrlist[i][1]
                     f.write(f"0X{i:02X}:0X{val:02X}"+os.linesep)      
-            
-        
+
+                
+
     def actionLoadNvr(self):
         nvrfileStr = self.settings.value('nvrfileStr', None)
         filename, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Load File",
@@ -605,10 +777,113 @@ class MainForm(QtWidgets.QMainWindow):
                             self.nvrlist[addr] = ( -1, byte)
                             self.nibbleField[r][2*l].setText(f"{lb:1X}")
                             self.nibbleField[r][2*l+1].setText(f"{hb:1X}")
-                            self.nibbleField[r][2*l].setStyleSheet("background:rgb(120, 120, 120);color:rgb(255, 255, 255);")
-                            self.nibbleField[r][2*l+1].setStyleSheet("background:rgb(120, 120, 120);color:rgb(255, 255, 255);")
+                            #self.nibbleField[r][2*l].setStyleSheet("background:rgb(120, 120, 120);color:rgb(255, 255, 255);")
+                            #self.nibbleField[r][2*l+1].setStyleSheet("background:rgb(120, 120, 120);color:rgb(255, 255, 255);")
+                            self.nibbleField[r][2*l].setStyleSheet("background:purple;color:rgb(255, 255, 255);")
+                            self.nibbleField[r][2*l+1].setStyleSheet("background:purple;color:rgb(255, 255, 255);")
                 #print(self.nvrlist)      
-                
+
+    def setsound(self):   
+        format = QAudioFormat()
+        format.setChannelCount(1)
+        format.setSampleRate(22050)
+        format.setSampleSize(16)
+        format.setCodec("audio/pcm")
+        format.setByteOrder(QAudioFormat.LittleEndian)
+        format.setSampleType(QAudioFormat.SignedInt)
+
+        info = QAudioDeviceInfo();
+        
+        if not info.isFormatSupported(format):
+            print("format audio not supported")
+        
+        self.output = QAudioOutput(format, self)
+
+        self.frequency = 440
+        self.volume = 32767
+        self.sbuffer = QBuffer()
+        self.sdata10    = QByteArray()
+        self.sdata100   = QByteArray()
+        self.sdata1K    = QByteArray()
+        self.sdata10K   = QByteArray()
+        self.sdata100K  = QByteArray()
+
+        #self.sdata10.clear()
+        self.frequency = 440*16
+        for i in range(22050//2):
+            t = i / 22050.0
+            value = int(self.volume * math.sin(2 * math.pi * self.frequency * t))
+            self.sdata10.append(struct.pack("<h", value))
+        self.frequency = 440*8
+        for i in range(22050//2):
+            t = i / 22050.0
+            value = int(self.volume * math.sin(2 * math.pi * self.frequency * t))
+            self.sdata100.append(struct.pack("<h", value))
+        self.frequency = 440*4
+        for i in range(22050//2):
+            t = i / 22050.0
+            value = int(self.volume * math.sin(2 * math.pi * self.frequency * t))
+            self.sdata1K.append(struct.pack("<h", value))
+        self.frequency = 440*2
+        for i in range(22050//2):
+            t = i / 22050.0
+            value = int(self.volume * math.sin(2 * math.pi * self.frequency * t))
+            self.sdata10K.append(struct.pack("<h", value))
+        self.frequency = 440*1
+        for i in range(22050//2):
+            t = i / 22050.0
+            value = int(self.volume * math.sin(2 * math.pi * self.frequency * t))
+            self.sdata100K.append(struct.pack("<h", value))
+
+
+        
+        while self.output.state() == QAudio.ActiveState:
+            pass
+        self.play(self.sdata10)
+
+        while self.output.state() == QAudio.ActiveState:
+            pass
+        self.play(self.sdata100)
+
+        while self.output.state() == QAudio.ActiveState:
+            pass
+        self.play(self.sdata1K)
+        while self.output.state() == QAudio.ActiveState:
+            pass
+        self.play(self.sdata10K)
+        while self.output.state() == QAudio.ActiveState:
+            pass
+        self.play(self.sdata100K)
+        while self.output.state() == QAudio.ActiveState:
+            pass
+        self.output.stop()
+
+
+    def play(self, data):
+        #print("play")
+        if self.sound == "off":
+            return 
+        
+        if self.output.state() == QAudio.ActiveState:
+            self.output.stop()
+        
+        if self.sbuffer.isOpen():
+            self.sbuffer.close()
+        
+        #if self.output.error() == QAudio.UnderrunError:
+        if self.output.error() != QAudio.NoError:
+            print("reset audio channel", self.output.error())
+            if self.output.error() == QAudio.UnderrunError:
+                print("underrun error")
+            self.output.reset()
+
+        self.sbuffer.setData(data)
+        self.sbuffer.open(QIODevice.ReadOnly)
+        self.sbuffer.seek(0)
+
+        self.output.start(self.sbuffer)
+        
+             
     def launchAbout(self):
         """
         Starts the about dialog box
@@ -623,6 +898,13 @@ class MainForm(QtWidgets.QMainWindow):
         myhelp=MyHelp(self)
         myhelp.show()
                 
+    def launchReprog(self):
+        """
+        Starts the reprog dialog box
+        """
+        self.myreprog=MyReprog(self)
+        self.myreprog.exec()
+                  
     def launchSettings(self):
         """
         Starts the about dialog box
@@ -662,6 +944,9 @@ class MainForm(QtWidgets.QMainWindow):
         
 
     def send_reqswclose(self):
+        '''
+        Simulate a switch close 
+        '''
         try:
             strb = int(self.ui.lineEdit_swstrb.text(), 0)
         except:
@@ -1061,6 +1346,18 @@ class MainForm(QtWidgets.QMainWindow):
                 byten = 6 - (i // 8)
                 if data[byten]&(1<<(i%8)):
                     self.gpioled[i].setPixmap(QtGui.QPixmap(":/x/ledon.png"))
+                    #sound
+                    if   i==11:
+                        self.play(self.sdata100K)
+                    elif i==12:
+                        self.play(self.sdata10K)
+                    elif i==13:
+                        self.play(self.sdata1K)
+                    elif i==14:
+                        self.play(self.sdata100)
+                    elif i==15:
+                        self.play(self.sdata10)
+                        
                 else:
                     self.gpioled[i].setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
 
@@ -1469,6 +1766,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.settings.setValue('host', self.ui.lineEdit.text())
         self.settings.setValue('port', self.ui.lineEdit_2.text())
         self.settings.setValue('face', self.face)
+        self.settings.setValue('sound', self.sound)
 
         # Finally we pass the event to the class we inherit from. It can choose to accept or reject the event, but we don't need to deal with it ourselves
         super(MainForm, self).closeEvent(event)

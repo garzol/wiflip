@@ -13,6 +13,9 @@
     <file>ledgrey.png</file>
     <file>images/panthera-bg.png</file>
   </qresource>
+  <qresource prefix="sound">
+    <file>alarm1-b238.wav</file>
+  </qresource>
   <qresource prefix="help">
     <file>index.htm</file>
   </qresource>

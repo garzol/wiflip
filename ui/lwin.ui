@@ -70,8 +70,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>485</width>
-           <height>402</height>
+           <width>375</width>
+           <height>341</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -786,6 +786,36 @@ All closed switches noted by a code number in ball-in-play display.***
    <widget class="QWidget" name="dockWidgetContents_2">
     <layout class="QVBoxLayout" name="verticalLayout_16">
      <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_17">
+       <property name="topMargin">
+        <number>10</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="label_6">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Calque:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
       <widget class="QScrollArea" name="scrollArea_4">
        <property name="widgetResizable">
         <bool>true</bool>
@@ -796,7 +826,7 @@ All closed switches noted by a code number in ball-in-play display.***
           <x>0</x>
           <y>0</y>
           <width>384</width>
-          <height>420</height>
+          <height>422</height>
          </rect>
         </property>
         <property name="minimumSize">
@@ -1045,9 +1075,18 @@ All closed switches noted by a code number in ball-in-play display.***
     <addaction name="actionClear_all_2"/>
     <addaction name="separator"/>
     <addaction name="menuFont_size"/>
+    <addaction name="separator"/>
+    <addaction name="actionSound"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionReprog"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
+   <addaction name="menuTools"/>
    <addaction name="menu"/>
   </widget>
   <widget class="QDockWidget" name="dockWidget_5">
@@ -1056,7 +1095,7 @@ All closed switches noted by a code number in ball-in-play display.***
    </property>
    <property name="minimumSize">
     <size>
-     <width>100</width>
+     <width>547</width>
      <height>104</height>
     </size>
    </property>
@@ -2434,8 +2473,8 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>298</width>
-          <height>480</height>
+          <width>384</width>
+          <height>510</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -2522,7 +2561,7 @@ All closed switches noted by a code number in ball-in-play display.***
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>120</height>
+               <height>150</height>
               </size>
              </property>
              <property name="title">
@@ -2552,10 +2591,33 @@ All closed switches noted by a code number in ball-in-play display.***
               <item>
                <widget class="QPushButton" name="pb_flash">
                 <property name="styleSheet">
-                 <string notr="true">background-color:Crimson;color:white;</string>
+                 <string notr="true">background-color:Fuchsia;color:white;</string>
                 </property>
                 <property name="text">
                  <string>Flash</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_6">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pb_reset">
+                <property name="styleSheet">
+                 <string notr="true">background-color:Crimson;color:white;</string>
+                </property>
+                <property name="text">
+                 <string>Reset</string>
                 </property>
                </widget>
               </item>
@@ -2732,7 +2794,7 @@ All closed switches noted by a code number in ball-in-play display.***
           <x>0</x>
           <y>0</y>
           <width>332</width>
-          <height>116</height>
+          <height>83</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_14">
@@ -2795,8 +2857,8 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>155</width>
-          <height>116</height>
+          <width>127</width>
+          <height>83</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_15">
@@ -3180,6 +3242,19 @@ All closed switches noted by a code number in ball-in-play display.***
   <action name="actionSettings">
    <property name="text">
     <string>Settings...</string>
+   </property>
+  </action>
+  <action name="actionSound">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Sound on</string>
+   </property>
+  </action>
+  <action name="actionReprog">
+   <property name="text">
+    <string>Reprog...</string>
    </property>
   </action>
  </widget>
