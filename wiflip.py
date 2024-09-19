@@ -102,7 +102,8 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.setupUi(self)
         #self.ui.webEngineView.load(QtCore.QUrl.fromLocalFile('/Users/garzol/git/wiflip_tracer/index.htm'))
         self.ui.textBrowser.append('''
-<b>V0.80</b><br>correction of bug when loading nvr data file was not actually sending data<br>
+<b>V0.86</b> - 2024-09-19<br>Added sound (experimental). Improved initial layout<br><br>
+<b>V0.80</b><br>correction of bug when loading nvr data file was not actually sending data<br><br>
 <b>V0.78</b><br>original version<br>
 '''
 )
@@ -394,12 +395,14 @@ class MainForm(QtWidgets.QMainWindow):
 
         self.ui = Ui_MainWindow()
         
-
+        
         
         
 
         self.ui.setupUi(self)
-        self.setWindowTitle("WiFlip "+ self.game_type + " - V" + self.version + "(" +self.date +")")
+        self.move(100,50)
+        #self.setWindowTitle("WiFlip "+ self.game_type + " - V" + self.version + " (" +self.date +")")
+        self.setWindowTitle("WiFlip "+ self.game_type)
 
         self.settings = QtCore.QSettings('AA55', 'wiflip')
 
@@ -408,7 +411,6 @@ class MainForm(QtWidgets.QMainWindow):
         self.settings.setValue("MainWindow/default/windowState", 
                              self.saveState())        
 
-        
         # Then we look at our settings to see if there is a setting called geometry saved. Otherwise we default to an empty string
         geometry = self.settings.value('geometry', None)
         state    = self.settings.value('state', None)
@@ -421,7 +423,7 @@ class MainForm(QtWidgets.QMainWindow):
         # In this case we give it the values from the settings file.
         if geometry is not None:
             self.restoreGeometry(geometry)
-            
+    
         if state is not None:
             self.restoreState(state)
 
