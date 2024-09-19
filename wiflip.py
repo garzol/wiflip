@@ -786,18 +786,28 @@ class MainForm(QtWidgets.QMainWindow):
     def setsound(self):   
         format = QAudioFormat()
         format.setChannelCount(1)
-        format.setSampleRate(22050)
+        format.setSampleRate(44100)
         format.setSampleSize(16)
         format.setCodec("audio/pcm")
         format.setByteOrder(QAudioFormat.LittleEndian)
         format.setSampleType(QAudioFormat.SignedInt)
 
         info = QAudioDeviceInfo();
-        
-        if not info.isFormatSupported(format):
+        device = info.defaultOutputDevice()
+        # print(device.supportedChannelCounts())
+        # print(device.supportedCodecs())
+        # print(device.supportedSampleRates())
+        if not device.isFormatSupported(format):
             print("format audio not supported")
-        
-        self.output = QAudioOutput(format, self)
+            # self.sound = "off"
+            # self.settings.setValue('sound', self.sound)
+            format = device.nearestFormat(format)
+            print("format changed")
+            print("channels", format.channelCount())
+            print("rate", format.sampleRate())
+            print("size", format.sampleSize())
+
+        self.output = QAudioOutput(device, format, self)
 
         self.frequency = 440
         self.volume = 32767
@@ -834,29 +844,12 @@ class MainForm(QtWidgets.QMainWindow):
             t = i / 22050.0
             value = int(self.volume * math.sin(2 * math.pi * self.frequency * t))
             self.sdata100K.append(struct.pack("<h", value))
-
-
         
-        while self.output.state() == QAudio.ActiveState:
-            pass
-        self.play(self.sdata10)
 
-        while self.output.state() == QAudio.ActiveState:
-            pass
-        self.play(self.sdata100)
-
-        while self.output.state() == QAudio.ActiveState:
-            pass
-        self.play(self.sdata1K)
-        while self.output.state() == QAudio.ActiveState:
-            pass
-        self.play(self.sdata10K)
-        while self.output.state() == QAudio.ActiveState:
-            pass
-        self.play(self.sdata100K)
-        while self.output.state() == QAudio.ActiveState:
-            pass
-        self.output.stop()
+        self.play(self.sdata10+self.sdata100+self.sdata1K+self.sdata10K+self.sdata100K)
+        # while self.output.state() == QAudio.ActiveState:
+        #     pass
+        #self.output.stop()
 
 
     def play(self, data):
