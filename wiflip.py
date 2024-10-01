@@ -3,7 +3,7 @@ Created on 23 mars 2022
 
 dockWidget_2
 dockWidget
-@author: garzol switches reset open
+@author: garzol switches reset open transparent
 '''
 
 import os, sys, time, struct
@@ -44,6 +44,8 @@ from about import Ui_AboutDialog
 from help import Ui_HelpDialog
 from settings import Ui_DialogSettings
 from reprog   import Ui_ReprogDialog
+from gameset  import Ui_GameSettings
+import  options
 
 # import sys
 # from PyQt5.QtGui import *
@@ -109,6 +111,65 @@ class MyHelp(QtWidgets.QDialog):
 )
         self.ui.textBrowser_2.setSource(QtCore.QUrl('qrc:///help/index.htm'))
    
+
+class MyGameSet(QtWidgets.QDialog): 
+    """
+    Obsolete. Look at options 
+    This dialog box was created with QT
+    in gameset.ui
+    """
+    def __init__(self, parent=None):
+        super(MyGameSet, self).__init__(parent)
+        #QtGui.QWidget.__init__(self, parent)
+        self.ui = Ui_GameSettings()
+        self.ui.setupUi(self)
+
+        _translate = QtCore.QCoreApplication.translate
+
+        self.widget1fp = QSpinBox()
+        self.widget1fp.setValue(65)
+        self.widget1fp.setMinimum(0)
+        self.widget1fp.setMaximum(99)
+        
+        self.widget2fp = QSpinBox()
+        self.widget2fp.setValue(82)
+        self.widget2fp.setMinimum(0)
+        self.widget2fp.setMaximum(99)
+        
+        self.widgeteb = QSpinBox()
+        self.widgeteb.setValue(44)
+        self.widgeteb.setMinimum(0)
+        self.widgeteb.setMaximum(99)
+        
+        #self.treeWidget.topLevelItem(0).setText(0, _translate("GameSettings", "Basics"))
+        #self.treeWidget.topLevelItem(0).child(0).setText(0, _translate("GameSettings", "Production N°"))
+        self.ui.treeWidget.topLevelItem(0).setExpanded(True)
+        self.ui.treeWidget.topLevelItem(1).setExpanded(True)
+        self.ui.treeWidget.topLevelItem(2).setExpanded(True)
+        #self.treeWidget.topLevelItem(0).child(1).setText(0, _translate("GameSettings", "Model N°"))
+        # self.treeWidget.topLevelItem(0).child(2).setText(0, _translate("GameSettings", "Serial N° of Printer"))
+        # self.treeWidget.topLevelItem(0).child(3).setText(0, _translate("GameSettings", "Credit limit"))
+        # self.treeWidget.topLevelItem(1).setText(0, _translate("GameSettings", "Score threshold"))
+        # self.treeWidget.topLevelItem(1).child(0).setText(0, _translate("GameSettings", "1st freeplay"))
+        # self.treeWidget.topLevelItem(1).child(1).setText(0, _translate("GameSettings", "2nd freeplay"))
+        # self.treeWidget.topLevelItem(1).child(2).setText(0, _translate("GameSettings", "Extra ball"))
+        # self.treeWidget.topLevelItem(2).setText(0, _translate("GameSettings", "Initial contents"))
+        # self.treeWidget.topLevelItem(2).child(0).setText(0, _translate("GameSettings", "#Credit"))
+        # self.treeWidget.topLevelItem(2).child(1).setText(0, _translate("GameSettings", "#Free play"))
+        # self.treeWidget.topLevelItem(2).child(2).setText(0, _translate("GameSettings", "#Extra ball"))
+        # self.treeWidget.topLevelItem(3).setText(0, _translate("GameSettings", "Game variant"))
+        # self.treeWidget.topLevelItem(3).child(0).setText(0, _translate("GameSettings", "Adj. Play"))
+        self.ui.treeWidget.setItemWidget(self.ui.treeWidget.topLevelItem(1).child(0), 1, self.widget1fp)
+        self.ui.treeWidget.setItemWidget(self.ui.treeWidget.topLevelItem(1).child(1), 1, self.widget2fp)
+        self.ui.treeWidget.setItemWidget(self.ui.treeWidget.topLevelItem(1).child(2), 1, self.widgeteb)
+
+        #self.ui.treeWidget.topLevelItem(0).child(0).setFlags(Qt.ItemIsEditable | Qt.ItemIsEnabled )
+        #self.ui.treeWidget.setItemWidget(self.ui.treeWidget.topLevelItem(0).child(0), 1, self.widgetmdl)
+        self.ui.treeWidget.topLevelItem(0).child(0).triggered.connect(self.pipo)    
+            #self.ui.treeWidget.setItemWidget(item, 1, widget)
+        
+    def pipo(self, ev):
+        print("zobi", ev)
       
 class MyReprog(QtWidgets.QDialog): 
     """
@@ -442,6 +503,7 @@ class MainForm(QtWidgets.QMainWindow):
             self.ui.actionSound.setChecked(True)
         
         if self.game_type == "Recel":
+            
             DP = 92
             BY = 69
             BX = 10
@@ -484,6 +546,7 @@ class MainForm(QtWidgets.QMainWindow):
             self.swmRows, self.swmCols = (10, 4)
 
         self.Swtttext = [[None for x in range(self.swmCols)] for y in range(self.swmRows)]       
+        self.sh_Swtttext = [[None for x in range(self.swmCols)] for y in range(self.swmRows)]       
 
         if self.game_type == "Recel":
             self.Swtttext[0][0] = "Ball Home"
@@ -549,6 +612,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.actionHelp.triggered.connect(self.launchHelp)
         self.ui.actionSettings.triggered.connect(self.launchSettings)
         self.ui.actionReprog.triggered.connect(self.launchReprog)
+        self.ui.actionGame_settings.triggered.connect(self.launchGameSet)
 
         self.ui.actionSound.toggled.connect(self.toggleSound)
 
@@ -645,8 +709,28 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.comboBox.currentTextChanged.connect(self.text_changed)
         #self.ui.comboBox.currentIndexChanged.connect(self.index_changed)
         self.text_changed('Crazy Race')
+
+        if self.game_type == "Recel":
+            #dock des config switches de gottlieb
+            #self.ui.dockWidget_5.setFloating(True)
+            self.ui.dockWidget_5.setVisible(False)
         
     def text_changed(self, s):
+        
+        self.Swtttext = [[None for x in range(self.swmCols)] for y in range(self.swmRows)]       
+        self.sh_Swtttext = [[None for x in range(self.swmCols)] for y in range(self.swmRows)]       
+
+        if self.game_type == "Recel":
+            self.Swtttext[0][0] = "Ball Home"
+            self.Swtttext[8][0] = "Fault"
+            self.Swtttext[8][1] = "Coin 3"
+            self.Swtttext[8][2] = "Coin 1"
+            self.Swtttext[8][3] = "Coin 2"
+            self.Swtttext[9][0] = "Tilt"
+            self.Swtttext[9][1] = "Replays"
+            self.Swtttext[9][2] = "Button 2"
+            self.Swtttext[9][3] = "Button 1"
+
         if   s == 'Crazy Race':
             self.Swtttext[0][1] = "Targets upper side"
             self.Swtttext[0][2] = "Target 50000"
@@ -663,6 +747,21 @@ class MainForm(QtWidgets.QMainWindow):
             self.Swtttext[6][3] = "Slingshot Right"
             self.Swtttext[7][2] = "Passage 30000"
             self.Swtttext[7][3] = "Slingshot Upper"
+            self.sh_Swtttext[0][1] = "TU"
+            self.sh_Swtttext[0][2] = "T50K"
+            self.sh_Swtttext[0][3] = "UH"
+            self.sh_Swtttext[3][1] = "P100"
+            self.sh_Swtttext[3][2] = "30"
+            self.sh_Swtttext[4][1] = "5K+B"
+            self.sh_Swtttext[5][0] = "TR"
+            self.sh_Swtttext[5][1] = "TC"
+            self.sh_Swtttext[5][2] = "TL"
+            self.sh_Swtttext[6][0] = "BL"
+            self.sh_Swtttext[6][1] = "BR"
+            self.sh_Swtttext[6][2] = "SL"
+            self.sh_Swtttext[6][3] = "SR"
+            self.sh_Swtttext[7][2] = "P30K"
+            self.sh_Swtttext[7][3] = "SU"
         elif s == 'Fair Fight':
             self.Swtttext[0][1] = "Target Lower Left"
             self.Swtttext[0][2] = "Target Lower Right"
@@ -680,10 +779,28 @@ class MainForm(QtWidgets.QMainWindow):
             self.Swtttext[7][0] = "EB Target"
             self.Swtttext[7][1] = "Special Rollover"
             self.Swtttext[7][2] = "Special Rollover"
+            self.sh_Swtttext[0][1] = "TLL"
+            self.sh_Swtttext[0][2] = "TLR"
+            self.sh_Swtttext[0][3] = "30"
+            self.sh_Swtttext[1][0] = "TUL"
+            self.sh_Swtttext[1][1] = "TUR"
+            self.sh_Swtttext[1][2] = "LHR"
+            self.sh_Swtttext[1][3] = "10K"
+            self.sh_Swtttext[2][3] = "RHR"
+            self.sh_Swtttext[3][3] = "500"
+            self.sh_Swtttext[6][0] = "BU"
+            self.sh_Swtttext[6][1] = "BL"
+            self.sh_Swtttext[6][2] = "SL"
+            self.sh_Swtttext[6][3] = "SR"
+            self.sh_Swtttext[7][0] = "TEB"
+            self.sh_Swtttext[7][1] = "SpR"
+            self.sh_Swtttext[7][2] = "SpR"
 
         for i in range(self.swmRows):
             for j in range(self.swmCols): 
                 self.led[i][j].setToolTip(self.Swtttext[i][j])
+                self.ledlabel[i][j].setText(self.sh_Swtttext[i][j])
+                self.ledlabel[i][j].setToolTip(self.Swtttext[i][j])
        
     def resetthepin(self):
         print("message request is", b'YBXQZ')
@@ -893,6 +1010,18 @@ class MainForm(QtWidgets.QMainWindow):
         myhelp=MyHelp(self)
         myhelp.show()
                 
+    def launchGameSet(self):
+        """
+        Starts the game settings dialog box
+        """
+        #V1.2.20 added param 'self' in next command, to avoid window to disappear
+        self.options = options.MyOptions(self)
+        self.options.config(self.settings)
+        self.options.exec_()
+        
+        # self.mygameset=MyGameSet(self)
+        # self.mygameset.exec()
+                  
     def launchReprog(self):
         """
         Starts the reprog dialog box
@@ -935,6 +1064,13 @@ class MainForm(QtWidgets.QMainWindow):
             self.settings.setValue("geometry", self.saveGeometry())
             self.settings.setValue("state", self.saveState())
             self.settings.sync()
+            
+            #pas beau mais j'arrive pas à me debarrasser de ce dock autrement
+            if self.game_type == "Recel":
+                #dock des config switches de gottlieb
+                #self.ui.dockWidget_5.setFloating(True)
+                self.ui.dockWidget_5.setVisible(False)
+        
 
         
 
@@ -1308,7 +1444,11 @@ class MainForm(QtWidgets.QMainWindow):
             try:
                 self.mysettings.statusCmd.emit(82, "done")   
             except:
-                pass     
+                print("signaling error settings")     
+            try:
+                self.options.statusCmd.emit(82, "done")   
+            except:
+                print("signaling error options")     
             
         elif typ == 71:   #G
             # 8b ROM data
@@ -1955,41 +2095,83 @@ class MainForm(QtWidgets.QMainWindow):
     def setupleds(self):
         rows, cols = self.swmRows, self.swmCols    
         self.led = [0]*rows
-        
+        self.ledlabel = [0]*rows
+        deltax = 50
+        deltay = 50
+        balldia = 48
+        rowSpan = 1
+        columnSpan = 1
+        self.ui.groupBox.setMinimumSize(QtCore.QSize(balldia*rows+120, balldia*cols+120))
+        #self.ui.groupBox.setMaximumSize(QtCore.QSize(balldia*rows+120, balldia*cols+120))
+        #self.ui.groupBox.setMinimumSize(QtCore.QSize(deltax*rows+60, deltay*cols+60))
+        self.ui.dockWidget_2.setMaximumSize(QtCore.QSize(524287, 524287))
+        self.ui.dockWidget_2.setMinimumSize(QtCore.QSize(100, 100))
+        #self.ui.groupBox.setGeometry(QtCore.QRect(1000, 0, 5000, 25))
+        self.ui.groupBox.setFixedSize((QtCore.QSize(balldia*(rows+2), balldia*(cols+2))))
         for i in range(rows):
-            rled=QtWidgets.QLabel(self.ui.groupBox)
-            rled.setGeometry(QtCore.QRect(60+i*28, 90-28, 20, 20))
+            #rled=QtWidgets.QLabel(self.ui.groupBox)
+            rled=QtWidgets.QLabel()
+            #rled.setGeometry(QtCore.QRect(60+i*deltax, 90-deltax, balldia, balldia))
+            rled.setGeometry(QtCore.QRect(0, 0, balldia, balldia))
+            rled.setScaledContents(True)
             rled.setText(f"S{i}")
             rled.setObjectName(f"sled_{i}")
-            
+            self.ui.groupBox.layout().addWidget(rled, 0, i+1, rowSpan, columnSpan, Qt.AlignCenter)
+            #self.ui.groupBox.layout().addWidget(rled, 0, i+1)
         for i in range(cols):
-            rled=QtWidgets.QLabel(self.ui.groupBox)
-            rled.setGeometry(QtCore.QRect(60-28, 90+i*36, 20, 20))
+            rled=QtWidgets.QLabel()
+            #rled.setGeometry(QtCore.QRect(60-deltax, 90+i*deltay, balldia, balldia))
+            rled.setGeometry(QtCore.QRect(0, 0, balldia, balldia))
+            rled.setScaledContents(True)
             rled.setText(f"R{chr(i+0x41)}")
             rled.setObjectName(f"rled_{i}")
+            self.ui.groupBox.layout().addWidget(rled, i+1, 0)
             
         for i in range(rows):
             self.led[i]=[0]*cols
+            self.ledlabel[i]=[0]*cols
             for j in range(cols):
-                self.led[i][j]=QtWidgets.QLabel(self.ui.groupBox)
-                self.led[i][j].setGeometry(QtCore.QRect(60+i*28, 90+j*36, 20, 20))
-                self.led[i][j].setText("")
+                self.ledlabel[i][j]=QtWidgets.QLabel()
+                self.led[i][j]=QtWidgets.QLabel()
+                #self.led[i][j].setGeometry(QtCore.QRect(60+i*deltax, 90+j*deltay, balldia, balldia))
+                self.led[i][j].setGeometry(QtCore.QRect(0, 0, balldia, balldia))
                 if i%2 and j%2:
                     self.led[i][j].setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
                 else:
                     self.led[i][j].setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
                 self.led[i][j].setScaledContents(True)
+                #self.ledlabel[i][j].setScaledContents(True)
                 self.led[i][j].setObjectName(f"led_{i}{j}")
                 self.led[i][j].mousePressEvent = lambda _, x=i, y=j : self.foo(x, y)
+                self.ledlabel[i][j].mousePressEvent = lambda _, x=i, y=j : self.foo(x, y)
                 self.led[i][j].setToolTip(self.Swtttext[i][j])
-
-
+                self.ledlabel[i][j].setToolTip(self.Swtttext[i][j])
+                self.ui.groupBox.layout().addWidget(self.led[i][j], j+1, i+1)
+                self.ui.groupBox.layout().addWidget(self.ledlabel[i][j], j+1, i+1)
+                #self.led[i][j].setText("")
+                #self.ledlabel[i][j].setText(self.Swtttext[i][j])
+                self.ledlabel[i][j].setAlignment(Qt.AlignCenter)
+                #self.ledlabel[i][j].setMinimumHeight(QtGui.QPixmap(":/x/ledgrey.png").height())
+                #self.ledlabel[i][j].setGeometry(QtCore.QRect(60+i*deltax, 90-deltax, 120, balldia))
+                self.ledlabel[i][j].setStyleSheet("""
+                                                    QLabel {background-color: transparent;
+                                                    color: white;
+                                                    font: bold 10px;
+                                                    padding: 0px 10px 0px 10px;
+                                                             }
+                                                    QToolTip {background-color: MediumSeaGreen;
+                                                    color: white;
+                                                    font:  18px;
+                                                    padding: 0px 10px 0px 10px;
+                                                             }
+                                                  """)
         # print (self.led)
         # for i in range(8):
         #     for j in range(5):
         #         if i%2 and j%2:
         #             self.led[i][j].setPixmap(QtGui.QPixmap(":/x/ledon.png"))
 
+        #print(self.ui.groupBox.layout().objectName())
 
     def foo(self, i, j):
         strb = i.to_bytes(1, byteorder='big')
