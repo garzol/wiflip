@@ -8,7 +8,7 @@ Created on 7 sept. 2011
 @author: garzol
 Copyright AA55 Consulting 2011
 
-adaptation from options of msc project
+adaptation from options of msc project www
 
 '''
 import time
@@ -546,7 +546,7 @@ WITHOUT PRESSING THE START BUTTON
             papa.thread.sock.send(b'YR'+memtyp.to_bytes(1, byteorder='big')+b'XX')
         except:
             dlg = QMessageBox(self.parent())
-            dlg.setWindowTitle("www")
+            dlg.setWindowTitle("Network")
             dlg.setText("No connection.")
             dlg.setIcon(QMessageBox.Warning)
             dlg.exec()
@@ -565,7 +565,7 @@ WITHOUT PRESSING THE START BUTTON
     def timeoutt(self):
         print("Time out")
         dlg = QMessageBox(self.parent())
-        dlg.setWindowTitle("I have a question!")
+        dlg.setWindowTitle("Network")
         dlg.setText("Time out. Please, check your connection")
         dlg.setIcon(QMessageBox.Warning)
         button = dlg.exec()
