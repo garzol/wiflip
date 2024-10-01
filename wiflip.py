@@ -3,7 +3,7 @@ Created on 23 mars 2022
 
 dockWidget_2
 dockWidget
-@author: garzol switches reset open transparent
+@author: garzol switches reset open transparent I have a
 '''
 
 import os, sys, time, struct
@@ -280,7 +280,7 @@ class MySettings(QtWidgets.QDialog):
             papa.thread.sock.send(b'YR'+memtyp.to_bytes(1, byteorder='big')+b'XX')
         except:
             dlg = QMessageBox(self.parent())
-            dlg.setWindowTitle("www")
+            dlg.setWindowTitle("Network")
             dlg.setText("No connection.")
             dlg.setIcon(QMessageBox.Warning)
             dlg.exec()
@@ -423,7 +423,7 @@ class MySettings(QtWidgets.QDialog):
     def timeoutt(self):
         print("Time out")
         dlg = QMessageBox(self.parent())
-        dlg.setWindowTitle("I have a question!")
+        dlg.setWindowTitle("Network")
         dlg.setText("Time out. Please, check your connection")
         dlg.setIcon(QMessageBox.Warning)
         button = dlg.exec()
