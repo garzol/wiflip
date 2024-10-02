@@ -3,7 +3,8 @@ Created on 23 mars 2022
 
 dockWidget_2
 dockWidget
-@author: garzol switches reset open transparent I have a
+@author: garzol switches reset open transparent I have a alarm1
+WebEngine WebView OpenGL numpy QtTextToSpeech
 '''
 
 import os, sys, time, struct
@@ -20,10 +21,13 @@ from PyQt5.QtWidgets import *
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import QtNetwork 
-from PyQt5 import QtMultimedia 
-from PyQt5.QtMultimedia import QAudio, QAudioDeviceInfo, QAudioFormat, QAudioOutput
+#from PyQt5 import QtMultimedia 
+from PyQt5.QtMultimedia import QSound
+from PyQt5.QtMultimedia import QAudio
+from PyQt5.QtMultimedia import QAudioDeviceInfo, QAudioFormat, QAudioOutput
 
-from PyQt5.QtCore import QByteArray, QDataStream, QIODevice
+from PyQt5.QtCore import QByteArray, QDataStream 
+#from PyQt5.QtCore import QIODevice
 from PyQt5.QtWidgets import QApplication, QDialog
 from PyQt5.QtNetwork import QHostAddress, QTcpServer
 
@@ -71,8 +75,8 @@ aboutContent = '''
 </td></tr></table>
 '''
 
-VERSION = "0.87"
-DATE    = "2024-10-01"
+VERSION = "0.88"
+DATE    = "2024-10-02"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
@@ -628,7 +632,7 @@ class MainForm(QtWidgets.QMainWindow):
         #self.jingle = os.path.join(CURRENT_DIR, "alarm1-b238.wav")
 
         self.jingle = ":/sound/alarm1-b238.wav"
-        #QtMultimedia.QSound.play(self.jingle)
+        #QSound.play(self.jingle)
         self.setsound()
         #trace button
         self.ui.pushButton_3.clicked.connect(self.send_trace)
@@ -1034,7 +1038,7 @@ QPushButton:pressed {
                             self.nibbleField[r][2*l+1].setStyleSheet("background:purple;color:rgb(255, 255, 255);")
                 #print(self.nvrlist)      
 
-    def setsound(self):   
+    def setsound(self):  
         format = QAudioFormat()
         format.setChannelCount(1)
         format.setSampleRate(44100)
@@ -1107,7 +1111,6 @@ QPushButton:pressed {
         #print("play")
         if self.sound == "off":
             return 
-        
         if self.output.state() == QAudio.ActiveState:
             self.output.stop()
         
@@ -1126,7 +1129,6 @@ QPushButton:pressed {
         self.sbuffer.seek(0)
 
         self.output.start(self.sbuffer)
-        
              
     def launchAbout(self):
         """
@@ -1481,7 +1483,7 @@ QPushButton:pressed {
             
             self.ui.pushButton.setText("connect")
             self.ui.label_12.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
-            QtMultimedia.QSound.play(self.jingle)
+            QSound.play(self.jingle)
         elif state == "yellow":
             self.ui.label_12.setPixmap(QtGui.QPixmap(":/x/ledyellow"))
 

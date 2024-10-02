@@ -6,6 +6,7 @@ Created on 29 mars 2016
 @author: a030466
 
 recupere de msc project
+obsolete
 '''
 
 from PyQt5 import QtCore, QtGui, QtWidgets

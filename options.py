@@ -15,15 +15,15 @@ import time
 
 from time import sleep
 
-from PyQt5.QtCore import *
+from PyQt5.QtCore import pyqtSignal
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-
+from PyQt5.QtCore import QTimer
 from gameset  import Ui_GameSettings
-from mytreewidget import MyTreeWidget
-from builtins import staticmethod
+#from mytreewidget import MyTreeWidget
+from PyQt5.Qt import *
 
 from mytreeview import MyTreeView, MyDelegate
 
@@ -602,24 +602,24 @@ WITHOUT PRESSING THE START BUTTON
         _translate = QtCore.QCoreApplication.translate
         treeHeaderLabel=["Property", "Value"]
         self.settin = settin
-        self.myTree = MyTreeWidget()   
+        #self.myTree = MyTreeWidget()   
         #self.myTree = self.ui.treeWidget   
         
-        self.myTree.setColumnCount(len(treeHeaderLabel))
-        self.myTree.setHeaderLabels(treeHeaderLabel)
-        self.myTree.setAlternatingRowColors(True)
-        self.myTree.setColumnWidth(0, 220)
-        self.myTree.setAllColumnsShowFocus(True)
-        self.myTree.setUniformRowHeights(True)
-        self.myTree.setSortingEnabled(True)
-        self.myTree.header().setMinimumSectionSize(180)
-        self.myTree.header().setCascadingSectionResizes(True)
-
-        self.myTree.setLineWidth(2)
-        self.myTree.setMidLineWidth(1)
-        self.myTree.setTabKeyNavigation(True)
-        self.myTree.setTextElideMode(QtCore.Qt.ElideLeft)
-        self.myTree.setAnimated(True)
+        # self.myTree.setColumnCount(len(treeHeaderLabel))
+        # self.myTree.setHeaderLabels(treeHeaderLabel)
+        # self.myTree.setAlternatingRowColors(True)
+        # self.myTree.setColumnWidth(0, 220)
+        # self.myTree.setAllColumnsShowFocus(True)
+        # self.myTree.setUniformRowHeights(True)
+        # self.myTree.setSortingEnabled(True)
+        # self.myTree.header().setMinimumSectionSize(180)
+        # self.myTree.header().setCascadingSectionResizes(True)
+        #
+        # self.myTree.setLineWidth(2)
+        # self.myTree.setMidLineWidth(1)
+        # self.myTree.setTabKeyNavigation(True)
+        # self.myTree.setTextElideMode(QtCore.Qt.ElideLeft)
+        # self.myTree.setAnimated(True)
 
         #self.myTree.setObjectName("treeWidget")
 
@@ -672,43 +672,43 @@ WITHOUT PRESSING THE START BUTTON
         delegate = MyDelegate()
         self.myTreev.setItemDelegate(delegate)    
 
-        self.tlis = dict()
-        for cat in MyOptions.topLevelCategory:
-            item_0 = QtWidgets.QTreeWidgetItem(self.myTree)
-            #item_0.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled |Qt.ItemIsSelectable)
-            item_0.setText(0, _translate("GameSettings", cat))
-            #self.myTree.addTopLevelItem(item_0)
-            #print(item_0, item_0.text(0), self.myTree.indexOfTopLevelItem(item_0))
-            item_0.setExpanded(True)
-            self.tlis[cat] = item_0
+        # self.tlis = dict()
+        # for cat in MyOptions.topLevelCategory:
+        #     item_0 = QtWidgets.QTreeWidgetItem(self.myTree)
+        #     #item_0.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled |Qt.ItemIsSelectable)
+        #     item_0.setText(0, _translate("GameSettings", cat))
+        #     #self.myTree.addTopLevelItem(item_0)
+        #     #print(item_0, item_0.text(0), self.myTree.indexOfTopLevelItem(item_0))
+        #     item_0.setExpanded(True)
+        #     self.tlis[cat] = item_0
         #self.ui.treeWidget.topLevelItem(0).child(0).setFlags(Qt.ItemIsEditable | Qt.ItemIsEnabled )
 
         #print(self.myTree.topLevelItemCount(), len(MyOptions.topLevelCategory))
         #self.treeWidget.topLevelItem(0).child(0).setText(0, _translate("GameSettings", "Production N°"))
-        self.itemdict = dict()
-        self.brushdict = dict()
-        for objname, objcontent in MyOptions.defaults.items():  
-            fatherItem = self.tlis[objcontent[MyOptions.parent__tlcid]]
-            #print(objcontent[MyOptions.parent__tlcid], fatherItem, self.myTree.indexOfTopLevelItem(fatherItem))
-            item = QtWidgets.QTreeWidgetItem(fatherItem, 
-                                         QtWidgets.QTreeWidgetItem.DontShowIndicatorWhenChildless) 
-            item.setToolTip(0, MyOptions.defaults[objname][5])   #[5] is tool tip string        
-            item.setText(0, objname)
-            #value = str(settin.value(objname, objcontent[0]).toByteArray())
-                            
-            value = settin.value(objname, objcontent[0])    #[0] is default value
-            item.setText(1, str(value))
-            self.itemdict[objname] = item
-            self.brushdict[objname]   = item.background(1)
+        # self.itemdict = dict()
+        # self.brushdict = dict()
+        # for objname, objcontent in MyOptions.defaults.items():  
+        #     fatherItem = self.tlis[objcontent[MyOptions.parent__tlcid]]
+        #     #print(objcontent[MyOptions.parent__tlcid], fatherItem, self.myTree.indexOfTopLevelItem(fatherItem))
+        #     item = QtWidgets.QTreeWidgetItem(fatherItem, 
+        #                                  QtWidgets.QTreeWidgetItem.DontShowIndicatorWhenChildless) 
+        #     item.setToolTip(0, MyOptions.defaults[objname][5])   #[5] is tool tip string        
+        #     item.setText(0, objname)
+        #     #value = str(settin.value(objname, objcontent[0]).toByteArray())
+        #
+        #     value = settin.value(objname, objcontent[0])    #[0] is default value
+        #     item.setText(1, str(value))
+        #     self.itemdict[objname] = item
+        #     self.brushdict[objname]   = item.background(1)
         #self.ui.verticalLayout.addWidget(self.myTree)
         
         #self.myTree.itemDoubleClicked.connect(self.onItemDoubleClick)
-        self.myTree.itemChanged.connect(self.onItemChanged)
-        self.myTree.currentItemChanged.connect(self.onCurrentItemChanged)
+        # self.myTree.itemChanged.connect(self.onItemChanged)
+        # self.myTree.currentItemChanged.connect(self.onCurrentItemChanged)
         #QtCore.QObject.connect(self.myTree, QtCore.SIGNAL("itemDoubleClicked(QTreeWidgetItem*, int)"), self.onItemDoubleClick)
         #QtCore.QObject.connect(self.myTree, QtCore.SIGNAL("itemChanged(QTreeWidgetItem *,int)"), self.onItemChanged)
         
-        self.myTree.itemClicked.connect(self.onItemClick)
+        #self.myTree.itemClicked.connect(self.onItemClick)
         #self.myTree.itemPressed.connect(self.onItemPressed)
 
         #self.myTree.itemActivated.connect(self.onItemActivated)
@@ -734,7 +734,7 @@ WITHOUT PRESSING THE START BUTTON
         #                        QtCore.SIGNAL("currentItemChanged (QTreeWidgetItem *,QTreeWidgetItem *)"), 
         #                        self.onCurrentItemChanged)
 
-        self.myTree.sortItems(0, Qt.AscendingOrder)
+        #self.myTree.sortItems(0, Qt.AscendingOrder)
         
         
     def onItemPressed(self, witem, col):
@@ -755,19 +755,24 @@ WITHOUT PRESSING THE START BUTTON
         # print("    ", item.column()) 
         pass
                        
-    def onItemClick(self, wItem, col):
-        #print("itemClicked")
-        #print(self.myTree.selectedItems())
-        if col != 1 :return
-        if wItem in self.tlis.values(): return
-        objname = wItem.text(0)
-        if MyOptions.defaults[objname][1] == Hex:
-            self.myTree.openPersistentEditor(wItem, col)
-        elif MyOptions.defaults[objname][1] == Combo:
-            myecombo = MyOptions.defaults[objname][7]
-            mycombo  = QComboBox()
-            mycombo.addItems(myecombo.items)
-            self.myTree.setItemWidget(wItem, 1, mycombo)
+    # def onItemClick(self, wItem, col):
+    #     #print("itemClicked")
+    #     #print(self.myTree.selectedItems())
+    #     if col != 1 :return
+    #     if wItem in self.tlis.values(): return
+    #     objname = wItem.text(0)
+    #     if MyOptions.defaults[objname][1] == Hex:
+    #         self.myTree.openPersistentEditor(wItem, col)
+    #     elif MyOptions.defaults[objname][1] == Combo:
+    #         myecombo = MyOptions.defaults[objname][7]
+    #         mycombo  = QComboBox()
+    #         mycombo.addItems(myecombo.items)
+    #         self.myTree.setItemWidget(wItem, 1, mycombo)
+    #
+
+            
+            
+            
     # def itemChanged(self, witem, col):
     #     print("itemChanged")
     #     pass      
@@ -777,79 +782,82 @@ WITHOUT PRESSING THE START BUTTON
     #     print("itemSelectionChanged")
         
                             
-    def onCurrentItemChanged(self, newItem, oldItem):
-        #print("onCurrentItemChanged", newItem, newItem)
-        if newItem in self.tlis.values(): return
-        self.memoVal = newItem.text(1)
-        objname = oldItem.text(0)
-        if oldItem not in self.tlis.values():
-            if MyOptions.defaults[objname][1] == Hex:
-                self.myTree.closePersistentEditor(oldItem, 1)
-            elif MyOptions.defaults[objname][1] == Combo:
-                pass
-                #self.myTree.setItemWidget(oldItem, 1, mycombo)
-                
-
-        self.myTree.openPersistentEditor(newItem, 1)
-        #self.myTree.setCurrentItem(newItem, 1, QItemSelectionModel.SelectCurrent)
-        #self.myTree.itemPressed.emit(newItem, 1)
-        #self.itemPressed(newItem, 1)
-        #self.myTree.edit(newItem, 1)
-        #self.myTree.itemClicked.emit(newItem, 1)
-        #print(self.myTree.selectedItems())
+    # def onCurrentItemChanged(self, newItem, oldItem):
+    #     #print("onCurrentItemChanged", newItem, newItem)
+    #     if newItem in self.tlis.values(): return
+    #     self.memoVal = newItem.text(1)
+    #     objname = oldItem.text(0)
+    #     if oldItem not in self.tlis.values():
+    #         if MyOptions.defaults[objname][1] == Hex:
+    #             self.myTree.closePersistentEditor(oldItem, 1)
+    #         elif MyOptions.defaults[objname][1] == Combo:
+    #             pass
+    #             #self.myTree.setItemWidget(oldItem, 1, mycombo)
+    #
+    #
+    #     self.myTree.openPersistentEditor(newItem, 1)
+    #     #self.myTree.setCurrentItem(newItem, 1, QItemSelectionModel.SelectCurrent)
+    #     #self.myTree.itemPressed.emit(newItem, 1)
+    #     #self.itemPressed(newItem, 1)
+    #     #self.myTree.edit(newItem, 1)
+    #     #self.myTree.itemClicked.emit(newItem, 1)
+    #     #print(self.myTree.selectedItems())
+     
+     
         
     def onItemPressed (self, wItem, col):
         print("onItemPressed", wItem, col)
         
-    def onItemDoubleClick (self, wItem, col):
-        print("onItemDoubleClick", wItem, col)
-        if col != 1 :return
-        if wItem in self.tlis.values(): return
-        self.memoVal = wItem.text(1)
-        self.myTree.openPersistentEditor(wItem, 1)
+    # def onItemDoubleClick (self, wItem, col):
+    #     print("onItemDoubleClick", wItem, col)
+    #     if col != 1 :return
+    #     if wItem in self.tlis.values(): return
+    #     self.memoVal = wItem.text(1)
+    #     self.myTree.openPersistentEditor(wItem, 1)
+    #
 
-    def onItemChanged(self, wItem, col):    
-        if col != 1 :return
-        if wItem in self.tlis.values(): return
-        #print("onitemchanged", wItem, col)
-        mybrush = QtGui.QBrush()
-        mybrush.setColor(QtGui.QColor(Qt.red))
-        mybrush.setStyle(Qt.Dense4Pattern)
-        mybrushf = QtGui.QBrush()
-        mybrushf.setColor(QtGui.QColor(Qt.green))
-        mybrushf.setStyle(Qt.Dense5Pattern)
-        validFunc = MyOptions.defaults[str(wItem.text(0))][2]       
-        #print("validFunc", validFunc)
-        if not validFunc:
-            print("f invalid")
-            return
-        minval = MyOptions.defaults[str(wItem.text(0))][3] 
-        maxval = MyOptions.defaults[str(wItem.text(0))][4] 
-        try:
-            optval = MyOptions.defaults[str(wItem.text(0))][7] 
-        except:
-            optval = None
-        validated, msg = validFunc(wItem.text(1), minval, maxval, option=optval)
-        if not validated:
-            #print("nok old bg",wItem.background(1))
-            #self.brushdict[wItem] = wItem.background(1)
-            self.myTree.itemChanged.disconnect(self.onItemChanged)
-            wItem.setBackground(1, mybrush)
-            wItem.setToolTip(1, msg)
-            self.myTree.itemChanged.connect(self.onItemChanged)
-            #wItem.setForeground(1, mybrushf)
-            #wItem.setText(1, self.memoVal)
-        else:
-            objname = list(self.itemdict.keys())[list(self.itemdict.values()).index(wItem)] 
-            self.myTree.itemChanged.disconnect(self.onItemChanged)
-            bbase   = self.brushdict[objname]
-            bbase.setColor(QtGui.QColor(Qt.green))
-            wItem.setBackground(1, mybrushf)
-            wItem.setToolTip(1, msg)
-            self.myTree.itemChanged.connect(self.onItemChanged)
-            #print("ok new bg",wItem.background(1))
-        self.myTree.closePersistentEditor(wItem, 1)
-        #wItem.setSelected(False)
+    # def onItemChanged(self, wItem, col):    
+    #     if col != 1 :return
+    #     if wItem in self.tlis.values(): return
+    #     #print("onitemchanged", wItem, col)
+    #     mybrush = QtGui.QBrush()
+    #     mybrush.setColor(QtGui.QColor(Qt.red))
+    #     mybrush.setStyle(Qt.Dense4Pattern)
+    #     mybrushf = QtGui.QBrush()
+    #     mybrushf.setColor(QtGui.QColor(Qt.green))
+    #     mybrushf.setStyle(Qt.Dense5Pattern)
+    #     validFunc = MyOptions.defaults[str(wItem.text(0))][2]       
+    #     #print("validFunc", validFunc)
+    #     if not validFunc:
+    #         print("f invalid")
+    #         return
+    #     minval = MyOptions.defaults[str(wItem.text(0))][3] 
+    #     maxval = MyOptions.defaults[str(wItem.text(0))][4] 
+    #     try:
+    #         optval = MyOptions.defaults[str(wItem.text(0))][7] 
+    #     except:
+    #         optval = None
+    #     validated, msg = validFunc(wItem.text(1), minval, maxval, option=optval)
+    #     if not validated:
+    #         #print("nok old bg",wItem.background(1))
+    #         #self.brushdict[wItem] = wItem.background(1)
+    #         self.myTree.itemChanged.disconnect(self.onItemChanged)
+    #         wItem.setBackground(1, mybrush)
+    #         wItem.setToolTip(1, msg)
+    #         self.myTree.itemChanged.connect(self.onItemChanged)
+    #         #wItem.setForeground(1, mybrushf)
+    #         #wItem.setText(1, self.memoVal)
+    #     else:
+    #         objname = list(self.itemdict.keys())[list(self.itemdict.values()).index(wItem)] 
+    #         self.myTree.itemChanged.disconnect(self.onItemChanged)
+    #         bbase   = self.brushdict[objname]
+    #         bbase.setColor(QtGui.QColor(Qt.green))
+    #         wItem.setBackground(1, mybrushf)
+    #         wItem.setToolTip(1, msg)
+    #         self.myTree.itemChanged.connect(self.onItemChanged)
+    #         #print("ok new bg",wItem.background(1))
+    #     self.myTree.closePersistentEditor(wItem, 1)
+    #     #wItem.setSelected(False)
 
     def ApplyAction(self):
         papa = self.parent()
@@ -935,17 +943,17 @@ WITHOUT PRESSING THE START BUTTON
         time.sleep(1.0)
         papa.send_reqflash()
 
-    def saveSettings(self):
-        for i in range(self.myTree.topLevelItemCount()):
-            item = self.myTree.topLevelItem(i)  
-            self.settin.setValue(item.text(0), item.text(1))
-        self.settin.sync()
+    # def saveSettings(self):
+    #     for i in range(self.myTree.topLevelItemCount()):
+    #         item = self.myTree.topLevelItem(i)  
+    #         self.settin.setValue(item.text(0), item.text(1))
+    #     self.settin.sync()
 
             
-    def reset2Default(self):
-        for i in range(self.myTree.topLevelItemCount()):
-            item = self.myTree.topLevelItem(i) 
-            item.setText(1, str(MyOptions.defaults[str(item.text(0))][0]))
+    # def reset2Default(self):
+    #     for i in range(self.myTree.topLevelItemCount()):
+    #         item = self.myTree.topLevelItem(i) 
+    #         item.setText(1, str(MyOptions.defaults[str(item.text(0))][0]))
 
 
     def cancelAction(self):
