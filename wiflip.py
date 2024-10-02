@@ -2160,9 +2160,9 @@ class MainForm(QtWidgets.QMainWindow):
                                                     font: bold 10px;
                                                     padding: 0px 10px 0px 10px;
                                                              }
-                                                    QToolTip {background-color: MediumSeaGreen;
-                                                    color: white;
-                                                    font:  18px;
+                                                    QToolTip {background-color: white;
+                                                    color: #9F1642;
+                                                    font:  24px;
                                                     padding: 0px 10px 0px 10px;
                                                              }
                                                   """)

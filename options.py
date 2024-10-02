@@ -726,6 +726,10 @@ WITHOUT PRESSING THE START BUTTON
         self.ui.applyandresetButton.clicked.connect(self.ApplyAction)
         self.ui.applyandcloseButton.clicked.connect(self.OKAction)
         self.ui.cancelButton.clicked.connect(self.cancelAction)
+        
+        self.ui.cancelButton.setAutoDefault(False)
+        self.ui.applyandresetButton.setAutoDefault(False)
+        self.ui.applyandcloseButton.setAutoDefault(False)
         # QtCore.QObject.connect(self.myTree, 
         #                        QtCore.SIGNAL("currentItemChanged (QTreeWidgetItem *,QTreeWidgetItem *)"), 
         #                        self.onCurrentItemChanged)
