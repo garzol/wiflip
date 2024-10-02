@@ -660,6 +660,137 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.pb_write_byte.clicked.connect(self.send_reqwrbyte)
         self.ui.pb_wmem.clicked.connect(self.send_reqwriteall)
         self.ui.pb_reset.clicked.connect(self.resetthepin)
+
+
+
+        #improve look of buttons
+        self.ui.pb_rmem.setStyleSheet(
+            '''
+QPushButton {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 rgb( 25, 25, 112), stop: 0.4 rgb( 102, 102, 182),
+                                            stop: 0.5 rgb( 75, 75, 162), stop: 1.0 rgb( 25, 25, 112));
+    border-style: outset;
+    border-width: 1px;
+    border-radius: 10px;
+    border-color: beige;
+    min-width: 10em;
+    min-height: 10px;
+    padding: 6px;
+}
+QPushButton:hover {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 Navy, stop: 0.1 Blue,
+                                            stop: 0.3 RoyalBlue, stop: 1.0 MidnightBlue);
+    border-style: inset;
+    
+}            
+
+QPushButton:pressed {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 rgb( 50, 50, 224), stop: 0.4 rgb( 200, 200, 240),
+                                            stop: 0.5 rgb( 150, 150, 255), stop: 1.0 rgb( 50, 50, 224));
+    border-style: inset;
+    
+}            
+    '''       
+            )
+
+        self.ui.pb_flash.setStyleSheet(
+            '''
+QPushButton {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 rgb(199, 21, 133), stop: 0.4 rgb( 251, 102, 200),
+                                            stop: 0.5 rgb( 240, 75, 162), stop: 1.0 rgb(199, 21, 133));
+    border-style: outset;
+    border-width: 1px;
+    border-radius: 10px;
+    border-color: beige;
+    min-width: 10em;
+    min-height: 10px;
+    padding: 6px;
+}
+QPushButton:hover {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 rgb(100, 5, 88), stop: 0.4 rgb( 131, 40, 90),
+                                            stop: 0.5 rgb( 240, 75, 162), stop: 1.0 rgb(90, 0, 80));
+    border-style: inset;
+
+}            
+
+QPushButton:pressed {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 rgb(255, 42, 200), stop: 0.4 rgb( 255, 152, 225),
+                                            stop: 0.5 rgb( 255, 180, 254), stop: 1.0 rgb(255, 42, 200));
+    border-style: inset;
+
+}            
+    '''       
+            )
+        self.ui.pb_reset.setStyleSheet(
+            '''
+QPushButton {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 rgb(220, 21, 60), stop: 0.4 rgb( 251, 60, 130),
+                                            stop: 0.5 rgb( 240, 35, 80), stop: 1.0 rgb(220, 20, 60));
+    border-style: outset;
+    border-width: 1px;
+    border-radius: 10px;
+    border-color: beige;
+    min-width: 10em;
+    min-height: 10px;
+    padding: 6px;
+}
+QPushButton:hover {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 rgb(160, 2, 10), stop: 0.4 rgb( 200, 30, 90),
+                                            stop: 0.5 rgb( 180, 25, 60), stop: 1.0 rgb(160, 2, 10));
+    border-style: inset;
+
+}            
+
+QPushButton:pressed {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 rgb(255, 69, 129), stop: 0.4 rgb( 250, 50, 110),
+                                            stop: 0.5 rgb( 240, 35, 80), stop: 1.0 rgb(255, 60, 120));
+    border-style: inset;
+
+}            
+    '''       
+            )
+        
+        self.ui.pb_wmem.setStyleSheet(
+            '''
+QPushButton {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 rgb(200, 130, 32), stop: 0.4 rgb(225, 165, 80),
+                                            stop: 0.5 rgb(215, 145, 60), stop: 1.0 rgb(200, 130, 32));
+    border-style: outset;
+    border-width: 1px;
+    border-radius: 10px;
+    border-color: beige;
+    min-width: 10em;
+    min-height: 10px;
+    padding: 6px;
+}
+QPushButton:hover {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 rgb(170, 100, 2), stop: 0.4 rgb(200, 135, 50),
+                                            stop: 0.5 rgb(195, 125, 40), stop: 1.0 rgb(170, 100, 2));
+    border-style: inset;
+
+}            
+
+QPushButton:pressed {
+                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                            stop: 0 rgb(230, 160, 62), stop: 0.4 rgb(250, 200, 110),
+                                            stop: 0.5 rgb(245, 180, 88), stop: 1.0 rgb(230, 160, 62));
+    border-style: inset;
+
+}            
+    '''       
+            )
+        self.ui.pb_write_byte.setStyleSheet(self.ui.pb_wmem.styleSheet())
         
         #switch simu
         self.ui.pushButton_sw.clicked.connect(self.send_reqswclose)
