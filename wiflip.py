@@ -108,6 +108,7 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.setupUi(self)
         #self.ui.webEngineView.load(QtCore.QUrl.fromLocalFile('/Users/garzol/git/wiflip_tracer/index.htm'))
         self.ui.textBrowser.append('''
+<b>V0.88</b> - 2024-10-02<br>Removed several unused lib. for the exe file<br><br>
 <b>V0.87</b> - 2024-09-19<br>Added game settings. Improved initial layout<br><br>
 <b>V0.86</b> - 2024-09-19<br>Added sound (experimental). Improved initial layout<br><br>
 <b>V0.80</b><br>correction of bug when loading nvr data file was not actually sending data<br><br>
