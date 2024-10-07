@@ -32,13 +32,17 @@ class MyDelegate(QStyledItemDelegate):
     '''
     def __init__(self):
         super().__init__()
+        self.closeEditor.connect(self.onEditorClose)
     
     def createEditor(self, parent, option, index):
-        #print(parent, option, index)
+        #print("createeditor", parent, option, index)
         if index.data(Qt.UserRole) is None:
             return super().createEditor(parent, option, index)
         
         comboEditor = QComboBox(parent)
+        #comboEditor.view().installEventFilter(self)
+        #self.closeEditor.connect(self.onEditorClose)
+
         return comboEditor
 
 
@@ -60,18 +64,20 @@ class MyDelegate(QStyledItemDelegate):
             """
             
            QComboBox {background-color: MidnightBlue;
-           color: white;
+           /*color: white;*/
            }
            
             QComboBox:!editable, QComboBox::drop-down:editable {
+                /*color: white;*/
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                             stop: 0 Navy, stop: 0.4 Blue,
                                             stop: 0.5 RoyalBlue, stop: 1.0 MidnightBlue);
             }
-        
+
+
             """
                             )
-        editor.showPopup()
+        #editor.showPopup()
 
         # model = editor.model()
         # for row in range(editor.count()):
@@ -83,3 +89,14 @@ class MyDelegate(QStyledItemDelegate):
         if type(editor) != QComboBox:
             return super().setModelData(editor, model, index)
         model.setData(index, editor.currentText())
+    
+    # def closeEditor(self):
+    #     print("closeditor!")
+    #     #return super().onEditorClose(parent, editor, hint)
+    #
+
+    def onEditorClose(self, editor, hint):
+        #print("editor closed", editor, hint)
+        #editor.hidePopup()
+        pass
+

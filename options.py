@@ -671,7 +671,7 @@ WITHOUT PRESSING THE START BUTTON
         self.myTreev.clicked.connect(self.onVItemClick)
         delegate = MyDelegate()
         self.myTreev.setItemDelegate(delegate)    
-
+        #self.myTreev.editorClosed.connect(self.onEditorClose)
         # self.tlis = dict()
         # for cat in MyOptions.topLevelCategory:
         #     item_0 = QtWidgets.QTreeWidgetItem(self.myTree)
@@ -981,6 +981,7 @@ WITHOUT PRESSING THE START BUTTON
 
 
     def onItemDataChange(self, vItem):
+        # print("onItemDataChange", vItem)
         # print(vItem, vItem.data(Qt.UserRole), vItem.text(), vItem.model(), vItem.index())
         # print(vItem.index().data(self.PROPERTY))
         # print(vItem.index().data(self.VALUE))
@@ -1001,6 +1002,7 @@ WITHOUT PRESSING THE START BUTTON
         if not validFunc:
             print("f invalid")
             return
+        vItem.model().itemChanged.disconnect(self.onItemDataChange)
         minval = MyOptions.defaults[objname][3] 
         maxval = MyOptions.defaults[objname][4] 
         try:
@@ -1009,6 +1011,8 @@ WITHOUT PRESSING THE START BUTTON
             optval = None
         validated, msg = validFunc(vItem.text(), minval, maxval, option=optval)
         #print("validation", validated, msg, objname, optval)
+        
+
         if not validated:
             #print("nok old bg",wItem.background(1))
             #self.brushdict[wItem] = wItem.background(1)
@@ -1023,8 +1027,9 @@ WITHOUT PRESSING THE START BUTTON
             vItem.setToolTip(msg)
             #print("ok new bg",wItem.background(1))
         #wItem.setSelected(False)
-        
-        
-        
-        
+        vItem.model().itemChanged.connect(self.onItemDataChange)
+
+
+    def onEditorClose(self, editor):
+        print("editor closed in treeview", editor)
         

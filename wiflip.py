@@ -75,8 +75,8 @@ aboutContent = '''
 </td></tr></table>
 '''
 
-VERSION = "0.88"
-DATE    = "2024-10-02"
+VERSION = "0.89"
+DATE    = "2024-10-06"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
@@ -108,6 +108,7 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.setupUi(self)
         #self.ui.webEngineView.load(QtCore.QUrl.fromLocalFile('/Users/garzol/git/wiflip_tracer/index.htm'))
         self.ui.textBrowser.append('''
+<b>V0.89</b> - 2024-10-06<br>scorie corrections<br><br>
 <b>V0.88</b> - 2024-10-02<br>Removed several unused lib. for the exe file<br><br>
 <b>V0.87</b> - 2024-09-19<br>Added game settings. Improved initial layout<br><br>
 <b>V0.86</b> - 2024-09-19<br>Added sound (experimental). Improved initial layout<br><br>
@@ -675,6 +676,7 @@ QPushButton {
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                             stop: 0 rgb( 25, 25, 112), stop: 0.4 rgb( 102, 102, 182),
                                             stop: 0.5 rgb( 75, 75, 162), stop: 1.0 rgb( 25, 25, 112));
+    color: Ivory;
     border-style: outset;
     border-width: 1px;
     border-radius: 10px;
@@ -707,6 +709,7 @@ QPushButton {
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                             stop: 0 rgb(199, 21, 133), stop: 0.4 rgb( 251, 102, 200),
                                             stop: 0.5 rgb( 240, 75, 162), stop: 1.0 rgb(199, 21, 133));
+    color: Ivory;
     border-style: outset;
     border-width: 1px;
     border-radius: 10px;
@@ -736,8 +739,9 @@ QPushButton:pressed {
             '''
 QPushButton {
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                            stop: 0 rgb(220, 21, 60), stop: 0.4 rgb( 251, 60, 130),
-                                            stop: 0.5 rgb( 240, 35, 80), stop: 1.0 rgb(220, 20, 60));
+                                            stop: 0 rgb(220, 21, 40), stop: 0.4 rgb( 255, 30, 50),
+                                            stop: 0.5 rgb( 240, 35, 50), stop: 1.0 rgb(220, 20, 40));
+    color: Ivory;
     border-style: outset;
     border-width: 1px;
     border-radius: 10px;
@@ -756,8 +760,8 @@ QPushButton:hover {
 
 QPushButton:pressed {
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                            stop: 0 rgb(255, 69, 129), stop: 0.4 rgb( 250, 50, 110),
-                                            stop: 0.5 rgb( 240, 35, 80), stop: 1.0 rgb(255, 60, 120));
+                                            stop: 0 rgb(255, 60, 60), stop: 0.4 rgb( 250, 50, 50),
+                                            stop: 0.5 rgb( 240, 40, 40), stop: 1.0 rgb(255, 60, 60));
     border-style: inset;
 
 }            
@@ -770,6 +774,7 @@ QPushButton {
                 background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                             stop: 0 rgb(200, 130, 32), stop: 0.4 rgb(225, 165, 80),
                                             stop: 0.5 rgb(215, 145, 60), stop: 1.0 rgb(200, 130, 32));
+    color: Ivory;
     border-style: outset;
     border-width: 1px;
     border-radius: 10px;
@@ -2445,7 +2450,10 @@ class Worker(QThread):
                 self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 #self.sock.settimeout(20.0)
                 #self.sock.setblocking(False)
+                
                 self.sock.connect((self.HOST, int(self.PORT)))
+                #self.sock.connect(("WiFlip_iface", int(self.PORT)))
+   
                 break
             except Exception as e:
                 print("connection delayed")
