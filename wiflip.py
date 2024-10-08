@@ -4,7 +4,7 @@ Created on 23 mars 2022
 dockWidget_2
 dockWidget
 @author: garzol switches reset open transparent I have a alarm1
-WebEngine WebView OpenGL numpy QtTextToSpeech
+WebEngine WebView OpenGL numpy QtTextToSpeech pickle
 '''
 
 import os, sys, time, struct
@@ -17,7 +17,8 @@ sys.path += ['.']
 from fletcher import Fletcher
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+
+#from PyQt5.QtWidgets import *   #removed 2024-10-08, (not sure)
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import QtNetwork 
@@ -108,7 +109,7 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.setupUi(self)
         #self.ui.webEngineView.load(QtCore.QUrl.fromLocalFile('/Users/garzol/git/wiflip_tracer/index.htm'))
         self.ui.textBrowser.append('''
-<b>V0.90</b> - 2024-10-08<br>Added the small leds per player score + The 1M digit. The only missing display indication is the set of decimal points at the moment<br><br>
+<b>V0.90</b> - 2024-10-08<br>Added the small leds per player score + The 1M digit. The only missing display indication is the set of decimal points at the moment. Lighter EXE<br><br>
 <b>V0.89</b> - 2024-10-06<br>scorie corrections<br><br>
 <b>V0.88</b> - 2024-10-02<br>Removed several unused lib. for the exe file<br><br>
 <b>V0.87</b> - 2024-09-19<br>Added game settings. Improved initial layout<br><br>

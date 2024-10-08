@@ -11,11 +11,11 @@ Copyright AA55 Consulting 2011
 my own tree view
 
 '''
-from PyQt5.QtCore import *
+from PyQt5.QtCore import Qt
 from PyQt5 import QtGui
 
 from PyQt5.QtWidgets import QTreeView, QStyledItemDelegate, QComboBox
-from PyQt5.Qt import QComboBox
+#from PyQt5.Qt import QComboBox
 
 class MyTreeView(QTreeView):
     '''

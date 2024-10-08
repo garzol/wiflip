@@ -16,14 +16,16 @@ import time
 from time import sleep
 
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import Qt, QVariant
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import *
+#from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QMessageBox, QAbstractItemView
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtCore import QTimer
 from gameset  import Ui_GameSettings
 #from mytreewidget import MyTreeWidget
-from PyQt5.Qt import *
+#from PyQt5.Qt import *
 
 from mytreeview import MyTreeView, MyDelegate
 
