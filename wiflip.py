@@ -75,8 +75,8 @@ aboutContent = '''
 </td></tr></table>
 '''
 
-VERSION = "0.89"
-DATE    = "2024-10-06"
+VERSION = "0.90"
+DATE    = "2024-10-08"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
@@ -108,6 +108,7 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.setupUi(self)
         #self.ui.webEngineView.load(QtCore.QUrl.fromLocalFile('/Users/garzol/git/wiflip_tracer/index.htm'))
         self.ui.textBrowser.append('''
+<b>V0.90</b> - 2024-10-08<br>Added the small leds per player score + The 1M digit. The only missing display indication is the set of decimal points at the moment<br><br>
 <b>V0.89</b> - 2024-10-06<br>scorie corrections<br><br>
 <b>V0.88</b> - 2024-10-02<br>Removed several unused lib. for the exe file<br><br>
 <b>V0.87</b> - 2024-09-19<br>Added game settings. Improved initial layout<br><br>
@@ -443,8 +444,20 @@ class MySettings(QtWidgets.QDialog):
         
     def closeEvent(self, event):
         QtWidgets.QDialog.closeEvent(self, event)
-        
-        
+
+
+
+######################################################
+#
+#
+#
+#
+#        
+#Mainclass
+#
+#
+#
+# ####################################################   
 class MainForm(QtWidgets.QMainWindow):
     """
     This is the main window of the application
@@ -527,12 +540,35 @@ class MainForm(QtWidgets.QMainWindow):
             self.ui.wplayer2.setGeometry(QtCore.QRect(200, 350, 220, 38))
             self.ui.wplayer3.setGeometry(QtCore.QRect(200, 350, 220, 38))
             self.ui.wplayer4.setGeometry(QtCore.QRect(200, 350, 220, 38))
+            
+            self.ui.lcd1M_1.setGeometry(QtCore.QRect(200, 350, 32, 32))
+            self.ui.lcd1M_2.setGeometry(QtCore.QRect(200, 350, 32, 32))
+            self.ui.lcd1M_3.setGeometry(QtCore.QRect(200, 350, 32, 32))
+            self.ui.lcd1M_4.setGeometry(QtCore.QRect(200, 350, 32, 32))
+            
+            
             self.ui.ballinplay.setGeometry(QtCore.QRect(200, 350, 272//6, 38))
             self.ui.credit.setGeometry(QtCore.QRect(200, 350, 272//6, 38))
-            self.ui.wplayer1.move(QPoint(BX,BY))
-            self.ui.wplayer2.move(QPoint(BX,BY+DP))
-            self.ui.wplayer3.move(QPoint(BX,BY+2*DP-4))
-            self.ui.wplayer4.move(QPoint(BX,BY+3*DP-7))
+            
+            
+            self.ui.lcd1M_1.move(QPoint(BX,BY))
+            self.ui.wplayer1.move(QPoint(BX+32,BY))
+            self.ui.lcd1M_2.move(QPoint(BX,BY+DP))
+            self.ui.wplayer2.move(QPoint(BX+32,BY+DP))
+            self.ui.lcd1M_3.move(QPoint(BX,BY+2*DP-4))
+            self.ui.wplayer3.move(QPoint(BX+32,BY+2*DP-4))
+            self.ui.lcd1M_4.move(QPoint(BX,BY+3*DP-7))
+            self.ui.wplayer4.move(QPoint(BX+32,BY+3*DP-7))
+            
+            self.ui.ldsp_1_1.move(BX+32+220, BY-10)
+            self.ui.ldsp_1_2.move(BX+32+220, BY+38-10)
+            self.ui.ldsp_2_1.move(BX+32+220, BY+DP-10)
+            self.ui.ldsp_2_2.move(BX+32+220, BY+DP+38-10)
+            self.ui.ldsp_3_1.move(BX+32+220, BY+2*DP-4-10)
+            self.ui.ldsp_3_2.move(BX+32+220, BY+2*DP-4+38-10)
+            self.ui.ldsp_4_1.move(BX+32+220, BY+3*DP-7-10)
+            self.ui.ldsp_4_2.move(BX+32+220, BY+3*DP-7+38-10)
+            
             self.ui.credit.move(QPoint(50,15))
             self.ui.ballinplay.move(QPoint(64,405))  #ballinplay is actually freeplay here
             self.setupballinplay()
@@ -546,6 +582,18 @@ class MainForm(QtWidgets.QMainWindow):
         elif self.game_type == "Gottlieb":   
             #self.ui.label.setStyleSheet("background-image: url(images/1x/pinballbell480.png);")
             self.ui.label.setPixmap(QtGui.QPixmap(":/x/images/1x/pinballbell480.png"))
+            self.ui.lcd1M_1.hide()
+            self.ui.lcd1M_2.hide()
+            self.ui.lcd1M_3.hide()
+            self.ui.lcd1M_4.hide()
+            self.ui.ldsp_1_1.hide()
+            self.ui.ldsp_1_2.hide()
+            self.ui.ldsp_2_1.hide()
+            self.ui.ldsp_2_2.hide()
+            self.ui.ldsp_3_1.hide()
+            self.ui.ldsp_3_2.hide()
+            self.ui.ldsp_4_1.hide()
+            self.ui.ldsp_4_2.hide()
 
         if self.game_type == "Gottlieb":
             self.swmRows, self.swmCols = (8, 5)
@@ -1697,6 +1745,9 @@ QPushButton:pressed {
                 aff3 = [self.ui.lcd3_6, self.ui.lcd3_5, self.ui.lcd3_4, self.ui.lcd3_3, self.ui.lcd3_2, self.ui.lcd3_1]
                 aff4 = [self.ui.lcd4_6, self.ui.lcd4_5, self.ui.lcd4_4, self.ui.lcd4_3, self.ui.lcd4_2, self.ui.lcd4_1]
 
+                cplleds1 = [self.ui.ldsp_1_1, self.ui.ldsp_1_2, self.ui.lcd1M_1, None]
+                cplleds2 = [self.ui.ldsp_2_1, self.ui.ldsp_2_2, self.ui.lcd1M_2, None]
+
                 if   self.game_type == "Gottlieb":                   
                     afflcdi(aff1, data[2:])
                     afflcdi(aff2, data[6:])
@@ -1707,13 +1758,15 @@ QPushButton:pressed {
                     data2=[((data[4]&0x0F)<<4)+((data[4]&0xF0)>>4),
                            ((data[3]&0x0F)<<4)+((data[3]&0xF0)>>4),
                            ((data[2]&0x0F)<<4)+0x0F]
-                    
+                    #print(f"leds player 1: {((data[2]&0xF0)>>4):04b}")
+                    affcplleds(cplleds1, ((data[2]&0xF0)>>4))
                     afflcdi(aff1, data2)   #tableau 1
 
                     #player2                    
                     data2=[((data[8]&0x0F)<<4)+((data[8]&0xF0)>>4),
                            ((data[7]&0x0F)<<4)+((data[7]&0xF0)>>4),
                            ((data[6]&0x0F)<<4)+0x0F]
+                    affcplleds(cplleds2, ((data[6]&0xF0)>>4))
                     
                     
                     afflcdi(aff2, data2)     #tableau 2
@@ -1811,6 +1864,8 @@ QPushButton:pressed {
                 aff3 = [self.ui.lcd3_6, self.ui.lcd3_5, self.ui.lcd3_4, self.ui.lcd3_3, self.ui.lcd3_2, self.ui.lcd3_1]
                 aff4 = [self.ui.lcd4_6, self.ui.lcd4_5, self.ui.lcd4_4, self.ui.lcd4_3, self.ui.lcd4_2, self.ui.lcd4_1]
                 aff5 = [self.ui.lcd5_2, self.ui.lcd5_1]  #credits
+                cplleds3 = [self.ui.ldsp_3_1, self.ui.ldsp_3_2, self.ui.lcd1M_3, None]
+                cplleds4 = [self.ui.ldsp_4_1, self.ui.ldsp_4_2, self.ui.lcd1M_4, None]
 
                 if   self.game_type == "Gottlieb":                                  
                     afflcdi(aff3, data[2:])
@@ -1822,6 +1877,7 @@ QPushButton:pressed {
                            ((data[2]&0x0F)<<4)+0x0F]
                            
                     afflcdi(aff4, data2)   #tableau 4
+                    affcplleds(cplleds4, ((data[2]&0xF0)>>4))
                     
                     #player3                    
                     data2=[((data[8]&0x0F)<<4)+((data[8]&0xF0)>>4),
@@ -1829,6 +1885,7 @@ QPushButton:pressed {
                            ((data[6]&0x0F)<<4)+0x0F]
                     
                     afflcdi(aff3, data2)     #tableau 3
+                    affcplleds(cplleds3, ((data[6]&0xF0)>>4))
                     
                     afflcdi(aff5, data[1:])    #credits
 
@@ -2632,7 +2689,29 @@ def fromBcd2Int(barr):
 
 def swapint(v):
     return ((v&0x0F)<<4)+((v&0xF0)>>4)      
-   
+
+def affcplleds(affls, datanb):
+    if not datanb&0b0100:
+        #le display du 1M   
+        affls[2].display(1.0)
+        affls[2].setDecMode()
+    else:
+        affls[2].display(0.0)
+        affls[2].setDecMode()
+        
+    if datanb&0b0001:
+        #le display du 1M   
+        affls[0].setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+    else:
+        affls[0].setPixmap(QtGui.QPixmap(":/x/ledon.png"))
+        
+    if datanb&0b0010:
+        #le display du 1M   
+        affls[1].setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+    else:
+        affls[1].setPixmap(QtGui.QPixmap(":/x/ledon.png"))
+        
+        
 def afflcdi(afftab, data):
     #print(type(data))     => bytearray
     #print(type(data[0]))  => int
