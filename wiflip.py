@@ -4,7 +4,7 @@ Created on 23 mars 2022
 dockWidget_2
 dockWidget
 @author: garzol switches reset open transparent I have a alarm1
-WebEngine WebView OpenGL numpy QtTextToSpeech pickle
+WebEngine WebView OpenGL numpy QtTextToSpeech pickle Crazy Race index
 '''
 
 import os, sys, time, struct
@@ -77,8 +77,8 @@ aboutContent = '''
 </td></tr></table>
 '''
 
-VERSION = "0.90"
-DATE    = "2024-10-08"
+VERSION = "0.91"
+DATE    = "2024-10-10"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
@@ -110,7 +110,7 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.setupUi(self)
         #self.ui.webEngineView.load(QtCore.QUrl.fromLocalFile('/Users/garzol/git/wiflip_tracer/index.htm'))
         self.ui.textBrowser.append('''
-<b>V0.90</b> - 2024-10-08<br>Added the small leds per player score + The 1M digit. The only missing display indication is the set of decimal points at the moment. Lighter EXE<br><br>
+<b>V0.91</b> - 2024-10-08<br>Added the small leds per player score + The 1M digit. The only missing display indication is the set of decimal points at the moment. Lighter EXE. calques for Switch matrix are now memorized in app settings<br><br>
 <b>V0.89</b> - 2024-10-06<br>scorie corrections<br><br>
 <b>V0.88</b> - 2024-10-02<br>Removed several unused lib. for the exe file<br><br>
 <b>V0.87</b> - 2024-09-19<br>Added game settings. Improved initial layout<br><br>
@@ -119,7 +119,8 @@ class MyHelp(QtWidgets.QDialog):
 <b>V0.78</b><br>original version<br>
 '''
 )
-        self.ui.textBrowser_2.setSource(QtCore.QUrl('qrc:///help/index.htm'))
+        #self.ui.textBrowser_2.setSource(QtCore.QUrl('qrc:///help/index.htm'))
+        self.ui.textBrowser_2.setSource(QtCore.QUrl('index.htm'))
    
 
 class MyGameSet(QtWidgets.QDialog): 
@@ -900,15 +901,18 @@ QPushButton:pressed {
         #self.ui.comboBox.activated.connect(self.activated)
         self.ui.comboBox.currentTextChanged.connect(self.text_changed)
         #self.ui.comboBox.currentIndexChanged.connect(self.index_changed)
-        self.text_changed('Crazy Race')
-
+        calqueStr = self.settings.value('calqueStr', 'Fair Fight')
+        self.text_changed(calqueStr)
+        self.ui.comboBox.setCurrentText(calqueStr)
         if self.game_type == "Recel":
             #dock des config switches de gottlieb
             #self.ui.dockWidget_5.setFloating(True)
             self.ui.dockWidget_5.setVisible(False)
         
     def text_changed(self, s):
-        
+        print("change calque settings for:", s)
+        self.settings.setValue('calqueStr', s)
+
         self.Swtttext = [[None for x in range(self.swmCols)] for y in range(self.swmRows)]       
         self.sh_Swtttext = [[None for x in range(self.swmCols)] for y in range(self.swmRows)]       
 
