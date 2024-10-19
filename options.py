@@ -77,7 +77,7 @@ class Combo:
             index       = -1
             value       = f"Unknown target value: {targetValue:04b}"
         
-        print("==================ComboFromMap:", nibbles[addr], value, index, targetValue, bitMask, addr)
+        #print("==================ComboFromMap:", nibbles[addr], value, index, targetValue, bitMask, addr)
         ret = Combo(value, vtl, bitMask, addr)
         return(ret)        
 

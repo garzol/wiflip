@@ -3,8 +3,10 @@ Created on 23 mars 2022
 
 dockWidget_2
 dockWidget
-@author: garzol switches reset open transparent I have a alarm1
-WebEngine WebView OpenGL numpy QtTextToSpeech pickle Crazy Race index
+@author: garzol 
+search keywords: switches reset open transparent I have a alarm1
+WebEngine WebView OpenGL numpy QtTextToSpeech pickle Crazy Race index ======
+signaling
 '''
 
 import os, sys, time, struct
@@ -1601,7 +1603,19 @@ QPushButton:pressed {
             self.write2Console(f"{self.linenb:03d} {romaddr:03X} {romdata:02X}\t{ramaddr:03X} {ramdata:02X}\t  rst={rststate} rw={rwstate} wio={wiostate} bgt={bagotti}\r\n", insertMode=True)
             #print("typ=3", str(data))
         #print(str(data), len(data), typ)
-        elif typ == 82:    #R
+        elif typ == 81:    #Q (read 1024 bytes)
+            print(f"Dump current ROM (1024B) in progress")
+            self.write2Console(f"ROM Current\r\n", insertMode=True)
+            #write again but  to  console, this time.        
+            for r in range(8):
+                self.write2Console(f"{r:02X}\t")
+                for l in range(16):
+                    self.write2Console(f"{data[r*16+l]:02X} ", insertMode=True)
+                self.write2Console(f"\r\n", insertMode=True)
+            
+            print("Dump ROM terminated")
+            
+        elif typ == 82:    #R (read 128 bytes)
             if   self.ui.rb_sysconf.isChecked():
                 memtyp = "sys conf"
             elif self.ui.rb_mnprn.isChecked():
@@ -2563,6 +2577,8 @@ class Worker(QThread):
                 framesz = 5
             elif received == b'G':
                 framesz = 5
+            elif received == b'Q':
+                framesz = 1024
             elif received == b'R':
                 framesz = 128
             elif received == b'P':
