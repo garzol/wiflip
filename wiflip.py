@@ -694,6 +694,8 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.pushButton_6.clicked.connect(self.send_gptrace)
         #dump button
         self.ui.pushButton_2.clicked.connect(self.send_dump)
+        #game prom dump button
+        self.ui.pushButton_7.clicked.connect(self.send_dump_game_prom)
  
  
         #nvrdump button
@@ -1305,6 +1307,17 @@ QPushButton:pressed {
         except:
             pass
 
+    def send_dump_game_prom(self):
+        self.linenb = 0
+        memtyp = 4
+        print("message request is", b'YQ'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+
+        try:
+            self.thread.sock.send(b'YQ'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+        except:
+            pass
+
+        
     def send_gptrace(self): 
         try:
             self.thread.sock.send(b' U')
