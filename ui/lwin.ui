@@ -1806,7 +1806,7 @@ All closed switches noted by a code number in ball-in-play display.***
         <x>0</x>
         <y>0</y>
         <width>252</width>
-        <height>495</height>
+        <height>529</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_14">
@@ -1885,6 +1885,13 @@ All closed switches noted by a code number in ball-in-play display.***
           <widget class="QPushButton" name="pushButton_7">
            <property name="text">
             <string>Dump Game PROM</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_8">
+           <property name="text">
+            <string>Dump A1762 PROM</string>
            </property>
           </widget>
          </item>
