@@ -1310,10 +1310,10 @@ QPushButton:pressed {
     def send_dump_game_prom(self):
         self.linenb = 0
         memtyp = 4
-        print("message request is", b'YQ'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+        print("message request is", b'YR'+memtyp.to_bytes(1, byteorder='big')+b'XX')
 
         try:
-            self.thread.sock.send(b'YQ'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+            self.thread.sock.send(b'YR'+memtyp.to_bytes(1, byteorder='big')+b'XX')
         except:
             pass
 
@@ -1620,7 +1620,7 @@ QPushButton:pressed {
             print(f"Dump current ROM (1024B) in progress")
             self.write2Console(f"ROM Current\r\n", insertMode=True)
             #write again but  to  console, this time.        
-            for r in range(8):
+            for r in range(64):
                 self.write2Console(f"{r:02X}\t")
                 for l in range(16):
                     self.write2Console(f"{data[r*16+l]:02X} ", insertMode=True)
