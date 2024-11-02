@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Created on 23 mars 2022
 
@@ -6,7 +7,7 @@ dockWidget
 @author: garzol 
 search keywords: switches reset open transparent I have a alarm1
 WebEngine WebView OpenGL numpy QtTextToSpeech pickle Crazy Race index ======
-signaling
+signaling fletcher console
 '''
 
 import os, sys, time, struct
@@ -79,8 +80,8 @@ aboutContent = '''
 </td></tr></table>
 '''
 
-VERSION = "0.91"
-DATE    = "2024-10-10"
+VERSION = "0.92"
+DATE    = "2024-10-26"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
@@ -112,6 +113,7 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.setupUi(self)
         #self.ui.webEngineView.load(QtCore.QUrl.fromLocalFile('/Users/garzol/git/wiflip_tracer/index.htm'))
         self.ui.textBrowser.append('''
+<b>V0.92</b> - 2024-10-08<br>Reprog works only with compatible boards.VB_MG.<br><br>
 <b>V0.91</b> - 2024-10-08<br>Added the small leds per player score + The 1M digit. The only missing display indication is the set of decimal points at the moment. Lighter EXE. calques for Switch matrix are now memorized in app settings<br><br>
 <b>V0.89</b> - 2024-10-06<br>scorie corrections<br><br>
 <b>V0.88</b> - 2024-10-02<br>Removed several unused lib. for the exe file<br><br>
@@ -195,9 +197,52 @@ class MyReprog(QtWidgets.QDialog):
         self.ui = Ui_ReprogDialog()
         self.ui.setupUi(self)
 
+        self.ui.radioButton.setChecked(True)
+        self.ui.radioButton.clicked.connect(partial(self.selmemtyp, 0))
+        self.ui.radioButton_2.clicked.connect(partial(self.selmemtyp, 1))
+        self.memTyp = 0 #game prom by default
+        
         self.ui.toolButton_reset_2.clicked.connect(self.resetthepin)
         self.ui.toolButton_reprog.clicked.connect(self.gotoreprog)
-        self.ui.toolButton_loadbin.clicked.connect(self.actionLoad1702)
+        self.ui.toolButton_write.clicked.connect(self.actionLoadPROM)
+        self.ui.toolButton_read.clicked.connect(self.actionReadPROM)
+        #flash
+        self.ui.toolButton_flash.clicked.connect(self.send_reqflash)
+        #fletcher
+        self.ui.toolButton_fletcher.clicked.connect(self.send_reqfletcher)
+        
+
+    def catchFletcherSig(self, crc):
+        print("caught fletchers", crc)
+        self.ui.label_crc_3.setText(f"{crc:04X}")
+        
+    def send_reqfletcher(self):
+        papa = self.parent()
+
+        papa.fletcherSig.connect(self.catchFletcherSig)
+        memtyp = 4+self.memTyp            
+        print("message request is", b'YZ'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+
+        try:
+            papa.thread.sock.send(b'YZ'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+        except:
+            pass
+        
+        
+    def send_reqflash(self):
+        papa = self.parent()
+
+        memtyp = 4+self.memTyp            
+        print("message request is", b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+
+        try:
+            papa.thread.sock.send(b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+        except:
+            pass
+                        
+    def selmemtyp(self, m):
+        self.memTyp = m   
+        #print("memtyp selected", m) 
         
     def gotoreprog(self):
         papa = self.parent()
@@ -214,8 +259,19 @@ class MyReprog(QtWidgets.QDialog):
             papa.thread.sock.send(b'YBXQZ')
         except:
             pass
+
+    def actionReadPROM(self):
+        papa = self.parent()
+        memtyp = 4 + self.memTyp
+        print("message request is", b'YR'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+
+        try:
+            papa.thread.sock.send(b'YR'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+        except:
+            pass
         
-    def actionLoad1702(self):
+                
+    def actionLoadPROM(self):
         papa = self.parent()
         nvrfileStr = papa.settings.value('binfileStr', None)
         filename, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Load File",
@@ -228,13 +284,34 @@ class MyReprog(QtWidgets.QDialog):
                 # read contents      
                 bn = fb.read()
             
-            if len(bn) != 256:
-                #print("length  error")
-                self.ui.label_error.setText("file length error")
-                self.ui.label_crc.setText("")
-            else:    
+            #print("file length", len(bn))
+
+            if len(bn) == 1024:
                 addr = 0
-                memtyp = 4
+                memtyp = 4 + self.memTyp
+                for byte in bn:
+                    #the high part of addr (0xhll) is to be put on the high nibble
+                    #of the first param byte... >>8, then <<4 <==> >>4
+                    addrh  = (addr >> 4)&0xF0 
+                    b1     = addrh|memtyp
+                    bb1    = b1.to_bytes(1, byteorder='big')
+                    bbyt   = byte.to_bytes(1, byteorder='big')
+                    baddrl = (addr&0xFF).to_bytes(1, byteorder='big')
+                    print("message request is", b'YW'+bb1+baddrl+bbyt)
+    
+                    try:
+                        papa.thread.sock.send(b'YW'+bb1+baddrl+bbyt)
+                    except:
+                        pass
+                    addr += 1
+                fletcher = Fletcher(bn)
+                #print("fletcher's crc:", fletcher.crc)
+                self.ui.label_crc.setText(fletcher.crc)
+                self.ui.label_error.setText(f"{filename} loaded.")
+            
+            elif len(bn) == 256:    
+                addr = 0
+                memtyp = 4 + self.memTyp
                 for byte in bn:
                     bbyt = byte.to_bytes(1, byteorder='big')
                     baddr = addr.to_bytes(1, byteorder='big')
@@ -245,13 +322,18 @@ class MyReprog(QtWidgets.QDialog):
                     except:
                         pass
                     addr += 1
-
-
-                        
                 fletcher = Fletcher(bn)
                 #print("fletcher's crc:", fletcher.crc)
                 self.ui.label_crc.setText(fletcher.crc)
                 self.ui.label_error.setText(f"{filename} loaded.")
+
+            else:
+                #print("length  error")
+                self.ui.label_error.setText("file length error")
+                self.ui.label_crc.setText("")
+
+
+                        
         
 class MySettings(QtWidgets.QDialog): 
     """
@@ -468,6 +550,8 @@ class MainForm(QtWidgets.QMainWindow):
     This is the main window of the application
     Built by mygui.ui
     """
+    fletcherSig = pyqtSignal(int)
+
     def __init__(self, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
         #print sys.getdefaultencoding()
@@ -1589,7 +1673,12 @@ QPushButton:pressed {
         else:
             self.ui.consoleEdit.clear()
             self.ui.consoleEdit.appendPlainText(msg)
-
+            
+        #test
+        #self.ui.consoleEdit.setFocus()
+        self.ui.consoleEdit.centerOnScroll()
+        self.ui.consoleEdit.centerCursor()
+        
     def giveFocus2Edit(self):
         self.ui.plainTextEdit.setFocus()
         self.ui.plainTextEdit.centerOnScroll()
@@ -1934,7 +2023,11 @@ QPushButton:pressed {
                     
                     afflcdi(aff5, data[1:])    #credits
 
-                
+            elif typ == 90: #5A 'Z'
+                crc = (data[0]<<8) | (data[1])    
+                self.write2Console(f"Fletcher's crc: {crc:04X}\r\n", insertMode=True)
+                print(f"Fletcher's crc: {crc:04X}\r\n")
+                self.fletcherSig.emit(crc)
                     
             elif typ == 67:  #'C'
                 #print("typ=67", str(data))
@@ -2609,6 +2702,8 @@ class Worker(QThread):
             elif received == b'P':
                 #print("P")
                 framesz = 32 #32
+            elif received == b'Z':
+                framesz = 2 #crc
             else:
                 framesz = 0
 
