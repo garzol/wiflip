@@ -13,6 +13,31 @@
     <file>ledgrey.png</file>
     <file>images/panthera-bg.png</file>
   </qresource>
+  <qresource prefix="newPrefix"/>
+  <qresource prefix="games">
+    <file>crgamex4.bin</file>
+    <file>bmgame.bin</file>
+    <file>sc_1_1702.bin</file>
+    <file>flA1762.bin</file>
+    <file>bmA1762.bin</file>
+    <file>flgame.bin</file>
+    <file>sc4_256.bin</file>
+    <file>b4A1762.bin</file>
+    <file>b4game.bin</file>
+    <file>al.bin</file>
+    <file>hc.bin</file>
+    <file>md.bin</file>
+    <file>me.bin</file>
+    <file>po.bin</file>
+    <file>qu.bin</file>
+    <file>sw.bin</file>
+    <file>to.bin</file>
+    <file>fa.bin</file>
+    <file>crgame.bin</file>
+    <file>ca.bin</file>
+    <file>crA1762.bin</file>
+    <file>A1762-13_1K.bin</file>
+  </qresource>
   <qresource prefix="sound">
     <file>alarm1-b238.wav</file>
   </qresource>

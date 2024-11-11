@@ -7,13 +7,18 @@ dockWidget
 @author: garzol 
 search keywords: switches reset open transparent I have a alarm1
 WebEngine WebView OpenGL numpy QtTextToSpeech pickle Crazy Race index ======
-signaling fletcher console
+signaling Fletcher console open timeout signaling error
+
 '''
 
 import os, sys, time, struct
+
+import resource_rc
+
 from time import sleep
 from functools import partial
 from builtins import staticmethod
+from pickle import FALSE
 
 sys.path += ['.']
 
@@ -56,6 +61,7 @@ from reprog   import Ui_ReprogDialog
 from gameset  import Ui_GameSettings
 import  options
 
+from rscmodel import RscPin
 # import sys
 # from PyQt5.QtGui import *
 # from PyQt5.QtWidgets import *
@@ -191,17 +197,27 @@ class MyReprog(QtWidgets.QDialog):
     This dialog box was created with QT
     in reprog.ui
     """
+    cA1762Org_Fltch = 0x4685
+    cA1762Mod_Fltch = 0xDC38
+    
     def __init__(self, parent=None):
         super(MyReprog, self).__init__(parent)
         #QtGui.QWidget.__init__(self, parent)
         self.ui = Ui_ReprogDialog()
         self.ui.setupUi(self)
 
+        self.nb_call = 0
+
         self.ui.radioButton.setChecked(True)
         self.ui.radioButton.clicked.connect(partial(self.selmemtyp, 0))
         self.ui.radioButton_2.clicked.connect(partial(self.selmemtyp, 1))
-        self.memTyp = 0 #game prom by default
-        
+
+        #get status
+        papa = self.parent()
+        papa.read128Sig.connect(self.catch128SigReprog)
+
+        self.ui.comboBox.addItems(list(RscPin.Models.keys()))
+
         self.ui.toolButton_reset_2.clicked.connect(self.resetthepin)
         self.ui.toolButton_reprog.clicked.connect(self.gotoreprog)
         self.ui.toolButton_write.clicked.connect(self.actionLoadPROM)
@@ -211,9 +227,349 @@ class MyReprog(QtWidgets.QDialog):
         #fletcher
         self.ui.toolButton_fletcher.clicked.connect(self.send_reqfletcher)
         
+        #Apply button
+        self.ui.pushButton.clicked.connect(self.start_reprog)
 
+        #Reset button in the group Auto
+        self.ui.pushButton_2.clicked.connect(self.resetthepin)
+
+
+        self.ui.label_crc_cg.setText("????")
+        self.ui.label_crc_rg.setText("????")
+        self.ui.label_crc_cr.setText("????")
+        self.ui.label_crc_rr.setText("????")
+
+        self.ui.label_txt_cg.setText("")
+        self.ui.label_txt_rg.setText("")
+        self.ui.label_txt_cr.setText("")
+        self.ui.label_txt_rr.setText("")
+        self.refreshReprog()
+        
+    def refreshReprog(self):
+        papa = self.parent()
+        self.fletcherSrc = -1
+        self.reprogPhase = 0
+        self.memTyp = 0 #game prom by default
+
+
+        memtyp = 0 + 0 #sys config
+        papa.ui.rb_sysconf.setChecked(True)  #we expect the others to turn unchecked...
+        print("message request is", b'YR'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+
+        try:
+            papa.thread.sock.send(b'YR'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+        except:
+            pass
+            print("read sys conf area failed")
+
+    def catch128SigReprog(self, memTypStr):
+        print("memTyp", memTypStr)
+        papa = self.parent()
+        
+        #game
+        rg = papa.nvrlist[2*8+1][1]*256+papa.nvrlist[2*8+0][1]
+        cg = papa.nvrlist[3*8+1][1]*256+papa.nvrlist[3*8+0][1]
+
+        #rom
+        rr = papa.nvrlist[4*8+1][1]*256+papa.nvrlist[4*8+0][1]
+        cr = papa.nvrlist[5*8+1][1]*256+papa.nvrlist[5*8+0][1]
+
+        self.ui.label_crc_cg.setText(f"{cg:04X}")
+        self.ui.label_crc_rg.setText(f"{rg:04X}")
+        self.ui.label_crc_cr.setText(f"{cr:04X}")
+        self.ui.label_crc_rr.setText(f"{rr:04X}")
+        
+        #find all keys with such fletcher's
+        try:
+            crtxt = RscPin.Bios[cr][1]
+        except:
+            crtxt = "Unknown" 
+        try:
+            rrtxt = RscPin.Bios[rr][1]
+        except:
+            rrtxt = "Unknown" 
+            
+            
+            
+        self.ui.label_txt_cr.setText(crtxt)
+        self.ui.label_txt_rr.setText(rrtxt)
+        
+        candidates_cg =  [x for x in RscPin.Models.keys() if RscPin.Models[x]["Game Fletcher"]==cg ]
+        candidates_rg =  [x for x in RscPin.Models.keys() if RscPin.Models[x]["Game Fletcher"]==rg ]        
+        
+        self.ui.label_txt_cg.setText("/".join(candidates_cg) if len(candidates_cg)>0 else "Unknown" )                    
+        self.ui.label_txt_rg.setText("/".join(candidates_rg) if len(candidates_rg)>0 else "Unknown" )
+
+        self.ui.label_txt_cr.setText(crtxt)
+        self.ui.label_txt_rr.setText(rrtxt)
+
+        if self.nb_call == 0:        
+            if rr != cr:
+                self.ui.plainTextEdit.appendPlainText("Game ROM: Executing Factory (Mod A1762 from HW with 2716)")
+            if rg != cg:
+                self.ui.plainTextEdit.appendPlainText("Base ROM: Executing Factory (Crazy Race)")
+        self.nb_call += 1
+        
+    def start_reprog(self):
+        papa = self.parent()
+        self.ui.plainTextEdit.clear()
+
+        self.gameName = self.ui.comboBox.currentText()
+        gameFileName  = RscPin.Models[self.gameName]["Game bin"]
+        binGame  = QFile(":/games/"+gameFileName)
+        if not binGame.open(QIODevice.ReadOnly):
+            self.ui.plainTextEdit.appendPlainText(f"{gameFileName} not found.")
+            return
+        totalGBytes = binGame.size()
+        streamG = QDataStream(binGame)
+        
+        #filecont = QByteArray()
+        bn = streamG.readRawData(totalGBytes)
+        self.ui.plainTextEdit.appendPlainText(f"Game name: {self.gameName}")
+        self.ui.plainTextEdit.appendPlainText(f"Game binary file: {gameFileName} ({totalGBytes} bytes)")
+        print("message request is", b'YBXQR')
+        try:
+            papa.thread.sock.send(b'YBXQR')
+            self.ui.plainTextEdit.appendPlainText(f"Set reprog mode.. OK")
+        except:
+            self.ui.plainTextEdit.appendPlainText(f"Set reprog mode... KO")
+            #return
+        
+        cbytFill = b'\x81'
+        dstBin4Fltch = QByteArray()
+        dstBin4Fltch.resize(1024)
+        dstBin4Fltch.fill(cbytFill)
+        myBuffer = QBuffer(dstBin4Fltch)
+        myBuffer.open(QIODevice.ReadWrite)
+        st=QDataStream(myBuffer)
+        bnb = st.readRawData(myBuffer.size())
+        myBuffer.seek(0)
+        time.sleep(0.1) #to let time for the previous command to execute
+        addr = 0
+        memtyp = 4  #game prom
+        for byte in bn:
+            #the high part of addr (0xhll) is to be put on the high nibble
+            #of the first param byte... >>8, then <<4 <==> >>4
+            addrh  = (addr >> 4)&0xF0 
+            b1     = addrh|memtyp
+            bb1    = b1.to_bytes(1, byteorder='big')
+            bbyt   = byte.to_bytes(1, byteorder='big')
+            baddrl = (addr&0xFF).to_bytes(1, byteorder='big')
+
+            myBuffer.write(bbyt)
+            print("message request is", b'YW'+bb1+baddrl+bbyt)
+
+            try:
+                papa.thread.sock.send(b'YW'+bb1+baddrl+bbyt)
+            except:
+                pass
+                #return
+            addr += 1
+
+        #Let's complete to 1024 bytes, if necessary
+        more2feed = 1024-totalGBytes
+        if more2feed > 1024 or more2feed < 0:
+            self.ui.plainTextEdit.appendPlainText(f"Error.Incorrect game file size ({totalGBytes} bytes). Abort.")
+            return
+        for i in range(1024-totalGBytes):
+            #the high part of addr (0xhll) is to be put on the high nibble
+            #of the first param byte... >>8, then <<4 <==> >>4
+            addrh  = (addr >> 4)&0xF0 
+            b1     = addrh|memtyp
+            bb1    = b1.to_bytes(1, byteorder='big')
+            bbyt   = cbytFill
+            baddrl = (addr&0xFF).to_bytes(1, byteorder='big')
+            print("message request is", b'YW'+bb1+baddrl+bbyt)
+
+            try:
+                papa.thread.sock.send(b'YW'+bb1+baddrl+bbyt)
+            except:
+                pass
+                #return
+            addr += 1
+              
+        #self.fletcherSrc = fletcher = Fletcher(bn)
+        self.fletcherSrc = fletcher = Fletcher(dstBin4Fltch)
+        
+        self.reprogPhase = 0
+
+        self.ui.plainTextEdit.appendPlainText(f"Sent Binary Game. Fletcher's: {fletcher.crc}")
+            
+        papa.fletcherSig.connect(self.catchFletcherSigAuto)
+
+        time.sleep(0.1) #to let time for the previous command to execute
+
+        memtyp = 4  #game prom    
+        #Must send the number of bits to be checked (power of 2)
+        #which is always 1K in game prom (empty loc padded with 0x81...)
+        #dataLength = (totalGBytes-1).bit_length() 
+        dataLength = (1024-1).bit_length()
+        if dataLength > 10 or dataLength <= 0:
+            self.ui.plainTextEdit.appendPlainText(f"File size error: {gameFileName} ({totalGBytes} bytes)")
+            dataLength = 0
+        dl = dataLength.to_bytes(1, byteorder='big')             
+        print("message request is", b'YZ'+memtyp.to_bytes(1, byteorder='big')+dl+b'X')
+
+        try:
+            papa.thread.sock.send(b'YZ'+memtyp.to_bytes(1, byteorder='big')+dl+b'X')
+        except:
+            pass
+
+        self.timertout = QTimer(singleShot=True, timeout=self.timeoutt)
+        self.timertout.start(5000)
+        
+    def timeoutt(self):
+        print("Time out")
+        dlg = QMessageBox(self.parent())
+        dlg.setWindowTitle("NAck")
+        dlg.setText("Time out. No ack. Please, check connection")
+        dlg.setIcon(QMessageBox.Critical)
+        button = dlg.exec()
+
+        if button == QMessageBox.Ok:
+            self.ui.plainTextEdit.appendPlainText(f"Fletcher Check process failed: Device not responding.")
+
+        
+
+    def catchFletcherSigAuto(self, crc):
+        papa = self.parent()
+        papa.fletcherSig.disconnect(self.catchFletcherSigAuto)
+        self.timertout.stop()
+        print("caught fletchers", f"{crc:04X}")
+        crcs = f"{crc:04X}"
+        self.ui.plainTextEdit.appendPlainText(f"Check Fletcher: {self.fletcherSrc.crc}/{crcs}")
+        if self.fletcherSrc.crc != crcs:
+            self.ui.plainTextEdit.appendPlainText(f"Fletcher check failed")                                      
+            return 
+        
+        #OK we just need to flash now
+        if self.reprogPhase == 0:
+            memtyp = 4      
+        else:
+            memtyp =5      
+        print("message request is", b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+
+        try:
+            papa.thread.sock.send(b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+        except:
+            pass
+            #return
+        
+        if self.reprogPhase == 0:
+            txt = "Game"      
+        else:
+            txt = "ROM 1K"      
+        self.ui.plainTextEdit.appendPlainText(f"{txt} flashed")
+        time.sleep(0.1) #to let time for the previous command to execute
+
+        #write the crc
+        memtyp = 0
+        if self.reprogPhase == 0:
+            addr = 16      
+        else:
+            addr = 32      
+        byte = crc&0xFF 
+        bbyt = byte.to_bytes(1, byteorder='big')
+        baddr = addr.to_bytes(1, byteorder='big')
+        print("message request is", b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
+        try:
+            papa.thread.sock.send(b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
+        except:
+            pass
+            #return
+        addr += 1
+        byte = (crc&0xFF00)>>8 
+        bbyt = byte.to_bytes(1, byteorder='big')
+        baddr = addr.to_bytes(1, byteorder='big')
+        print("message request is", b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
+        try:
+            papa.thread.sock.send(b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
+        except:
+            pass
+            #return
+
+        time.sleep(0.1) #to let time for the previous command to execute
+        
+        #OK we just need to flash now
+        memtyp = 0            
+        print("message request is", b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+
+        try:
+            papa.thread.sock.send(b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+        except:
+            pass
+            #return
+        self.ui.plainTextEdit.appendPlainText(f"Fletcher's updated in sys config")
+
+        time.sleep(0.1) #to let time for the previous command to execute
+        
+        self.reprogPhase += 1
+        
+        if self.reprogPhase == 1:
+            A1762FileName = RscPin.Models[self.gameName]["A1762 bin"]
+            binA1762 = QFile(":/games/"+A1762FileName)
+            if not binA1762.open(QIODevice.ReadOnly):
+                self.ui.plainTextEdit.appendPlainText(f"{A1762FileName} not found.")
+                return
+            totalRBytes = binA1762.size()
+            streamR = QDataStream(binA1762)
+            br = streamR.readRawData(totalRBytes)
+            self.ui.plainTextEdit.appendPlainText(f"B2 ROM binary file: {A1762FileName} ({totalRBytes} bytes)")
+            addr = 0
+            memtyp = 5  #A1762 prom
+            for byte in br:
+                #the high part of addr (0xhll) is to be put on the high nibble
+                #of the first param byte... >>8, then <<4 <==> >>4
+                addrh  = (addr >> 4)&0xF0 
+                b1     = addrh|memtyp
+                bb1    = b1.to_bytes(1, byteorder='big')
+                bbyt   = byte.to_bytes(1, byteorder='big')
+                baddrl = (addr&0xFF).to_bytes(1, byteorder='big')
+                print("message request is", b'YW'+bb1+baddrl+bbyt)
+    
+                try:
+                    papa.thread.sock.send(b'YW'+bb1+baddrl+bbyt)
+                except:
+                    pass
+                    #return
+                addr += 1
+            
+            
+            self.fletcherSrc = fletcher = Fletcher(br)
+            #self.reprogPhase = 1
+    
+            self.ui.plainTextEdit.appendPlainText(f"Sent Binary A1762. Fletcher's: {fletcher.crc}")
+                
+            papa.fletcherSig.connect(self.catchFletcherSigAuto)
+    
+            time.sleep(0.1) #to let time for the previous command to execute
+    
+            memtyp = 5  #Rom prom            
+            #Must send the number of bits to be checked (power of 2)
+            dataLength = (totalRBytes-1).bit_length() 
+            if dataLength > 10 or dataLength <= 0:
+                self.ui.plainTextEdit.appendPlainText(f"File size error: {A1762FileName} ({totalRBytes} bytes)")
+                dataLength = 0
+            dl = dataLength.to_bytes(1, byteorder='big')             
+
+            print("message request is", b'YZ'+memtyp.to_bytes(1, byteorder='big')+dl+b'X')
+    
+            try:
+                papa.thread.sock.send(b'YZ'+memtyp.to_bytes(1, byteorder='big')+dl+b'X')
+            except:
+                pass
+    
+            self.timertout = QTimer(singleShot=True, timeout=self.timeoutt)
+            self.timertout.start(5000)
+            
+        elif self.reprogPhase == 2:
+            self.ui.plainTextEdit.appendPlainText(f"Process successfully terminated.")
+            self.ui.plainTextEdit.appendPlainText(f"Please, reset the pin and close this window to get the modifications applied.")
+            self.refreshReprog()
+            
+        
     def catchFletcherSig(self, crc):
-        print("caught fletchers", crc)
+        print("caught fletchers", f"{crc:04X}")
         self.ui.label_crc_3.setText(f"{crc:04X}")
         
     def send_reqfletcher(self):
@@ -221,10 +577,18 @@ class MyReprog(QtWidgets.QDialog):
 
         papa.fletcherSig.connect(self.catchFletcherSig)
         memtyp = 4+self.memTyp            
-        print("message request is", b'YZ'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+        totalBytes = 1024
+        #Must send the number of bits to be checked (power of 2)
+        dataLength = (totalBytes-1).bit_length() 
+        if dataLength > 10 or dataLength <= 0:
+            self.ui.plainTextEdit.appendPlainText(f"File size error in fletcher request. Data length {totalBytes}")
+            dataLength = 0
+        dl = dataLength.to_bytes(1, byteorder='big')             
+        
+        print("message request is", b'YZ'+memtyp.to_bytes(1, byteorder='big')+dl+b'X')
 
         try:
-            papa.thread.sock.send(b'YZ'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+            papa.thread.sock.send(b'YZ'+memtyp.to_bytes(1, byteorder='big')+dl+b'X')
         except:
             pass
         
@@ -260,6 +624,10 @@ class MyReprog(QtWidgets.QDialog):
         except:
             pass
 
+        time.sleep(2)
+        self.refreshReprog()
+
+    
     def actionReadPROM(self):
         papa = self.parent()
         memtyp = 4 + self.memTyp
@@ -550,8 +918,10 @@ class MainForm(QtWidgets.QMainWindow):
     This is the main window of the application
     Built by mygui.ui
     """
-    fletcherSig = pyqtSignal(int)
-
+    fletcherSig   = pyqtSignal(int)
+    read128Sig    = pyqtSignal(str)
+    frameCntSig   = pyqtSignal(str)
+    
     def __init__(self, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
         #print sys.getdefaultencoding()
@@ -605,6 +975,12 @@ class MainForm(QtWidgets.QMainWindow):
         
         self.fontsz = int(self.fontsz)
 
+        #frame counter is connected to frameCounter sig frameCntSig
+        self.frameCnt = 0
+        self.ui.rb_sysconf.setChecked(True)   
+        self.frameCntSig.connect(self.frameCounter)
+        self.read128Sig.connect(self.catch128SigMain)
+             
         print("initial sound state", self.sound)
         if self.sound == "off":
             self.ui.actionSound.setChecked(False)
@@ -984,7 +1360,10 @@ QPushButton:pressed {
         self.ui.dockWidget_5.setEnabled(False)
         self.ui.dockWidget_6.hide()
 
-        self.ui.comboBox.addItems(['Crazy Race', 'Fair Fight'])
+        #calque combo
+        #print(RscPin.Models.keys())
+        #self.ui.comboBox.addItems(['Crazy Race', 'Fair Fight'])
+        self.ui.comboBox.addItems(list(RscPin.Models.keys()))
 
         # Connect signals to the methods.
         #self.ui.comboBox.activated.connect(self.activated)
@@ -997,89 +1376,26 @@ QPushButton:pressed {
             #dock des config switches de gottlieb
             #self.ui.dockWidget_5.setFloating(True)
             self.ui.dockWidget_5.setVisible(False)
+ 
+        # binos = QFile(":/games/fa.bin")
+        # binos.open(QIODevice.ReadOnly)
+        # with open(":/games/fa.bin", "rb") as fb: 
+        #     # read contents      
+        #     bn = fb.read()
+        #     print(bn)
+        
         
     def text_changed(self, s):
         print("change calque settings for:", s)
         self.settings.setValue('calqueStr', s)
 
-        self.Swtttext = [[None for x in range(self.swmCols)] for y in range(self.swmRows)]       
+        
+        #self.Swtttext = [[None for x in range(self.swmCols)] for y in range(self.swmRows)]       
         self.sh_Swtttext = [[None for x in range(self.swmCols)] for y in range(self.swmRows)]       
 
-        if self.game_type == "Recel":
-            self.Swtttext[0][0] = "Ball Home"
-            self.Swtttext[8][0] = "Fault"
-            self.Swtttext[8][1] = "Coin 3"
-            self.Swtttext[8][2] = "Coin 1"
-            self.Swtttext[8][3] = "Coin 2"
-            self.Swtttext[9][0] = "Tilt"
-            self.Swtttext[9][1] = "Replays"
-            self.Swtttext[9][2] = "Button 2"
-            self.Swtttext[9][3] = "Button 1"
+        self.Swtttext    = RscPin.Models[s]["Switches"]
+        self.sh_Swtttext = RscPin.Models[s]["Switches short"]
 
-        if   s == 'Crazy Race':
-            self.Swtttext[0][1] = "Targets upper side"
-            self.Swtttext[0][2] = "Target 50000"
-            self.Swtttext[0][3] = "Upper hole"
-            self.Swtttext[3][1] = "Aisle 100"
-            self.Swtttext[3][2] = "Contact 30pts"
-            self.Swtttext[4][1] = "Aisle 5000 & Bonus"
-            self.Swtttext[5][0] = "Target Right"
-            self.Swtttext[5][1] = "Target Centre"
-            self.Swtttext[5][2] = "Target Left"
-            self.Swtttext[6][0] = "Bumper Left"
-            self.Swtttext[6][1] = "Bumper Right"
-            self.Swtttext[6][2] = "Slingshot Left"
-            self.Swtttext[6][3] = "Slingshot Right"
-            self.Swtttext[7][2] = "Passage 30000"
-            self.Swtttext[7][3] = "Slingshot Upper"
-            self.sh_Swtttext[0][1] = "TU"
-            self.sh_Swtttext[0][2] = "T50K"
-            self.sh_Swtttext[0][3] = "UH"
-            self.sh_Swtttext[3][1] = "P100"
-            self.sh_Swtttext[3][2] = "30"
-            self.sh_Swtttext[4][1] = "5K+B"
-            self.sh_Swtttext[5][0] = "TR"
-            self.sh_Swtttext[5][1] = "TC"
-            self.sh_Swtttext[5][2] = "TL"
-            self.sh_Swtttext[6][0] = "BL"
-            self.sh_Swtttext[6][1] = "BR"
-            self.sh_Swtttext[6][2] = "SL"
-            self.sh_Swtttext[6][3] = "SR"
-            self.sh_Swtttext[7][2] = "P30K"
-            self.sh_Swtttext[7][3] = "SU"
-        elif s == 'Fair Fight':
-            self.Swtttext[0][1] = "Target Lower Left"
-            self.Swtttext[0][2] = "Target Lower Right"
-            self.Swtttext[0][3] = "30pts SW"
-            self.Swtttext[1][0] = "Target Upper Left"
-            self.Swtttext[1][1] = "Target Upper Right"
-            self.Swtttext[1][2] = "LH DB Rollover"
-            self.Swtttext[1][3] = "10K SW"
-            self.Swtttext[2][3] = "RH DB Rollover"
-            self.Swtttext[3][3] = "500pts SW"
-            self.Swtttext[6][0] = "Bumper Upper"
-            self.Swtttext[6][1] = "Bumper Lower"
-            self.Swtttext[6][2] = "Slingshot Left"
-            self.Swtttext[6][3] = "Slingshot Right"
-            self.Swtttext[7][0] = "EB Target"
-            self.Swtttext[7][1] = "Special Rollover"
-            self.Swtttext[7][2] = "Special Rollover"
-            self.sh_Swtttext[0][1] = "TLL"
-            self.sh_Swtttext[0][2] = "TLR"
-            self.sh_Swtttext[0][3] = "30"
-            self.sh_Swtttext[1][0] = "TUL"
-            self.sh_Swtttext[1][1] = "TUR"
-            self.sh_Swtttext[1][2] = "LHR"
-            self.sh_Swtttext[1][3] = "10K"
-            self.sh_Swtttext[2][3] = "RHR"
-            self.sh_Swtttext[3][3] = "500"
-            self.sh_Swtttext[6][0] = "BU"
-            self.sh_Swtttext[6][1] = "BL"
-            self.sh_Swtttext[6][2] = "SL"
-            self.sh_Swtttext[6][3] = "SR"
-            self.sh_Swtttext[7][0] = "TEB"
-            self.sh_Swtttext[7][1] = "SpR"
-            self.sh_Swtttext[7][2] = "SpR"
 
         for i in range(self.swmRows):
             for j in range(self.swmCols): 
@@ -1187,6 +1503,17 @@ QPushButton:pressed {
                             self.nibbleField[r][2*l+1].setStyleSheet("background:purple;color:rgb(255, 255, 255);")
                 #print(self.nvrlist)      
 
+    def frameCounter(self, typ):
+        if typ == "A":
+            self.frameCnt += 1
+        
+        print("frame A cnt", self.frameCnt)
+        
+        if self.frameCnt == 10:
+            self.frameCntSig.disconnect()
+            self.send_reqrread()
+        
+        
     def setsound(self):  
         format = QAudioFormat()
         format.setChannelCount(1)
@@ -1630,6 +1957,8 @@ QPushButton:pressed {
         self.ui.pushButton.clicked.connect(self.disconnect)
         self.ui.pushButton.clicked.disconnect(self.connect)
         self.ui.pushButton.setText("disconnect")
+        self.frameCnt = 0
+        
         if  True:
             #self.thread = Worker(HOST=self.HOST, PORT=self.PORT)
             self.thread = Worker(HOST=self.ui.lineEdit.text(), 
@@ -1729,6 +2058,18 @@ QPushButton:pressed {
             
             print("Dump ROM terminated")
             
+        elif typ == 78:    #N (read 256 bytes)
+            print(f"Dump current ROM (256B) in progress")
+            self.write2Console(f"ROM Current\r\n", insertMode=True)
+            #write again but  to  console, this time.        
+            for r in range(16):
+                self.write2Console(f"{r:02X}\t")
+                for l in range(16):
+                    self.write2Console(f"{data[r*16+l]:02X} ", insertMode=True)
+                self.write2Console(f"\r\n", insertMode=True)
+            
+            print("Dump ROM terminated")
+            
         elif typ == 82:    #R (read 128 bytes)
             if   self.ui.rb_sysconf.isChecked():
                 memtyp = "sys conf"
@@ -1763,6 +2104,8 @@ QPushButton:pressed {
                 self.write2Console(f"\r\n", insertMode=True)
             
             print("Dump RAM terminated")
+            self.read128Sig.emit(memtyp)
+
             try:
                 self.mysettings.statusCmd.emit(82, "done")   
             except:
@@ -1847,6 +2190,7 @@ QPushButton:pressed {
                 
         else:
             if  typ == 65:  #'A'
+                self.frameCntSig.emit("A")
                 dspAstate = 1 if data[0]&0x80 else 0
                 dspBstate = 1 if data[0]&0x40 else 0
                 if   dspAstate == 0 and self.lastAstate == 1:
@@ -2241,6 +2585,78 @@ QPushButton:pressed {
         # Finally we pass the event to the class we inherit from. It can choose to accept or reject the event, but we don't need to deal with it ourselves
         super(MainForm, self).closeEvent(event)
 
+
+    def catch128SigMain(self, memTypStr):
+        print("memTyp", memTypStr)
+        if memTypStr != "sys conf":
+            return 
+        
+        self.ui.plainTextEdit.clear()             
+
+        #game
+        rg = self.nvrlist[2*8+1][1]*256+self.nvrlist[2*8+0][1]
+        cg = self.nvrlist[3*8+1][1]*256+self.nvrlist[3*8+0][1]
+
+        #rom
+        rr = self.nvrlist[4*8+1][1]*256+self.nvrlist[4*8+0][1]
+        cr = self.nvrlist[5*8+1][1]*256+self.nvrlist[5*8+0][1]
+
+        print(f"{cg:04X}")
+        print(f"{rg:04X}")
+        print(f"{cr:04X}")
+        print(f"{rr:04X}")
+
+ 
+        self.ui.label_crc_cr.setText(f"{cr:04X}")
+        
+       
+        candidates_cg =  [x for x in RscPin.Models.keys() if RscPin.Models[x]["Game Fletcher"]==cg ]
+        candidates_rg =  [x for x in RscPin.Models.keys() if RscPin.Models[x]["Game Fletcher"]==rg ]        
+        
+        mdl_cg  = [RscPin.Models[x]["#Model"] for x in candidates_cg]
+        binf_cg = [RscPin.Models[x]["A1762 bin"] for x in candidates_cg]
+
+        print("/".join(candidates_cg) if len(candidates_cg)>0 else "Unknown" )                    
+        print("/".join(candidates_rg) if len(candidates_rg)>0 else "Unknown" )
+        
+        if rg != cg:
+            cmtTxt = f"Running factory game. crcs don't match. ({rg:04X}/{cg:04X})"
+        else:
+            cmtTxt = ""
+            
+
+        self.ui.label_crc_cg.setText(f"{cg:04X}")
+        self.ui.label_txt_cg.setText("/".join(candidates_cg) if len(candidates_cg)>0 else "Unknown" )                    
+        self.ui.label_mdl_cg.setText("/".join(mdl_cg) if len(mdl_cg)>0 else "Undef" )                    
+        self.ui.plainTextEdit.appendPlainText(cmtTxt)             
+        
+        try:
+            cr_txt = RscPin.Bios[cr][1]
+        except:
+            cr_txt = "Unknown"
+        
+        self.ui.label_txt_cr.setText(cr_txt)
+        self.ui.label_crc_cr.setText(f"{cr:04X}")
+            
+        if rr != cr:
+            cmtTxt = f"Running factory BIOS. crcs don't match. ({rr:04X}/{cr:04X})"
+        else:
+            cmtTxt = ""
+            
+        self.ui.plainTextEdit.appendPlainText(cmtTxt)             
+
+        if len(candidates_cg)>0:  
+            try: 
+                fnl = RscPin.Bios[cr][0]
+                # print("fnl", fnl)     
+                # print("binf_cg", binf_cg)     
+                for f in binf_cg:
+                    if f not in fnl:
+                        txt = "/".join(candidates_cg)
+                        self.ui.plainTextEdit.appendPlainText(f"Warning : {f} notoriously incompatible with {txt} ")             
+            except:
+                pass
+            
 
     def magarzolerie(self, i, j):
         '''
@@ -2699,6 +3115,8 @@ class Worker(QThread):
                 framesz = 1024
             elif received == b'R':
                 framesz = 128
+            elif received == b'N':   #4E
+                framesz = 256
             elif received == b'P':
                 #print("P")
                 framesz = 32 #32
@@ -2881,3 +3299,5 @@ def afflcdi(afftab, data):
             
 if __name__ == '__main__':
     MSCGui().runApp(argv=sys.argv)
+
+

@@ -14,9 +14,14 @@ class Fletcher:
         self.C1 = self.C1_initial
         
         for b in bn:
+            #print("typb", type(b))
+            if type(b) == bytes:
+                b = ord(b)
+            elif type(b) != int:
+                raise TypeError(f"can't fletcherize data with type {type(b)}")
             self.C0 = ( (self.C0+b) % 255 )
             self.C1 = ( (self.C0+self.C1) % 255 )
     
     @property
     def crc(self):
-        return(f"0X{self.C1:02X}{self.C0:02X}")
+        return(f"{self.C1:02X}{self.C0:02X}")
