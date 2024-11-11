@@ -147,7 +147,7 @@ class RscPin():
         #[3][x]
         [None,       None,      None,           "500"],
         #[4][x]
-        [None,       "5K+B",    None,           None],
+        [None,       None,      None,           None],
         #[5][x]
         [None,       None,      None,           None],
         #[6][x]

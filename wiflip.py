@@ -28,7 +28,7 @@ from PyQt5.QtGui import *
 
 #from PyQt5.QtWidgets import *   #removed 2024-10-08, (not sure)
 
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QAction
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import QtNetwork 
 #from PyQt5 import QtMultimedia 
@@ -86,8 +86,8 @@ aboutContent = '''
 </td></tr></table>
 '''
 
-VERSION = "0.92"
-DATE    = "2024-10-26"
+VERSION = "0.93"
+DATE    = "2024-11-11"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
@@ -118,7 +118,10 @@ class MyHelp(QtWidgets.QDialog):
         self.ui = Ui_HelpDialog()
         self.ui.setupUi(self)
         #self.ui.webEngineView.load(QtCore.QUrl.fromLocalFile('/Users/garzol/git/wiflip_tracer/index.htm'))
+        self.ui.toolButton.setText(u"\u2302") #petite maison
+        
         self.ui.textBrowser.append('''
+<b>V0.93</b> - 2024-11-11<br>Reprog full operational. (Except PokerPlus, which hangs up) <br><br>
 <b>V0.92</b> - 2024-10-08<br>Reprog works only with compatible boards.VB_MG.<br><br>
 <b>V0.91</b> - 2024-10-08<br>Added the small leds per player score + The 1M digit. The only missing display indication is the set of decimal points at the moment. Lighter EXE. calques for Switch matrix are now memorized in app settings<br><br>
 <b>V0.89</b> - 2024-10-06<br>scorie corrections<br><br>
@@ -129,9 +132,43 @@ class MyHelp(QtWidgets.QDialog):
 <b>V0.78</b><br>original version<br>
 '''
 )
-        #self.ui.textBrowser_2.setSource(QtCore.QUrl('qrc:///help/index.htm'))
-        self.ui.textBrowser_2.setSource(QtCore.QUrl('index.htm'))
+
+        cursor = self.ui.textBrowser.textCursor()
+        cursor.setPosition(0);
+        self.ui.textBrowser.setTextCursor(cursor);   
+             
+        self.ui.textBrowser_2.setSource(QtCore.QUrl('qrc:/help/docs/index.htm'))
+        #self.ui.textBrowser_2.setSource(QtCore.QUrl('index.htm'))
    
+        self.ui.textBrowser_2.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.ui.textBrowser_2.customContextMenuRequested.connect(self.emptySpaceMenu)
+        self.ui.toolButton.clicked.connect(self.home)
+        self.ui.toolButton_3.clicked.connect(self.backward)
+        self.ui.toolButton_2.clicked.connect(self.forward)
+        
+    def emptySpaceMenu(self):
+        menu = QtWidgets.QMenu()
+        FA = QAction('Forward')
+        FB = QAction('Backward')
+        FH = QAction('Home')
+        
+        menu.addAction(FA)
+        menu.addAction(FB)
+        menu.addAction(FH)
+        FA.triggered.connect(self.forward)
+        FB.triggered.connect(self.backward)
+        FH.triggered.connect(self.home)
+        menu.exec_(QtGui.QCursor.pos())
+    
+    def forward(self):
+        self.ui.textBrowser_2.forward()
+        
+    def backward(self):
+        self.ui.textBrowser_2.backward()
+        
+    def home(self):
+        self.ui.textBrowser_2.home()
+        
 
 class MyGameSet(QtWidgets.QDialog): 
     """

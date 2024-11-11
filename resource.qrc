@@ -42,6 +42,9 @@
     <file>alarm1-b238.wav</file>
   </qresource>
   <qresource prefix="help">
-    <file>index.htm</file>
+    <file>docs/reprog.htm</file>
+    <file>docs/connect.htm</file>
+    <file>docs/index.htm</file>
+    <file>docs/img/panthera-bg.jpeg</file>
   </qresource>
 </RCC>
