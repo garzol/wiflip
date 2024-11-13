@@ -36,6 +36,12 @@
    <property name="enabled">
     <bool>true</bool>
    </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="minimumSize">
     <size>
      <width>502</width>
@@ -44,8 +50,8 @@
    </property>
    <property name="maximumSize">
     <size>
-     <width>550</width>
-     <height>16777215</height>
+     <width>518</width>
+     <height>520</height>
     </size>
    </property>
    <property name="baseSize">
@@ -82,8 +88,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>522</width>
-           <height>560</height>
+           <width>490</width>
+           <height>452</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -1131,7 +1137,7 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>330</width>
+          <width>338</width>
           <height>242</height>
          </rect>
         </property>
@@ -1339,7 +1345,6 @@ All closed switches noted by a code number in ball-in-play display.***
     <addaction name="actionLoad_nvr"/>
     <addaction name="actionSave_nvram"/>
     <addaction name="separator"/>
-    <addaction name="actionSettings"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -1402,6 +1407,8 @@ All closed switches noted by a code number in ball-in-play display.***
     </property>
     <addaction name="actionGame_settings"/>
     <addaction name="actionReprog"/>
+    <addaction name="separator"/>
+    <addaction name="actionSettings"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -1811,8 +1818,8 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>309</width>
-          <height>853</height>
+          <width>319</width>
+          <height>841</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_14">
@@ -3112,7 +3119,7 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>330</width>
+          <width>338</width>
           <height>510</height>
          </rect>
         </property>
@@ -3432,7 +3439,7 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>737</width>
+          <width>740</width>
           <height>83</height>
          </rect>
         </property>
@@ -3496,8 +3503,8 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>304</width>
-          <height>72</height>
+          <width>302</width>
+          <height>74</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_15">
@@ -3880,7 +3887,7 @@ All closed switches noted by a code number in ball-in-play display.***
   </action>
   <action name="actionSettings">
    <property name="text">
-    <string>Settings...</string>
+    <string>System settings...</string>
    </property>
   </action>
   <action name="actionSound">

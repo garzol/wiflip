@@ -3,3 +3,5 @@
 .pydevproject
 .DS_Store
 /service manuals/
+/build/
+/dist/

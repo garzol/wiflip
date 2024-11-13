@@ -1,0 +1,43 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="fr">
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Test de garzolerie game settings</title>
+</head>
+
+<body>
+
+<h2>Game settings</h2>
+<h3>Purpose</h3>
+<p>This dialog box allows you to alter the persistant data of a game. It is accessible from the menu Tools>Game settings. 
+	You must be connected through wifi (green connection led) before accessing data.</p>
+
+<h3>Using the Game settings dialog box</h3>
+<p><img src=":/help/docs/img/game_settings.png"></p>
+
+<p>Data field shows a green background when its content is valid. It shows a red background when data is invalid. 
+	It is possible to get red fields at dialog opening, since data might be uninitialized or have been corrupted for some reason.
+	On the orginal MPU, the most frequent cause of data corruption is related to NVRAM battery being flat, disconnected, or changed.
+	This won't happen on the MPU clone. Our clones use "F-RAM" technology, which does not need any battery back-up. Apart from a first boot, 
+	the data should never become incorrect. 
+</p>
+<p>Conversely, it is impossible to save a set of data if at least one field is red. 
+   You must change the parameter for a correct value before you can save the whole set of configuration.</p>
+
+<p>Most of the parameters can be tuned with the buttons B1,B2 that are located behind the pinball door, but not all.</p>
+<p>From the switch matrix dockwindow, you can also use the soft B1 and B2 buttons to tune the game parameters, 
+	exactly as you would do with the real B1, B2 buttons.</p>
+<p>Typically, it often occurs that an handicap field appears in red, because it is not initialized and contains hex digits, above 9. 
+	Such contents must be corrected and changed for a decimal number, if you want the machine to count correctly during a game.</p>
+<p>This is exactly the same situation as on an original MPU, where data must be correctly initialized (with a miniprinter).</p>
+<p>There is an alternate solution to reset handicap scores : Just play a game (or fake it with the switch matrix dockwindow, that's easier :-)) and reach at least 2Millions. 
+	The Recel software will automaticaly reset the handicap of the given tableau to 1M</p>
+<h3>Memorizing your changes</h3>
+<p>You can alter as many fields as you want. </p>
+<h3>Accessing data from buttons B1, B2</h3>
+</body>
+
+</html>

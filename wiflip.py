@@ -7,7 +7,7 @@ dockWidget
 @author: garzol 
 search keywords: switches reset open transparent I have a alarm1
 WebEngine WebView OpenGL numpy QtTextToSpeech pickle Crazy Race index ======
-signaling Fletcher console open timeout signaling error
+signaling Fletcher console open timeout signaling error resetthe dockWidget_5 reset 
 
 '''
 
@@ -497,7 +497,7 @@ class MyReprog(QtWidgets.QDialog):
         else:
             txt = "ROM 1K"      
         self.ui.plainTextEdit.appendPlainText(f"{txt} flashed")
-        time.sleep(0.1) #to let time for the previous command to execute
+        time.sleep(0.2) #to let time for the previous command to execute
 
         #write the crc
         memtyp = 0
@@ -538,7 +538,7 @@ class MyReprog(QtWidgets.QDialog):
             #return
         self.ui.plainTextEdit.appendPlainText(f"Fletcher's updated in sys config")
 
-        time.sleep(0.1) #to let time for the previous command to execute
+        time.sleep(0.2) #to let time for the previous command to execute
         
         self.reprogPhase += 1
         
@@ -600,6 +600,48 @@ class MyReprog(QtWidgets.QDialog):
             self.timertout.start(5000)
             
         elif self.reprogPhase == 2:
+
+            time.sleep(0.1) #to let time for the previous command to execute
+ 
+            #write the model number
+            
+            memtyp = 1 #NVRAM
+            addr = 0x12  
+            model = RscPin.Models[self.gameName]["#Model"]   
+            for i in range(1,-1,-1):
+                try: 
+                    byte = (int(model[2*i], 16)<<4)+int(model[2*i+1], 16)
+                except:
+                    byte = 15
+                bbyt = byte.to_bytes(1, byteorder='big')
+                baddr = addr.to_bytes(1, byteorder='big')
+                print("message request is", b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
+                try:
+                    papa.thread.sock.send(b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
+                except:
+                    pass
+                    #return
+                addr += 1
+                                        
+            time.sleep(0.1) #to let time for the previous command to execute
+            
+            #OK we just need to flash now
+            memtyp = 1            
+            print("message request is", b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+    
+            try:
+                papa.thread.sock.send(b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
+            except:
+                pass
+                #return
+            self.ui.plainTextEdit.appendPlainText(f"Model number updated in NVRAM : {model}")
+    
+            time.sleep(0.2) #to let time for the previous command to execute
+                       
+            
+            
+            
+            
             self.ui.plainTextEdit.appendPlainText(f"Process successfully terminated.")
             self.ui.plainTextEdit.appendPlainText(f"Please, reset the pin and close this window to get the modifications applied.")
             self.refreshReprog()
@@ -640,6 +682,7 @@ class MyReprog(QtWidgets.QDialog):
             papa.thread.sock.send(b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
         except:
             pass
+        time.sleep(0.2) #to let time for the previous command to execute
                         
     def selmemtyp(self, m):
         self.memTyp = m   
@@ -662,6 +705,11 @@ class MyReprog(QtWidgets.QDialog):
             pass
 
         time.sleep(2)
+
+        self.frameCnt = 0
+        
+        #self.frameCntSig.connect(self.frameCounter)
+
         self.refreshReprog()
 
     
@@ -846,7 +894,7 @@ class MySettings(QtWidgets.QDialog):
         except:
             pass
         
-        time.sleep(0.1) #to let time for the previous command to execute
+        time.sleep(0.2) #to let time for the previous command to execute
              
     def modsc(self):
         sc_flags1 = 0
@@ -1393,10 +1441,6 @@ QPushButton:pressed {
         self.ui.actionSave_nvram.triggered.connect(self.actionSaveNvr)
         self.ui.actionLoad_nvr.triggered.connect(self.actionLoadNvr)
 
-        self.ui.dockWidget_4.hide()
-        self.ui.dockWidget_5.setEnabled(False)
-        self.ui.dockWidget_6.hide()
-
         #calque combo
         #print(RscPin.Models.keys())
         #self.ui.comboBox.addItems(['Crazy Race', 'Fair Fight'])
@@ -1413,13 +1457,13 @@ QPushButton:pressed {
             #dock des config switches de gottlieb
             #self.ui.dockWidget_5.setFloating(True)
             self.ui.dockWidget_5.setVisible(False)
+
+        #self.ui.dockWidget_4.hide()
+        self.ui.dockWidget_5.setEnabled(False)
+        self.ui.dockWidget_6.hide()
+
+        
  
-        # binos = QFile(":/games/fa.bin")
-        # binos.open(QIODevice.ReadOnly)
-        # with open(":/games/fa.bin", "rb") as fb: 
-        #     # read contents      
-        #     bn = fb.read()
-        #     print(bn)
         
         
     def text_changed(self, s):
@@ -1446,6 +1490,9 @@ QPushButton:pressed {
             self.thread.sock.send(b'YBXQZ')
         except:
             pass
+        
+        self.frameCnt = 0
+        self.frameCntSig.connect(self.frameCounter)
         
 
     def toggleSound(self):
@@ -1717,6 +1764,10 @@ QPushButton:pressed {
                 #dock des config switches de gottlieb
                 #self.ui.dockWidget_5.setFloating(True)
                 self.ui.dockWidget_5.setVisible(False)
+
+            #Provisory we don't want that to be displayed but we don't want to lose it either...
+            self.ui.dockWidget_4.setVisible(False)
+            self.ui.dockWidget_6.setVisible(False)
         
 
         
@@ -1896,6 +1947,7 @@ QPushButton:pressed {
             self.thread.sock.send(b'YF'+memtyp.to_bytes(1, byteorder='big')+b'XX')
         except:
             pass
+        time.sleep(0.2) #to let time for the previous command to execute
                 
     def send_reqrread(self):    
         self.linenb = 0
