@@ -8,7 +8,7 @@ dockWidget
 search keywords: switches reset open transparent I have a alarm1
 WebEngine WebView OpenGL numpy QtTextToSpeech pickle Crazy Race index ======
 signaling Fletcher console open timeout signaling error resetthe dockWidget_5 reset 
-
+switch signal emit QTimer foo
 '''
 
 import os, sys, time, struct
@@ -59,6 +59,9 @@ from help import Ui_HelpDialog
 from settings import Ui_DialogSettings
 from reprog   import Ui_ReprogDialog
 from gameset  import Ui_GameSettings
+
+from clklabel import ClkLabel
+
 import  options
 
 from rscmodel import RscPin
@@ -1242,6 +1245,7 @@ class MainForm(QtWidgets.QMainWindow):
         #game prom dump button
         self.ui.pushButton_7.clicked.connect(self.send_dump_game_prom)
         self.ui.pushButton_8.clicked.connect(self.send_dump_A1762_prom)
+        self.ui.pushButton_9.clicked.connect(self.resetthepin_with_ack)
  
  
         #nvrdump button
@@ -1484,6 +1488,16 @@ QPushButton:pressed {
                 self.ledlabel[i][j].setText(self.sh_Swtttext[i][j])
                 self.ledlabel[i][j].setToolTip(self.Swtttext[i][j])
        
+    def resetthepin_with_ack(self):
+        print("message request is", b'YCXQZ')
+        try:
+            self.thread.sock.send(b'YCXQZ')
+        except:
+            pass
+        
+        self.frameCnt = 0
+        self.frameCntSig.connect(self.frameCounter)
+        
     def resetthepin(self):
         print("message request is", b'YBXQZ')
         try:
@@ -2461,6 +2475,11 @@ QPushButton:pressed {
                 self.write2Console(f"Fletcher's crc: {crc:04X}\r\n", insertMode=True)
                 print(f"Fletcher's crc: {crc:04X}\r\n")
                 self.fletcherSig.emit(crc)
+
+            elif typ == 64: #40 '@' reset ack frame
+                ident = data[0]
+                rtype = data[1]
+                self.write2Console(f"Reset Ack Frame received: Ident: {ident:02X}. Reset Type: {rtype:02X}\r\n")
                     
             elif typ == 67:  #'C'
                 #print("typ=67", str(data))
@@ -2971,8 +2990,10 @@ QPushButton:pressed {
             self.led[i]=[0]*cols
             self.ledlabel[i]=[0]*cols
             for j in range(cols):
-                self.ledlabel[i][j]=QtWidgets.QLabel()
-                self.led[i][j]=QtWidgets.QLabel()
+                # self.ledlabel[i][j]=QtWidgets.QLabel()
+                # self.led[i][j]=QtWidgets.QLabel()
+                self.ledlabel[i][j]= ClkLabel()
+                self.led[i][j]     = ClkLabel()
                 #self.led[i][j].setGeometry(QtCore.QRect(60+i*deltax, 90+j*deltay, balldia, balldia))
                 self.led[i][j].setGeometry(QtCore.QRect(0, 0, balldia, balldia))
                 if i%2 and j%2:
@@ -2982,8 +3003,14 @@ QPushButton:pressed {
                 self.led[i][j].setScaledContents(True)
                 #self.ledlabel[i][j].setScaledContents(True)
                 self.led[i][j].setObjectName(f"led_{i}{j}")
-                self.led[i][j].mousePressEvent = lambda _, x=i, y=j : self.foo(x, y)
-                self.ledlabel[i][j].mousePressEvent = lambda _, x=i, y=j : self.foo(x, y)
+                
+                # self.led[i][j].mousePressEvent = lambda _, x=i, y=j : self.foo(x, y)
+                # self.ledlabel[i][j].mousePressEvent = lambda _, x=i, y=j : self.foo(x, y)
+                self.led[i][j].simpleClicked.connect(partial(self.foo2, i, j, 1))
+                self.ledlabel[i][j].simpleClicked.connect(partial(self.foo2, i, j, 1))
+                self.led[i][j].tripleClicked.connect(partial(self.foo2, i, j, 3))
+                self.ledlabel[i][j].tripleClicked.connect(partial(self.foo2, i, j, 3))
+
                 self.led[i][j].setToolTip(self.Swtttext[i][j])
                 self.ledlabel[i][j].setToolTip(self.Swtttext[i][j])
                 self.ui.groupBox.layout().addWidget(self.led[i][j], j+1, i+1)
@@ -3016,10 +3043,25 @@ QPushButton:pressed {
     def foo(self, i, j):
         strb = i.to_bytes(1, byteorder='big')
         ret  = (1<<j).to_bytes(1, byteorder='big')
-
-        print("message request is", b'YS'+strb+ret+ret)
+        delay = 30 #(300ms)
+        dly = delay.to_bytes(1, byteorder='big')
+        print("message request is", b'YS'+strb+ret+dly)
         try:
-            self.thread.sock.send(b'YS'+strb+ret+ret)
+            self.thread.sock.send(b'YS'+strb+ret+dly)
+        except:
+            pass
+   
+    def foo2(self, i, j, nbclk):
+        strb = i.to_bytes(1, byteorder='big')
+        ret  = (1<<j).to_bytes(1, byteorder='big')
+        if nbclk == 3:
+            delay = 0xFF #(+l'infini)
+        else:
+            delay = 10 #(300ms)
+        dly = delay.to_bytes(1, byteorder='big')
+        print("message request is", b'YS'+strb+ret+dly)
+        try:
+            self.thread.sock.send(b'YS'+strb+ret+dly)
         except:
             pass
    
@@ -3211,6 +3253,8 @@ class Worker(QThread):
                 framesz = 32 #32
             elif received == b'Z':
                 framesz = 2 #crc
+            elif received == b'@':
+                framesz = 2 #reset ack frame
             else:
                 framesz = 0
 
