@@ -7,14 +7,17 @@
     <x>0</x>
     <y>0</y>
     <width>746</width>
-    <height>687</height>
+    <height>844</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Help</string>
   </property>
-  <property name="modal">
+  <property name="sizeGripEnabled">
    <bool>true</bool>
+  </property>
+  <property name="modal">
+   <bool>false</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0">
@@ -85,13 +88,18 @@
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <property name="topMargin">
-      <number>10</number>
+      <number>0</number>
      </property>
      <property name="rightMargin">
       <number>0</number>
      </property>
      <item>
       <widget class="QToolButton" name="toolButton_3">
+       <property name="font">
+        <font>
+         <pointsize>20</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>&lt;</string>
        </property>
@@ -99,6 +107,11 @@
      </item>
      <item>
       <widget class="QToolButton" name="toolButton_2">
+       <property name="font">
+        <font>
+         <pointsize>20</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>&gt;</string>
        </property>
@@ -106,6 +119,11 @@
      </item>
      <item>
       <widget class="QToolButton" name="toolButton">
+       <property name="font">
+        <font>
+         <pointsize>20</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>home</string>
        </property>

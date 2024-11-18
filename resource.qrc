@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/x">
+    <file>images/1x/screech_480.png</file>
     <file>images/aa55_logo_2.ico</file>
     <file>images/1x/pinballbell480.png</file>
     <file>images/1x/crazy_race_480.png</file>
@@ -42,6 +43,8 @@
     <file>alarm1-b238.wav</file>
   </qresource>
   <qresource prefix="help">
+    <file>docs/img/system_settings.png</file>
+    <file>docs/syssettings.htm</file>
     <file>docs/img/connectstp5.png</file>
     <file>docs/img/connectstp1.png</file>
     <file>docs/img/connectstp2.png</file>

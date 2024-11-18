@@ -9,6 +9,7 @@ search keywords: switches reset open transparent I have a alarm1
 WebEngine WebView OpenGL numpy QtTextToSpeech pickle Crazy Race index ======
 signaling Fletcher console open timeout signaling error resetthe dockWidget_5 reset 
 switch signal emit QTimer foo
+checkBox_flag3
 '''
 
 import os, sys, time, struct
@@ -89,8 +90,8 @@ aboutContent = '''
 </td></tr></table>
 '''
 
-VERSION = "0.93"
-DATE    = "2024-11-11"
+VERSION = "0.94"
+DATE    = "2024-11-17"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
@@ -124,6 +125,10 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.toolButton.setText(u"\u2302") #petite maison
         
         self.ui.textBrowser.append('''
+<b>V0.94</b> - 2024-11-17<br>Bug fix on game settings for params such as handicaps 1 where user enters 10 instead of 00010 for example. <br>
+Added settings for coil protection circuitry.<br>
+Added triple click on switches in order to close a switch permanently.
+ <br><br>
 <b>V0.93</b> - 2024-11-11<br>Reprog full operational. (Except PokerPlus, which hangs up) <br><br>
 <b>V0.92</b> - 2024-10-08<br>Reprog works only with compatible boards.VB_MG.<br><br>
 <b>V0.91</b> - 2024-10-08<br>Added the small leds per player score + The 1M digit. The only missing display indication is the set of decimal points at the moment. Lighter EXE. calques for Switch matrix are now memorized in app settings<br><br>
@@ -172,7 +177,14 @@ class MyHelp(QtWidgets.QDialog):
     def home(self):
         self.ui.textBrowser_2.home()
         
+    def closeEvent(self, event):
+        print("closing help")
+        # Finally we pass the event to the class we inherit from. It can choose to accept or reject the event, but we don't need to deal with it ourselves
+        self.parent().myhelp = None
+        super(MyHelp, self).closeEvent(event)
 
+        
+        
 class MyGameSet(QtWidgets.QDialog): 
     """
     Obsolete. Look at options 
@@ -811,6 +823,8 @@ class MySettings(QtWidgets.QDialog):
        
         
         self.ui.toolButton_reset.clicked.connect(self.resetthepin)
+        self.ui.toolButton.setVisible(False)
+        self.ui.toolButton_2.setVisible(False)
         
 
         self.refreshdlg()
@@ -1063,6 +1077,8 @@ class MainForm(QtWidgets.QMainWindow):
         
         self.fontsz = int(self.fontsz)
 
+        self.myhelp = None
+        
         #frame counter is connected to frameCounter sig frameCntSig
         self.frameCnt = 0
         self.ui.rb_sysconf.setChecked(True)   
@@ -1082,12 +1098,14 @@ class MainForm(QtWidgets.QMainWindow):
             BX = 10
 
             self.setupmatchleds()
-            if self.face == 'crazy_race':
-                self.ui.label.setPixmap(QtGui.QPixmap(":/x/images/1x/crazy_race_480.png"))
-                #self.ui.label.setStyleSheet("background-image: url(images/1x/crazy_race_480.png);")
-            else:
-                self.ui.label.setPixmap(QtGui.QPixmap(":/x/images/1x/fair_fight_480.png"))
-                #self.ui.label.setStyleSheet("background-image: url(images/1x/fair_fight_480.png);")
+            
+            self.actionGeneric(self.face)
+            # if self.face == 'crazy_race':
+            #     self.ui.label.setPixmap(QtGui.QPixmap(":/x/images/1x/crazy_race_480.png"))
+            #     #self.ui.label.setStyleSheet("background-image: url(images/1x/crazy_race_480.png);")
+            # else:
+            #     self.ui.label.setPixmap(QtGui.QPixmap(":/x/images/1x/fair_fight_480.png"))
+            #     #self.ui.label.setStyleSheet("background-image: url(images/1x/fair_fight_480.png);")
                 
             self.ui.wplayer1.setGeometry(QtCore.QRect(200, 350, 220, 38))
             self.ui.wplayer2.setGeometry(QtCore.QRect(200, 350, 220, 38))
@@ -1438,9 +1456,28 @@ QPushButton:pressed {
         # QtCore.QObject.connect(self.ui.actionClear_all, 
         #                        QtCore.SIGNAL("triggered()"), 
         #                        self.clearSettin)
+        
         self.ui.actionClear_all_2.triggered.connect(self.clearSettin)
-        self.ui.actionFair_Fight.triggered.connect(self.actionFair_Fight)
-        self.ui.actionCrazy_Race.triggered.connect(self.actionCrazy_Race)
+        
+        #generic facelift menu generator
+        self.actionGame = dict()
+        for game, gdata in RscPin.Models.items():
+            try:
+                gfile = gdata['Backglass']
+                print(game, gfile)
+                self.actionGame[game] = QtWidgets.QAction(game)
+                self.actionGame[game].setObjectName("qaction"+game)
+                self.ui.menuRecel_2.addAction(self.actionGame[game])
+                self.actionGame[game].triggered.connect(partial(self.actionGeneric, game))
+                print(game, gfile, actionGame[game])
+                
+            except:
+                print("pb")
+                pass
+        
+            #self.actionGame = QtWidgets.QAction()
+        # self.ui.actionFair_Fight.triggered.connect(self.actionFair_Fight)
+        # self.ui.actionCrazy_Race.triggered.connect(self.actionCrazy_Race)
 
         self.ui.actionSave_nvram.triggered.connect(self.actionSaveNvr)
         self.ui.actionLoad_nvr.triggered.connect(self.actionLoadNvr)
@@ -1713,11 +1750,15 @@ QPushButton:pressed {
 
     def launchHelp(self):
         """
-        Starts the about dialog box
+        Starts the help dialog box
         """
-        myhelp=MyHelp(self)
-        myhelp.show()
-                
+        if self.myhelp == None:
+            self.myhelp=MyHelp(self)
+            self.myhelp.show()
+        else:
+            self.myhelp.activateWindow()
+            #je ne sais pas comment revenir au premier plan
+            
     def launchGameSet(self):
         """
         Starts the game settings dialog box
@@ -1744,7 +1785,16 @@ QPushButton:pressed {
         self.mysettings=MySettings(self)
         #self.mysettings.show()
         self.mysettings.exec()
-                  
+
+    def actionGeneric(self, gamename):   
+        self.face = gamename
+        try:
+            fgame =  ":/x/images/1x/"+RscPin.Models[gamename]['Backglass']
+        except:
+            fgame = ":/x/images/1x/fair_fight_480.png"
+        #print("action generic", self.face, fgame, RscPin.Models[gamename]['Backglass'])  
+        self.ui.label.setPixmap(QtGui.QPixmap(fgame))
+                    
     def actionFair_Fight(self):
         #self.ui.label.setStyleSheet("background-image: url(images/1x/fair_fight_480.png);")
         self.ui.label.setPixmap(QtGui.QPixmap(":/x/images/1x/fair_fight_480.png"))

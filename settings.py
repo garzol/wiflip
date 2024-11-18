@@ -149,7 +149,7 @@ class Ui_DialogSettings(object):
         self.checkBox_flag5.setText(_translate("DialogSettings", "Reserved b5"))
         self.checkBox_flag1.setToolTip(_translate("DialogSettings", "OC and CC coil tests are still performed, but the result of this test will be ignored"))
         self.checkBox_flag1.setText(_translate("DialogSettings", "Skip coils selftest"))
-        self.checkBox_flag3.setText(_translate("DialogSettings", "Reserved b3"))
+        self.checkBox_flag3.setText(_translate("DialogSettings", "Unprotect coil channels"))
         self.checkBox_flag0.setToolTip(_translate("DialogSettings", "disable coin rejector coil at next reset"))
         self.checkBox_flag0.setText(_translate("DialogSettings", "Coin rejector off"))
         self.groupBox_3.setTitle(_translate("DialogSettings", "Special"))

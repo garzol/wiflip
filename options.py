@@ -89,21 +89,23 @@ class Hex:
     This is a collection of nibbles
     '''
     def __init__(self, value, addr, typ="hex", dir=1, length=None):
-         self.type = typ.lower()   #hex or bcd
-         self.addr = addr
-         self.dir  = dir
-         if type(value) == int:
-             value = f"{value:X}"
-         elif type(value) != str:
-             print("Hex class: Value cannot be of type", type(value))
-             value=""
-         if length is not None:
-             if len(value) < length:
-                 value = '0'*(length-len(value)) + value
-             
-         else:
-            self.value = value
-
+        self.type = typ.lower()   #hex or bcd
+        self.addr = addr
+        self.dir  = dir
+        if type(value) == int:
+            value = f"{value:X}"
+        elif type(value) != str:
+           #print("Hex class: Value cannot be of type", type(value))
+           value=""
+           
+        if length is not None:
+           if len(value) < length:
+               value = '0'*(length-len(value)) + value
+            
+        self.value = value
+        
+        #print("New Hex: ", value, self.value, length)
+        
     @staticmethod
     def b2n(bb):
         '''
@@ -124,11 +126,14 @@ class Hex:
         dir    = hx.dir
         if dir != 1:
             value = value[::-1]  #let's reverse
+            
+        #print("updating map from hex:", value)
         for c in value:
             nibbles[addr] = int(c, 16)&0x0F
             addr += 1
         
         rbytes = [(x<<4)+y for x,y in zip([x for x in nibbles[1::2]], [x for x in nibbles[::2]])]
+
         return rbytes        
         
     @staticmethod
@@ -384,7 +389,8 @@ class MyOptions(QtWidgets.QDialog):
                                          MyOptionsUtils.myValidateHex, 0, 99999, 
                                          "1st handicap (High score to date: 1M + param x10 (Player #1)",
                                          HandiTStr,
-                                         Hex("00000", 0x63, "bcd", -1)],
+                                         Hex("00000", 0x63, "bcd", -1, 5)], #adding the length (here: 5) is useless
+                                                                            #while "00000" as an example value is used to determine length...
                 
                 u"3rd Coin rejector":[default3rdCoinRejector, 
                                          Hex, 
@@ -863,7 +869,8 @@ WITHOUT PRESSING THE START BUTTON
 
     def ApplyAction(self):
         papa = self.parent()
-        self.applyPresets()
+        if self.applyPresets() != "OK":
+            return
         time.sleep(1.0)
         papa.resetthepin()
         time.sleep(2.0)
@@ -873,14 +880,15 @@ WITHOUT PRESSING THE START BUTTON
         self.close() 
        
     def OKAction(self):
-        self.applyPresets()
+        if self.applyPresets() != "OK":
+            return
         self.close() 
 
     
             
             
     def applyPresets(self):
-        print("applying presets")
+        #print("applying presets")
         papa = self.parent()
         mininvrl = [x[1] for x in papa.nvrlist]
         
@@ -891,7 +899,8 @@ WITHOUT PRESSING THE START BUTTON
                 validFunc = MyOptions.defaults[objname][2]       
                 if not validFunc:
                     print("f invalid")
-                    return
+                    #TODO write msg to console
+                    return "KO Internal error Invalid valid func"
                 minval = MyOptions.defaults[objname][3] 
                 maxval = MyOptions.defaults[objname][4] 
                 try:
@@ -901,6 +910,11 @@ WITHOUT PRESSING THE START BUTTON
                 validated, msg = validFunc(self.itemvdict[objname].text(), minval, maxval, option=optval)
                 if not validated:
                     errorlist.append(objname)
+                # print(objname, self.itemvdict[objname].text(), 
+                #        optval.addr, 
+                #        optval.type, 
+                #        optval.dir,
+                #        optval.value)
             elif objcontent[1] == Combo:
                 #no validfunc required since it is a combo
                 try:
@@ -913,7 +927,7 @@ WITHOUT PRESSING THE START BUTTON
                 
         if len(errorlist):
             self.ui.label.setText("Please check the following fields: "+ ", ".join(errorlist))
-            return
+            return "KO Settings invalid"
         else:
             self.ui.label.setText("")
 
@@ -927,6 +941,7 @@ WITHOUT PRESSING THE START BUTTON
                         hexemple.addr,
                         hexemple.type,
                         hexemple.dir,
+                        len(hexemple.value)
                         )
                 bmap = Hex.updateMapFromHex(bmap, h)
             elif objcontent[1] == Combo:
@@ -944,7 +959,8 @@ WITHOUT PRESSING THE START BUTTON
         papa.send_reqwriteall()
         time.sleep(1.0)
         papa.send_reqflash()
-
+        time.sleep(0.3)
+        return "OK"
     # def saveSettings(self):
     #     for i in range(self.myTree.topLevelItemCount()):
     #         item = self.myTree.topLevelItem(i)  

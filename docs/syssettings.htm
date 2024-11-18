@@ -1,0 +1,107 @@
+
+
+<h2>System settings</h2>
+<h3>Purpose</h3>
+<p>This dialog box allows you to alter the persistant data of the board. It is accessible from the menu Tools>System settings. 
+	You must be connected through wifi (green connection led) before accessing data.</p>
+
+<h3>Using the System settings dialog box</h3>
+<p><img src=":/help/docs/img/system_settings.png"></p>
+<p>
+   Data is transferred instantly to the non volatile memory of the board, as soon as a checkbox
+   is ticked/unticked, or a new startup mode is selected. 
+   Nevertheless, the data is not actually applied until a board reset is done 
+   (either by the physical reset switch or with the soft reset button of the WiFlip app) 
+</p>
+
+<h2>Group box: Startup mode</h2>
+<p>
+	There are 3 radio buttons:
+	<ul>
+		<li><a href="#nm">Normal</a>: This is the exact way the original pinball starts.
+		</li>
+		<li><a href="#mm">Miniprinter</a>: This mode is an emulation of the original miniprinteer equipment from Recel.		</li>
+		<li>
+			<a href="#fm">Factory</a>: Applies a safe, factory set of data. 
+		</li>
+	</ul>
+</p>
+<h3 id="nm">Normal</h3>
+<p>The board will start with data from the last session (game settings, user data, etc...).
+			This is the exact way the original pinball starts.</p>
+<h3 id="mm">Miniprinter</h3>
+<p>This mode is an emulation of the original miniprinteer equipment from Recel.
+			While the board is 100% compatible with the original miniprinter, it is highly dubious that
+			you have one available at hand. This is why this mode was created.
+			The board first load the miniprinter data, which is included in its dataset. Miniprinter 
+			data can be read/modified, saved/loaded from the memory inspection interface.
+			Initially there is a "factory settings miniprinter" which is meant to be compatible with anay game.
+			Miniprinter data will overwrite all the values that were previously stored by the pinball 
+			during the last session (handicaps, freeplays, model number... all data).
+			This very same miniprinter data will be used at every startup of the machine until you select another mode.
+</p>
+<p>This mode is not very useful, since you may prefer the <a href="gamsettings.htm">game settings</a> dialog box, which allows you to do
+   almost the same things, in a more user-friendly evironment.
+</p>
+
+
+<h3 id="fm">Factory</h3>
+<p>In this mode, factory settings are applied. To be used when things went wrong, or when you are lost.
+			You will stay in factory mode, until you change it for Normal, or Miniprinter.</p>
+			
+<h2> Group box: Option settings</h2>
+<p>Options are actually applied after a reset.</p>
+<p>Options are:
+	<ul>
+		<li><a href="#cro">Coin rejector off</a></li>
+		<li><a href="#sco">Skip coils self test</a></li>
+		<li><a href="#smo">Standalone switch matrix</a></li>
+		<li><a href="#cco">Unprotect coil channels</a></li>
+	</ul>
+</p>
+<h3 id="cro">Coin rejector off</h3>
+<p>The coin rejector coil is located behind the coin door. It is rarely useful for home usage of a pinball.
+   Besides, it makes annoying noise sometimes, and it consumes power for nothing. You can turn this coil off with this option.
+</p>
+<h3 id="sco">Skip coils self test</h3>
+<p>At boot up, Recel pinballs perform a selftest. In several cases, the machine halts if a test did not pass. This 
+	is especially the case with coil test against short circuit or if play signal can't be detected. You may want to let the pinball 
+	continue its tests and not stop there, although it is generally not recommended. 
+	There is a specific case where this option, is useful: When the board is not connected to the pin (bench tests)
+</p>
+<h3 id="smo">Standalone switch matrix</h3>
+<p>The state of switches (from the switch matrix) is read by the MPU board through the mux board. If the mux board is
+   not connected to the MPU board (bench test, or standalone mode of the MPU board), then all swithches are detected in the closed state.
+   Then, it is impossible to use the emulated switch matrix of the WiFlip app. This option was designed for preventing this situation,
+   by reversing the state of switches by software.
+</p>
+<p>Of course, this option must not be used in normal operation, since in such a case all switches will be seen closed by the MPU.</p>
+<p><p><span style="color: crimson; font-size: 24pt;">&#x26A0;</span>When you can't start a game for example, this is a typical case. 
+Always check that this option is set in accordance with your environment (standalone or embedded).</p>
+<h3 id="cco">Unprotect coil channels</h3>
+<p>A special protection circuitry is provided for coil channels (C#/6..C#/F)</p>
+<p>When the protection is activated, no coil may be kept activated for more than 3 seconds. If such a situation appears, 
+	the coil is turned off for 3 seconds, then returns in its state (from pinball software), for no more than 3secs 
+	if this state was on, etc...</p>
+<p>This protection is not provided on the original Recel pins. Instead, there is a rearmable fuse of 3A located in the cabinet 
+   on the power supply board. This protection is useful, but may be insufficient in certain cases to protect power transistors or coils themselves.
+   We have had the case sometimes, in particular with the ball rejector coil.
+</p>
+<p>We thought it might be even more useful since we provided a way to emulate a permanent switch closing (triple clicking a given switch).
+   This feature is provided to allows you to emulate hitting a target that is only reset by a bank reset. But if you triple click the Ball Home
+   switch, then the pinball will trigger the ball home rejector permanently, and this is not good.
+</p>
+<p>Conversely, you may find games were a coil needs to be permanently powered. We never met with such a situation, but you never know.</p>
+<p>Moreover, if you want to have an exact replica of the original board, then you will tick this option</p>
+<p>It is reecommended to leave this option unticked, to get the benefits of this complementary protection</p>
+
+<h2>Reset tool button</h2>
+<p>Click this button to trigger a pinball reset. All operations will stop immediatly, and a reboot occurs.</p>
+<p>Click this button to see the applied changes. It is equivalent to click this button, press the physical on board button, or 
+   turn the power off, then on.
+</p>
+
+
+
+
+

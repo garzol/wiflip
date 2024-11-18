@@ -1382,8 +1382,6 @@ All closed switches noted by a code number in ball-in-play display.***
       <property name="title">
        <string>Recel</string>
       </property>
-      <addaction name="actionFair_Fight"/>
-      <addaction name="actionCrazy_Race"/>
      </widget>
      <addaction name="menuGottlieb"/>
      <addaction name="menuRecel_2"/>

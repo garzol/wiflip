@@ -583,6 +583,7 @@ class RscPin():
         "A1762 bin"       : "crA1762.bin",
         "Switches"        : dcrswt,
         "Switches short"  : dcrsswt,
+        "Backglass"       : "crazy_race_480.png",
         }
         
     dfa = {
@@ -592,6 +593,7 @@ class RscPin():
         "A1762 bin"       : "A1762-13_1K.bin",
         "Switches"        : dfaswt,
         "Switches short"  : dfasswt,
+        "Backglass"       : "fair_fight_480.png",
         }
         
     dhc = {
@@ -655,6 +657,7 @@ class RscPin():
         "A1762 bin"       : "A1762-13_1K.bin",
         "Switches"        : dscswt,     
         "Switches short"  : dscsswt,
+        "Backglass"       : "screech_480.png",
         }
                 
     dsw = {

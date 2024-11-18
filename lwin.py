@@ -1680,8 +1680,6 @@ class Ui_MainWindow(object):
         self.menu.addAction(self.actionHelp)
         self.menu.addAction(self.actionAbout_wiflip)
         self.menuGottlieb.addAction(self.actionPinball_Bell)
-        self.menuRecel_2.addAction(self.actionFair_Fight)
-        self.menuRecel_2.addAction(self.actionCrazy_Race)
         self.menuFaces.addAction(self.menuGottlieb.menuAction())
         self.menuFaces.addAction(self.menuRecel_2.menuAction())
         self.menuFont_size.addAction(self.action9)
