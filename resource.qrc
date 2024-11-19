@@ -16,6 +16,7 @@
   </qresource>
   <qresource prefix="newPrefix"/>
   <qresource prefix="games">
+    <file>pokerplus_BA65.BIN</file>
     <file>crgamex4.bin</file>
     <file>bmgame.bin</file>
     <file>sc_1_1702.bin</file>

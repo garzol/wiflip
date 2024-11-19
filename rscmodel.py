@@ -641,6 +641,15 @@ class RscPin():
         "Switches short"  : dposswt,    
         }
         
+    dpo2 = {
+        "#Model"          : "1051",    #1051-E to be exact
+        "Game bin"        : "pokerplus_BA65.BIN",
+        "Game Fletcher"   : 0xE43E,
+        "A1762 bin"       : "A1762-13_1K.bin",
+        "Switches"        : dposwt,     
+        "Switches short"  : dposswt,    
+        }
+        
     dqu = {
         "#Model"          : "1063",    
         "Game bin"        : "qu.bin",
@@ -691,6 +700,7 @@ class RscPin():
         'Mr Doom'                : dmd,
         'Mr Evil'                : dme,
         'Poker Plus'             : dpo,
+        'Poker Plus V2'          : dpo2,
         'Don Quijote'            : dqu,
         'Screech'                : dsc,    #done
         'Swashbuckler'           : dsw,
