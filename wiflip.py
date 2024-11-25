@@ -1483,7 +1483,7 @@ QPushButton:pressed {
                 print(game, gfile, actionGame[game])
                 
             except:
-                print("Gros pb")
+                #print("Gros pb")
                 pass
         
             #self.actionGame = QtWidgets.QAction()
@@ -1810,7 +1810,12 @@ QPushButton:pressed {
             fgame =  ":/x/images/1x/"+RscPin.Models[gamename]['Backglass']
         except:
             fgame = ":/x/images/1x/fair_fight_480.png"
-        print("action generic", self.face, fgame, RscPin.Models[gamename]['Backglass'])  
+        print("action generic", self.face, fgame)
+        try:
+            print("action generic2", RscPin.Models[gamename]['Backglass'])  
+        except:
+            print("game", gamename, "not registered in RscPin")
+            
         self.ui.label.setPixmap(QtGui.QPixmap(fgame))
                     
     def actionFair_Fight(self):
