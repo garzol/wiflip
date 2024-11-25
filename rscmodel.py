@@ -353,9 +353,9 @@ class RscPin():
         #[0][x]
         ["Ball Home",          "Canon Right",      "Canon Left",   None],
         #[1][x]
-        ["Total Left Bank",    "Passage Central Left",  "Bands",   None],
+        ["Total Left Bank",    "Passage Central Left",  "Bands",   "Passage Central Lower"],
         #[2][x]
-        ["Total Right Bank",   "Passage Central Right", "Target internal Left",    "Passage Central Lower"],
+        ["Total Right Bank",   "Passage Central Right", "Target internal Left",    None],
         #[3][x]
         [None,                 "Passage Upper Left",    "Target internal Right",   "Bands Behind Bank"],
         #[4][x]
@@ -376,9 +376,9 @@ class RscPin():
         #[0][x]
         ["BH",       "CR",     "CL",           None],
         #[1][x]
-        ["TLB",      "pCL",    "Bnd",          None],
+        ["TLB",      "pCL",    "Bnd",          "pCL"],
         #[2][x]
-        ["TRB",      "pCR",    "TIL",          "pCL"],
+        ["TRB",      "pCR",    "TIL",          None],
         #[3][x]
         [None,       "pUL",    "TIR",          "BbB"],
         #[4][x]

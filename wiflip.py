@@ -2,14 +2,17 @@
 '''
 Created on 23 mars 2022
 
-dockWidget_2
-dockWidget
+
 @author: garzol 
 search keywords: switches reset open transparent I have a alarm1
 WebEngine WebView OpenGL numpy QtTextToSpeech pickle Crazy Race index ======
 signaling Fletcher console open timeout signaling error resetthe dockWidget_5 reset 
 switch signal emit QTimer foo
 checkBox_flag3
+QPixmap
+dockWidget_2
+dockWidget
+Bios
 '''
 
 import os, sys, time, struct
@@ -1265,7 +1268,15 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.pushButton_8.clicked.connect(self.send_dump_A1762_prom)
         self.ui.pushButton_9.clicked.connect(self.resetthepin_with_ack)
  
- 
+
+
+        #The hard way
+        self.pushButton_10 = QtWidgets.QPushButton(self.ui.scrollAreaWidgetContents_3)
+        self.pushButton_10.setObjectName("pushButton_10")
+        self.ui.gridLayout_4.addWidget(self.pushButton_10, 4, 1, 1, 1)
+        self.pushButton_10.setText("Dip switches status")
+        self.pushButton_10.clicked.connect(self.reqdips)
+         
         #nvrdump button
         self.ui.pushButton_R_dump.clicked.connect(self.send_nvrdump)
 
@@ -1472,7 +1483,7 @@ QPushButton:pressed {
                 print(game, gfile, actionGame[game])
                 
             except:
-                print("pb")
+                print("Gros pb")
                 pass
         
             #self.actionGame = QtWidgets.QAction()
@@ -1525,6 +1536,13 @@ QPushButton:pressed {
                 self.ledlabel[i][j].setText(self.sh_Swtttext[i][j])
                 self.ledlabel[i][j].setToolTip(self.Swtttext[i][j])
        
+    def reqdips(self):
+        print("message request is", b'YDXXX')
+        try:
+            self.thread.sock.send(b'YDXXX')
+        except:
+            pass
+        
     def resetthepin_with_ack(self):
         print("message request is", b'YCXQZ')
         try:
@@ -1792,7 +1810,7 @@ QPushButton:pressed {
             fgame =  ":/x/images/1x/"+RscPin.Models[gamename]['Backglass']
         except:
             fgame = ":/x/images/1x/fair_fight_480.png"
-        #print("action generic", self.face, fgame, RscPin.Models[gamename]['Backglass'])  
+        print("action generic", self.face, fgame, RscPin.Models[gamename]['Backglass'])  
         self.ui.label.setPixmap(QtGui.QPixmap(fgame))
                     
     def actionFair_Fight(self):
@@ -2714,6 +2732,13 @@ QPushButton:pressed {
                 #self.write2Console(f"diag {data[0]:08b} {data[1]:08b} {data[2]:08b}{data[3]:08b}", insertMode=True)
                 self.msg68 = f"diag {data[0]:08b} {data[1]:08b} {data[2]:08b}{data[3]:08b}"
 
+            elif typ == 69:  #'E'
+                #print(str(data))
+                self.write2Console(f"dip switches: {data[0]:08b}\r\n", insertMode=True)
+                self.write2Console(f"SPI Flash ID: {data[1]:02X} {data[2]:02X} {data[3]:02X} \r\n", insertMode=True)
+                self.write2Console(f"SPI FlIdent2: {data[4]:02X} {data[5]:02X} {data[6]:02X} {data[7]:02X} {data[8]:02X} {data[9]:02X} {data[10]:02X} {data[11]:02X} {data[12]:02X} {data[13]:02X} {data[14]:02X} {data[15]:02X} {data[16]:02X} \r\n", insertMode=True)
+                #self.msg68 = f"diag {data[0]:08b} {data[1]:08b} {data[2]:08b}{data[3]:08b}"
+
         #self.write2Console(self.msg83+"\n"+self.msg68, insertMode=False)
             
             #int_val = int.from_bytes(data, "big", signed=False)
@@ -3284,6 +3309,8 @@ class Worker(QThread):
                 framesz = 3
             elif received == b'D':
                 framesz = 4
+            elif received == b'E':
+                framesz = 17
             elif received == b'Y':   #IO status 7 bytes Oh, Ol, Ih, Il gpioEF, gpioCD, gpioAB
                 framesz = 9
             elif received == b'S':

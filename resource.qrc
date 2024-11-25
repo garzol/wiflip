@@ -44,6 +44,8 @@
     <file>alarm1-b238.wav</file>
   </qresource>
   <qresource prefix="help">
+    <file>docs/hwdoc.htm</file>
+    <file>docs/img/RS3V1B_J1.png</file>
     <file>docs/img/system_settings.png</file>
     <file>docs/syssettings.htm</file>
     <file>docs/img/connectstp5.png</file>
