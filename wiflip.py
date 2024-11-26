@@ -2740,8 +2740,8 @@ QPushButton:pressed {
             elif typ == 69:  #'E'
                 #print(str(data))
                 self.write2Console(f"dip switches: {data[0]:08b}\r\n", insertMode=True)
-                self.write2Console(f"SPI Flash ID: {data[1]:02X} {data[2]:02X} {data[3]:02X} \r\n", insertMode=True)
-                self.write2Console(f"SPI FlIdent2: {data[4]:02X} {data[5]:02X} {data[6]:02X} {data[7]:02X} {data[8]:02X} {data[9]:02X} {data[10]:02X} {data[11]:02X} {data[12]:02X} {data[13]:02X} {data[14]:02X} {data[15]:02X} {data[16]:02X} \r\n", insertMode=True)
+                self.write2Console(f"SPI Flash ID: {data[1]:02X} {data[2]:02X} {data[3]:02X} {data[4]:02X} {data[5]:02X} {data[6]:02X} {data[7]:02X} {data[8]:02X} \r\n", insertMode=True)
+                #self.write2Console(f"SPI FlIdent2: {data[14]:02X} {data[15]:02X} {data[16]:02X} {data[17]:02X} {data[18]:02X} {data[19]:02X} {data[20]:02X} {data[21]:02X} {data[22]:02X} {data[23]:02X} {data[24]:02X} {data[25]:02X} {data[26]:02X} \r\n", insertMode=True)
                 #self.msg68 = f"diag {data[0]:08b} {data[1]:08b} {data[2]:08b}{data[3]:08b}"
 
         #self.write2Console(self.msg83+"\n"+self.msg68, insertMode=False)
@@ -3315,7 +3315,7 @@ class Worker(QThread):
             elif received == b'D':
                 framesz = 4
             elif received == b'E':
-                framesz = 17
+                framesz = 9
             elif received == b'Y':   #IO status 7 bytes Oh, Ol, Ih, Il gpioEF, gpioCD, gpioAB
                 framesz = 9
             elif received == b'S':
