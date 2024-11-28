@@ -3,7 +3,7 @@
     Tasks: desktopiconNNO SETUP SCRIPT FILES!
 
 #define MyAppName "WiFlip"
-#define MyAppVersion "0.87"
+#define MyAppVersion "0.94"
 #define MyAppPublisher "AA55 Consulting"
 #define MyAppURL "https://www.pps4.fr/"
 #define MyAppExeName "wiflip.exe"
@@ -34,14 +34,14 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 ChangesAssociations=yes
 DisableProgramGroupPage=yes
-LicenseFile=C:\Users\garzo\git\wiflip_tracer\license.txt
+LicenseFile=C:\Users\garzo\git\wiflip2\license.txt
 ; InfoAfterFile=C:\Users\garzo\git\wiflip_tracer\after.txt
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
-OutputDir=C:\Users\garzo\git\wiflip_tracer
+OutputDir=C:\Users\garzo\git\wiflip2
 OutputBaseFilename=wiflipsetup
-SetupIconFile=C:\Users\garzo\git\wiflip_tracer\images\aa55_logo_2.ico
-UninstallDisplayIcon="C:\Users\garzo\git\wiflip_tracer\dist\{#MyAppExeName}"
+SetupIconFile=C:\Users\garzo\git\wiflip2\images\aa55_logo_2.ico
+UninstallDisplayIcon="C:\Users\garzo\git\wiflip2\dist\{#MyAppExeName}"
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -50,15 +50,16 @@ WizardStyle=modern
 Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 Name: "german"; MessagesFile: "compiler:Languages\German.isl"
+Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
 Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Users\garzo\git\wiflip_tracer\dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\garzo\git\wiflip2\dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-Source: "C:\Users\garzo\git\wiflip_tracer\images\{#MyAppIcoName}"; DestDir: "{app}"
+Source: "C:\Users\garzo\git\wiflip2\images\{#MyAppIcoName}"; DestDir: "{app}"
 
 [Registry]
 Root: HKA; Subkey: "Software\Classes\{#MyAppAssocExt}\OpenWithProgids"; ValueType: string; ValueName: "{#MyAppAssocKey}"; ValueData: ""; Flags: uninsdeletevalue
