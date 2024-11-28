@@ -93,8 +93,8 @@ aboutContent = '''
 </td></tr></table>
 '''
 
-VERSION = "0.94"
-DATE    = "2024-11-17"
+VERSION = "0.95"
+DATE    = "2024-11-28"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
@@ -128,6 +128,7 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.toolButton.setText(u"\u2302") #petite maison
         
         self.ui.textBrowser.append('''
+<b>V0.95</b> - 2024-11-28<br>Version Signed.<br><br>
 <b>V0.94</b> - 2024-11-17<br>Bug fix on game settings for params such as handicaps 1 where user enters 10 instead of 00010 for example. <br>
 Added settings for coil protection circuitry.<br>
 Added triple click on switches in order to close a switch permanently.
