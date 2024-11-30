@@ -1,0 +1,100 @@
+<!-- const char MAIN_page1[] PROGMEM = R"=====( -->
+<!DOCTYPE html> 
+<html>
+<head><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>WiFlip Control</title>
+<style>html{font-family:Helvetica; display:inline-block; margin:0px auto; text-align:left;}
+body{margin-top: 50px;} 
+h1{color: white; margin: 50px 10px 10px 50px;} 
+h3{color:white; margin: 50px 10px 10px 50px;}
+p{color:white; margin: 50px 10px 10px 50px;}
+label{color:white; margin: 50px 10px 10px 50px;}
+div{display: block; width: 80%; min-width: 400px; background: #9f1642; text-align:right; margin-left: auto; margin-right: 50px;}
+
+.button{display:block; width:80px; background-color:#f48100; border:none; color:white; padding: 13px 30px; text-decoration:none; font-size:25px; margin: 0px auto 35px; cursor:pointer; border-radius:4px;}
+.button-on{background-color:#f48100;}
+.button-on:active{background-color:#f48100;}
+.button-off{background-color:#26282d;}
+.button-off:active{background-color:#26282d;}
+.buttonc {
+  display: inline-block;
+  padding: 15px 25px;
+  font-size: 24px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #f48100;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 9px #999;
+}
+.buttonc:hover {background-color: #3e8e41}
+.buttonc:active {
+  background-color: #141100;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+.minitxt {
+    font-size: 12px;
+}
+</style>
+</head>
+<!-- )=====";  -->
+
+
+
+<!-- //there are 3 %s here -->
+<!-- const char MAIN_page2[] PROGMEM = R"=====( -->
+<body>
+<div>
+<h1>WiFlip configurator V1.2</h1>
+<h3>WiFlip Mac: %s</h3>
+</div>
+<div>
+<h3>Enter the credentials of your private network</h3>
+<form name="myform" action="/config_page" method="post">
+  <div>
+  <label for="ssid">SSID:</label>
+  <input type="text" id="ssid" name="ssid" value="%s"><br><br>
+  <label for="pwd">Password:</label>
+  <input type="password" id="pwd" name="pwd"><br>
+  <input type="checkbox" id="showpwd" name="showpwd" value="showpwd" unchecked onclick="handleClick(this);">
+  <label style="margin-left: 0px; margin-right: auto;"for="showpwd" class="mintxt">Show password</label><br><br>
+  <label for="portn">Port Number:</label>
+  <input type="number" name="portn" min="1" max="65535"  value="%d"><b><br><br><br>
+  </div>
+</form>
+</div>
+<div>
+    <input for="myform" type="submit" value="Set" class="buttonc" >
+</div>
+
+</div>
+<div>
+<p>Current IP connection is %s</p>
+</div>
+<!-- )====="; -->
+
+
+
+<!-- const char MAIN_page3[] PROGMEM = R"=====( -->
+<script>
+function handleClick(){
+    var pwdf=document.getElementById("pwd");
+    var pwdc=document.getElementById("showpwd");
+    //use this value
+    if (pwdc.checked) {
+	pwdf.setAttribute("type","text");
+	}
+    else {
+	pwdf.setAttribute("type","password");
+	}
+}
+</script>
+</body>
+</html>
+<!-- )=====";-->
+
+
