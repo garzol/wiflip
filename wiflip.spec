@@ -10,7 +10,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['PyQt5.QtDesigner'],
+    excludes=['QtSql', 'QtOpenGL', 'QtTextToSpeech', 'PyQt5.QtDesigner'],
     noarchive=False,
     optimize=0,
 )
@@ -36,5 +36,15 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['C:\\Users\\garzo\\git\\wiflip2\\images\\flipp.ico'],
+    # version PC
+    #icon=['C:\\Users\\garzo\\git\\wiflip2\\images\\flipp.ico'],
+	# version Mac
+    icon=['images/flipp.icns'],
+)
+# version mac
+app = BUNDLE(
+    exe,
+    name='wiflip.app',
+    icon='images/flipp.icns',
+    bundle_identifier=None,
 )

@@ -879,21 +879,44 @@ class MySettings(QtWidgets.QDialog):
             pass
         
     def resetthepin(self):
+        '''
+        reset with ack
+        '''
         papa = self.parent()
-        print("message request is", b'YBXQZ')
+        print("message request is", b'YCXQZ')
         try:
-            papa.thread.sock.send(b'YBXQZ')
+            papa.thread.sock.send(b'YCXQZ')
         except:
             pass
+        papa.resetAckSig.connect(self.catchResetSig)
+        timertout = QTimer(singleShot=True, timeout=self.timeoutt)
+        timertout.start(5000)
         
         #self.refreshdlg()
+    
+    def catchResetSig(self):   
+        '''
+        reset ack was received, we can continue
+        '''
+        papa.resetAckSig.disconnect(self.catchResetSig)
+        
+        self.refreshdlg()
         
     def modscr(self):
+        print("yoyo0")
         sc_mode = 0
+        
+        self.ui.groupBox_2.setEnabled(True)
+
         if self.ui.radioButton_startmnprn.isChecked():
             sc_mode = 1
         elif self.ui.radioButton_startnormal.isChecked():
             sc_mode = 2
+        else:
+            #disable the option settings box
+            print("yoyo")
+            self.ui.groupBox_2.setEnabled(False)
+            
 
         papa = self.parent()
         
@@ -924,7 +947,7 @@ class MySettings(QtWidgets.QDialog):
         for i in range(8):
             sc_flags1 |= ((1 if (self.flags[i].isChecked()==True) else 0)<<i)
 
-        print("modsc called", sc_flags1, self)
+        #print("modsc called", sc_flags1, self)
         
 
         papa = self.parent()
@@ -1027,6 +1050,7 @@ class MainForm(QtWidgets.QMainWindow):
     Built by mygui.ui
     """
     fletcherSig   = pyqtSignal(int)
+    resetAckSig   = pyqtSignal(int)
     read128Sig    = pyqtSignal(str)
     frameCntSig   = pyqtSignal(str)
     
@@ -2556,6 +2580,7 @@ QPushButton:pressed {
                 ident = data[0]
                 rtype = data[1]
                 self.write2Console(f"Reset Ack Frame received: Ident: {ident:02X}. Reset Type: {rtype:02X}\r\n")
+                self.resetAckSig.emit(rtype)
                     
             elif typ == 67:  #'C'
                 #print("typ=67", str(data))
