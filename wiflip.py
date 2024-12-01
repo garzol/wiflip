@@ -93,7 +93,9 @@ aboutContent = '''
 </td></tr></table>
 '''
 
-VERSION = "0.95"
+from version import prodvers
+print(prodvers)
+VERSION = ".".join(map(str, prodvers)) #"0.95"
 DATE    = "2024-11-28"
 
 #Here is the about dialog box
