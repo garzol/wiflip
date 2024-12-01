@@ -1,5 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--mac", action="store_true")
+options = parser.parse_args()
+
 
 a = Analysis(
     ['wiflip.py'],
@@ -27,7 +33,7 @@ exe = EXE(
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
+    upx=False if options.mac else True,
     upx_exclude=[],
     runtime_tmpdir=None,
     console=False,
@@ -36,15 +42,13 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    # version PC
-    #icon=['C:\\Users\\garzo\\git\\wiflip2\\images\\flipp.ico'],
-	# version Mac
-    icon=['images/flipp.icns'],
+    icon=['images/flipp.icns'] if options.mac else ['C:\\Users\\garzo\\git\\wiflip2\\images\\flipp.ico'],
 )
 # version mac
-app = BUNDLE(
-    exe,
-    name='wiflip.app',
-    icon='images/flipp.icns',
-    bundle_identifier=None,
-)
+if options.mac:
+	app = BUNDLE(
+	    exe,
+	    name='wiflip.app',
+	    icon='images/flipp.icns',
+	    bundle_identifier=None,
+	)
