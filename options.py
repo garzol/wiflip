@@ -235,7 +235,7 @@ class MyOptions(QtWidgets.QDialog):
                                           "Comment that one can read in the infobubble when hovering the item (10<x<199)"],
     One can only have int, bool types. For str, I don't remember, it does not look like to work at the moment
     """
-    statusCmd = pyqtSignal(int, str)
+    #statusCmd = pyqtSignal(int, str)  #obsolete
 
     PROPERTY, VALUE = range(2)
 
@@ -564,8 +564,16 @@ WITHOUT PRESSING THE START BUTTON
 
         self.timertout = QTimer(singleShot=True, timeout=self.timeoutt)
         self.timertout.start(5000)
+
+        try:
+            papa.read128Sig.disconnect(self.cmdDone)
+            #self.statusCmd.disconnect(self.cmdDone)
+        except:
+            pass   
+        #self.statusCmd.connect(self.cmdDone)   
+        papa.read128Sig.connect(self.cmdDone)
         
-        self.statusCmd.connect(self.cmdDone)   
+        #self.statusCmd.connect(self.cmdDone)   
         #next lines to emulate the thing
         # self.timerpipo = QTimer(singleShot=True, timeout=self.fpipo)
         # self.timerpipo.start(4000)
@@ -582,13 +590,16 @@ WITHOUT PRESSING THE START BUTTON
             self.ui.label.setText("Can't find device")
         
                 
-    def cmdDone(self, cmdcode, status):   
-        print("nvr read done", cmdcode, status)
+    def cmdDone(self, memTypStr):
+        print("Game settings cmdDone memTyp", memTypStr)
+        if memTypStr != "nvram live":
+            return  
+        print("nvr read done")
         self.timertout.stop()
         papa = self.parent()
 
         
-        if cmdcode == 82 and status == "done" and papa.ui.rb_nvram.isChecked():
+        if memTypStr == "nvram live" and papa.ui.rb_nvram.isChecked():
             #self.ui.groupBox.stateChanged.connect(self.test)
             self.ui.label.setText("Current settings:")
             mininvrl = [x[1] for x in papa.nvrlist]

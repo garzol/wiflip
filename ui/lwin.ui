@@ -89,7 +89,7 @@
            <x>0</x>
            <y>0</y>
            <width>490</width>
-           <height>452</height>
+           <height>455</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -1823,7 +1823,7 @@ All closed switches noted by a code number in ball-in-play display.***
           <x>0</x>
           <y>0</y>
           <width>319</width>
-          <height>875</height>
+          <height>896</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_14">
@@ -1843,6 +1843,19 @@ All closed switches noted by a code number in ball-in-play display.***
            </property>
            <property name="scaledContents">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_RSSI">
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+             <italic>true</italic>
+            </font>
+           </property>
+           <property name="text">
+            <string>(RSSI:??)</string>
            </property>
           </widget>
          </item>
@@ -3515,7 +3528,7 @@ All closed switches noted by a code number in ball-in-play display.***
           <x>0</x>
           <y>0</y>
           <width>302</width>
-          <height>74</height>
+          <height>83</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_15">

@@ -13,6 +13,12 @@ QPixmap
 dockWidget_2
 dockWidget
 Bios
+memTyp
+sc_formatString:
+close conn. thread
+Dip
+audio sound
+signaling error settings :game
 '''
 
 import os, sys, time, struct
@@ -96,7 +102,7 @@ aboutContent = '''
 from version import prodvers
 print(prodvers)
 VERSION = ".".join(map(str, prodvers)) #"0.95"
-DATE    = "2024-11-28"
+DATE    = "2024-12-11"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
@@ -130,6 +136,7 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.toolButton.setText(u"\u2302") #petite maison
         
         self.ui.textBrowser.append('''
+<b>V0.96</b> - 2024-12-11<br>moved game binary files. Added RSSI display on compatible devices<br><br>
 <b>V0.95</b> - 2024-11-28<br>Version Signed.<br><br>
 <b>V0.94</b> - 2024-11-17<br>Bug fix on game settings for params such as handicaps 1 where user enters 10 instead of 00010 for example. <br>
 Added settings for coil protection circuitry.<br>
@@ -321,7 +328,7 @@ class MyReprog(QtWidgets.QDialog):
             print("read sys conf area failed")
 
     def catch128SigReprog(self, memTypStr):
-        print("memTyp", memTypStr)
+        print("catch128SigReprog memTyp", memTypStr)
         papa = self.parent()
         
         #game
@@ -374,7 +381,7 @@ class MyReprog(QtWidgets.QDialog):
 
         self.gameName = self.ui.comboBox.currentText()
         gameFileName  = RscPin.Models[self.gameName]["Game bin"]
-        binGame  = QFile(":/games/"+gameFileName)
+        binGame  = QFile(":/games/rs3bin/"+gameFileName)
         if not binGame.open(QIODevice.ReadOnly):
             self.ui.plainTextEdit.appendPlainText(f"{gameFileName} not found.")
             return
@@ -565,7 +572,7 @@ class MyReprog(QtWidgets.QDialog):
         
         if self.reprogPhase == 1:
             A1762FileName = RscPin.Models[self.gameName]["A1762 bin"]
-            binA1762 = QFile(":/games/"+A1762FileName)
+            binA1762 = QFile(":/games/rs3bin/"+A1762FileName)
             if not binA1762.open(QIODevice.ReadOnly):
                 self.ui.plainTextEdit.appendPlainText(f"{A1762FileName} not found.")
                 return
@@ -813,8 +820,10 @@ class MySettings(QtWidgets.QDialog):
     """
     This dialog box was created with QT
     in settings.ui
+    This is system settings dialog box, such as type of start factory/normal/miniprinter
+    /!\ This is not game settings
     """
-    statusCmd = pyqtSignal(int, str)
+    #statusCmd = pyqtSignal(int, str)
     def __init__(self, parent=None):
         super(MySettings, self).__init__(parent)
         #QtGui.QWidget.__init__(self, parent)
@@ -862,8 +871,13 @@ class MySettings(QtWidgets.QDialog):
 
         self.timertout = QTimer(singleShot=True, timeout=self.timeoutt)
         self.timertout.start(5000)
-        
-        self.statusCmd.connect(self.cmdDone)   
+        try:
+            papa.read128Sig.disconnect(self.cmdDone)
+            #self.statusCmd.disconnect(self.cmdDone)
+        except:
+            pass   
+        #self.statusCmd.connect(self.cmdDone)   
+        papa.read128Sig.connect(self.cmdDone)
         #next lines to emulate the thing
         self.timerpipo = QTimer(singleShot=True, timeout=self.fpipo)
         self.timerpipo.start(4000)
@@ -889,8 +903,8 @@ class MySettings(QtWidgets.QDialog):
         except:
             pass
         papa.resetAckSig.connect(self.catchResetSig)
-        timertout = QTimer(singleShot=True, timeout=self.timeoutt)
-        timertout.start(5000)
+        self.timertout2 = QTimer(singleShot=True, timeout=self.timeoutt)
+        self.timertout2.start(5000)
         
         #self.refreshdlg()
     
@@ -898,25 +912,28 @@ class MySettings(QtWidgets.QDialog):
         '''
         reset ack was received, we can continue
         '''
+        print("catchResetSig")
+        papa = self.parent()
         papa.resetAckSig.disconnect(self.catchResetSig)
-        
+        self.timertout2.stop()    
+        time.sleep(0.5)    
         self.refreshdlg()
         
     def modscr(self):
-        print("yoyo0")
         sc_mode = 0
         
-        self.ui.groupBox_2.setEnabled(True)
 
         if self.ui.radioButton_startmnprn.isChecked():
             sc_mode = 1
+            self.ui.groupBox_2.setEnabled(True)
         elif self.ui.radioButton_startnormal.isChecked():
             sc_mode = 2
+            self.ui.groupBox_2.setEnabled(True)
         else:
             #disable the option settings box
-            print("yoyo")
             self.ui.groupBox_2.setEnabled(False)
             
+        print("yoyo0", sc_mode)
 
         papa = self.parent()
         
@@ -973,20 +990,33 @@ class MySettings(QtWidgets.QDialog):
         time.sleep(0.4) #to let time for the previous command to execute
                         #to be changed when ack will be implemented
                
-    def cmdDone(self, cmdcode, status):   
-        print("nvr read done", cmdcode, status)
+    def cmdDone(self, memTypStr):
+        print("Sys settings cmdDone memTyp", memTypStr)
+        if memTypStr != "sys conf":
+            return  
+        print("nvr read done")
         self.timertout.stop()
         papa = self.parent()
 
         
-        if cmdcode == 82 and status == "done" and papa.ui.rb_sysconf.isChecked():
+        if memTypStr == "sys conf" and papa.ui.rb_sysconf.isChecked():
             #self.ui.groupBox.stateChanged.connect(self.test)
             for cb in self.flags:
+                try:
+                    cb.stateChanged.disconnect(self.modsc)
+                except:
+                    pass
                 cb.stateChanged.connect(self.modsc)
 
-                self.ui.radioButton_startnormal.clicked.connect(self.modscr)
-                self.ui.radioButton_startmnprn.clicked.connect(self.modscr)
-                self.ui.radioButton_startfactory.clicked.connect(self.modscr)
+            try:
+                self.ui.radioButton_startnormal.clicked.disconnect(self.modscr)
+                self.ui.radioButton_startmnprn.clicked.disconnect(self.modscr)
+                self.ui.radioButton_startfactory.clicked.disconnect(self.modscr)
+            except:
+                pass
+            self.ui.radioButton_startnormal.clicked.connect(self.modscr)
+            self.ui.radioButton_startmnprn.clicked.connect(self.modscr)
+            self.ui.radioButton_startfactory.clicked.connect(self.modscr)
  
 
             self.ui.label.setText("Current settings:")
@@ -994,12 +1024,14 @@ class MySettings(QtWidgets.QDialog):
             sc_mode         =  papa.nvrlist[3][1]
             sc_flags1       =  papa.nvrlist[4][1]
             print(f"sc_formatString: {sc_formatString} sc_mode: {sc_mode} sc_flags1: {sc_flags1:08b}")
+            self.ui.groupBox_2.setEnabled(True)
             if sc_mode == 1:
                 self.ui.radioButton_startmnprn.setChecked(True)
             elif sc_mode == 2:
                 self.ui.radioButton_startnormal.setChecked(True)
             else:
                 self.ui.radioButton_startfactory.setChecked(True)
+                self.ui.groupBox_2.setEnabled(False)
                 
             for i in range(8):
                 self.flags[i].setChecked(sc_flags1&(1<<i)!=0)
@@ -1007,8 +1039,8 @@ class MySettings(QtWidgets.QDialog):
             if sc_formatString != "AA55C3":
                 self.ui.label.setText(f"Bad format string : {sc_formatString}")
                 
-    def test(self):
-        self.statusCmd.emit("zobi")
+    # def test(self):
+    #     self.statusCmd.emit("zobi")
 
     def processOneThing(self):
         print("elapsed")
@@ -1225,7 +1257,9 @@ class MainForm(QtWidgets.QMainWindow):
         self.msg68 = ""
         self.msg83 = ""
         
-        
+        self.ui.label_RSSI.setVisible(False)
+        self.ui.label_RSSI.setToolTip("-80 < RSSI< -40: good\n -40 < RSSI: Incredibly excellent\nBad otherwise")
+
         self.lastAstate = 0
         self.lastBstate = 0
         
@@ -1283,6 +1317,7 @@ class MainForm(QtWidgets.QMainWindow):
         #self.jingle = os.path.join(CURRENT_DIR, "alarm1-b238.wav")
 
         self.jingle = ":/sound/alarm1-b238.wav"
+        self.myDisconnectSound = QSound(self.jingle)
         #QSound.play(self.jingle)
         self.setsound()
         #trace button
@@ -2177,18 +2212,27 @@ QPushButton:pressed {
     def connled(self, state):
         if state == "green":
             self.ui.label_12.setPixmap(QtGui.QPixmap(":/x/ledgreen"))
+            #QSound.stop()
+            try:
+                self.myDisconnectSound.stop()
+            except: pass
+
         elif state == "grey":
             try:
                 self.ui.pushButton.clicked.connect(self.connect)
                 self.ui.pushButton.clicked.disconnect(self.disconnect)
             except:
                 pass
+            self.myDisconnectSound.play()
+            #QSound.stop(self.mysound)
             
             self.ui.pushButton.setText("connect")
             self.ui.label_12.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
-            QSound.play(self.jingle)
         elif state == "yellow":
             self.ui.label_12.setPixmap(QtGui.QPixmap(":/x/ledyellow"))
+            try:
+                self.myDisconnectSound.stop()
+            except: pass
 
     #convenient routine to allow the outside for writing to the script edit text window
     def write2ScriptEdit(self, msg, insertMode=True):
@@ -2308,15 +2352,6 @@ QPushButton:pressed {
             
             print("Dump RAM terminated")
             self.read128Sig.emit(memtyp)
-
-            try:
-                self.mysettings.statusCmd.emit(82, "done")   
-            except:
-                print("signaling error settings")     
-            try:
-                self.options.statusCmd.emit(82, "done")   
-            except:
-                print("signaling error options")     
             
         elif typ == 71:   #G
             # 8b ROM data
@@ -2769,6 +2804,17 @@ QPushButton:pressed {
                 #print(str(data))
                 self.write2Console(f"dip switches: {data[0]:08b}\r\n", insertMode=True)
                 self.write2Console(f"SPI Flash ID: {data[1]:02X} {data[2]:02X} {data[3]:02X} {data[4]:02X} {data[5]:02X} {data[6]:02X} {data[7]:02X} {data[8]:02X} \r\n", insertMode=True)
+                #self.write2Console(f"SPI FlIdent2: {data[14]:02X} {data[15]:02X} {data[16]:02X} {data[17]:02X} {data[18]:02X} {data[19]:02X} {data[20]:02X} {data[21]:02X} {data[22]:02X} {data[23]:02X} {data[24]:02X} {data[25]:02X} {data[26]:02X} \r\n", insertMode=True)
+                #self.msg68 = f"diag {data[0]:08b} {data[1]:08b} {data[2]:08b}{data[3]:08b}"
+
+            elif typ == 120:  #'x'
+                #print(data[0],data[1],data[2],data[3])
+                rssi = int.from_bytes(data, byteorder='little', signed=True)
+                #self.write2Console(f"RSSI: {rssi} dB\r\n", insertMode=True)
+                rssitxt = f"(RSSI: {rssi} dB)"
+                
+                self.ui.label_RSSI.setVisible(True)
+                self.ui.label_RSSI.setText(rssitxt)
                 #self.write2Console(f"SPI FlIdent2: {data[14]:02X} {data[15]:02X} {data[16]:02X} {data[17]:02X} {data[18]:02X} {data[19]:02X} {data[20]:02X} {data[21]:02X} {data[22]:02X} {data[23]:02X} {data[24]:02X} {data[25]:02X} {data[26]:02X} \r\n", insertMode=True)
                 #self.msg68 = f"diag {data[0]:08b} {data[1]:08b} {data[2]:08b}{data[3]:08b}"
 
@@ -3298,7 +3344,7 @@ class Worker(QThread):
 
             try:
                 self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                #self.sock.settimeout(20.0)
+                self.sock.settimeout(8.0)
                 #self.sock.setblocking(False)
                 
                 self.sock.connect((self.HOST, int(self.PORT)))
@@ -3317,21 +3363,33 @@ class Worker(QThread):
         print("hostname ", socket.gethostname())
 
         self.connled.emit("green")
+        self.sock.settimeout(1.0)
 
         # Receive data from the server and shut down
-
+        
+        total_ns = 0
         while True:
             framesz = 0
             try:
                 received = self.sock.recv(1)
-            except socket.error as e:
-                print(f"socket read error 1: {e}")
-                break
+                total_ns = 0
+            # except socket.error as e:
+            #     print(f"socket read error 1: {e}")
+            #     break
+            except socket.timeout as e:
+                print(f"socket timeout: {e}")
+                #let's check if connection is still there
+                #ask for dip switches b'YDXXX'
+                #self.sock.settimeout(1.0)
+                total_ns += 1
+                if total_ns > 300:
+                    print(f"broken pipe. Connection lost")
+                    break
             except ConnectionResetError:
                 print("socket ConnectionResetError")
                 break
             except Exception as e:
-                print("unexpected exception when checking if a socket is closed")
+                print(f"unexpected exception when checking if a socket is closed {e}")
                 break
             
             #print("received", received[0])
@@ -3364,7 +3422,10 @@ class Worker(QThread):
             elif received == b'Z':
                 framesz = 2 #crc
             elif received == b'@':
-                framesz = 2 #reset ack frame
+                framesz = 2 #reset ack frame            
+            elif received == b'x':
+                framesz = 4 #message from the modem one long representing rssi ('x' code 120)
+            
             else:
                 framesz = 0
 
@@ -3375,8 +3436,15 @@ class Worker(QThread):
                 while tsz > 0:
                     try:
                         msg += self.sock.recv(1)  #(tsz)
-                    except socket.error as e:
+                    except ConnectionResetError:
+                        print("socket read error 2 ConnectionResetError")
+                        # self.sock.close()
+                        #
+                        # self.connled.emit("grey")
+                        # return
+                    except Exception as e:
                         print(f"socket read error 2: {e}")
+                        self.sock.settimeout(1.0)
                         break
                     lm  = len(msg)
                     #print("lm", framesz, lm, msg)
