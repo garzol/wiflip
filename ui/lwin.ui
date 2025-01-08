@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1229</width>
-    <height>894</height>
+    <height>786</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -89,7 +89,7 @@
            <x>0</x>
            <y>0</y>
            <width>490</width>
-           <height>455</height>
+           <height>452</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -1413,6 +1413,8 @@ All closed switches noted by a code number in ball-in-play display.***
     <addaction name="actionReprog"/>
     <addaction name="separator"/>
     <addaction name="actionSettings"/>
+    <addaction name="separator"/>
+    <addaction name="actionWifi_config"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -2111,8 +2113,11 @@ All closed switches noted by a code number in ball-in-play display.***
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="toolTip">
+                   <string>Specific version of the 1KB A1762 is to be used in conjunction with the desired game.</string>
+                  </property>
                   <property name="text">
-                   <string>Current BIOS :</string>
+                   <string>Cur. A1762 ver. :</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3528,7 +3533,7 @@ All closed switches noted by a code number in ball-in-play display.***
           <x>0</x>
           <y>0</y>
           <width>302</width>
-          <height>83</height>
+          <height>72</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_15">
@@ -3932,6 +3937,11 @@ All closed switches noted by a code number in ball-in-play display.***
     <string>Game settings...</string>
    </property>
   </action>
+  <action name="actionWifi_config">
+   <property name="text">
+    <string>Wifi config...</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>lineEdit_Cmd</tabstop>
@@ -3970,6 +3980,7 @@ All closed switches noted by a code number in ball-in-play display.***
  </tabstops>
  <resources>
   <include location="../resource.qrc"/>
+  <include location="../../../.designer/resource.qrc"/>
  </resources>
  <connections>
   <connection>

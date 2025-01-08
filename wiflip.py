@@ -19,6 +19,8 @@ close conn. thread
 Dip
 audio sound
 signaling error settings :game
+action generic
+initial sound state 
 '''
 
 import os, sys, time, struct
@@ -28,7 +30,10 @@ import resource_rc
 from time import sleep
 from functools import partial
 from builtins import staticmethod
-from pickle import FALSE
+
+import requests
+from bs4 import BeautifulSoup
+from pickle import NONE
 
 sys.path += ['.']
 
@@ -38,7 +43,7 @@ from PyQt5.QtGui import *
 
 #from PyQt5.QtWidgets import *   #removed 2024-10-08, (not sure)
 
-from PyQt5.QtWidgets import QMessageBox, QAction
+from PyQt5.QtWidgets import QMessageBox, QAction, QLineEdit
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import QtNetwork 
 #from PyQt5 import QtMultimedia 
@@ -62,13 +67,14 @@ import socket, socketserver
 #from OpenGL import *
 #from OpenGL import GL 
 
-from lwin import Ui_MainWindow
+from lwin     import Ui_MainWindow
 
-from about import Ui_AboutDialog
-from help import Ui_HelpDialog
+from about    import Ui_AboutDialog
+from help     import Ui_HelpDialog
 from settings import Ui_DialogSettings
 from reprog   import Ui_ReprogDialog
 from gameset  import Ui_GameSettings
+from wificnf  import Ui_DialogWifiC 
 
 from clklabel import ClkLabel
 
@@ -816,12 +822,189 @@ class MyReprog(QtWidgets.QDialog):
 
                         
         
+class MyWIFICnf(QtWidgets.QDialog): 
+    """
+    This dialog box was created with QT
+    in wificnf.ui
+    This is wifi initial config dialog box, such as type of start factory/normal/miniprinter
+    """
+    errorVerTxt = \
+"""
+Currently connected WiFlip device is incompatible with this app.
+Versions incompatible.
+Either update the wiflip device, or 
+configure the device with your usual web browser, going to:
+http://192.168.4.22
+"""
+    errorConnTxt = \
+"""
+You are not connected to a WiFlip device, or 
+the connection is too weak. Please, check that 
+you are connected to the right WiFlip AP you think you are 
+and retry to configure it.
+"""
+    errorConfTxt = \
+"""
+Can't connect to WiFlip AP. Are you sure 
+that's your computer is connected to an AP with a name like
+WIFLIP_xyzt?
+Try moving your computer closer to the WiFlip device.
+Try switching the WiFlip device off and on several times.
+Try to stop and restart your computer's wifi.
+Press the reload button of the dialog window, when you think you are ready, to retry the connection process.
+"""
+    #statusCmd = pyqtSignal(int, str)
+    def __init__(self, parent=None):
+        super(MyWIFICnf, self).__init__(parent)
+        #QtGui.QWidget.__init__(self, parent)
+        self.ui = Ui_DialogWifiC()
+        self.ui.setupUi(self)
+        self.ui.pushButton.clicked.connect(self.reload)
+        self.ui.pushButton_2.clicked.connect(self.postdata)
+        
+        self.ui.label_ret1.setText("")
+        self.ui.label_ret2.setText("")
+        self.ui.label_1.setText("")
+        self.ui.label_2.setText("")
+        self.ui.label_3.setText("")
+        self.ui.groupBox.setTitle("")
+        
+        self.ui.lineEdit_2.setEchoMode(QLineEdit.EchoMode.Password)
+        self.ui.checkBox.stateChanged.connect(self.setpwdmask)
+
+        self.reload()
+        
+    def reload(self):
+        self.ui.pushButton_2.setEnabled(False)
+        try:
+            cnf_pg = requests.get("http://192.168.4.22")
+            print("status", cnf_pg.status_code)
+        except:
+            dlg = QMessageBox(self.parent())
+            dlg.setWindowTitle("WiFlip Network Connection")
+            
+            #dlg.setText("No connection.")
+            dlg.setText(self.errorConfTxt)
+            dlg.setIcon(QMessageBox.Warning)
+            dlg.exec()
+            return
+        if cnf_pg.status_code != 200:
+            self.ui.label_3.setText(f"http error code: {cnf_pg.status_code}")
+            
+        soup = BeautifulSoup(cnf_pg.text, 'html.parser')
+        mytitle   = soup.find_all("h1")
+        myssid    = soup.find(id="ssid")
+        myport    = soup.find(id="portn")
+        myiplo    = soup.find(id="iploc")
+        mymacaddr = soup.find(id="macaddr-txt")
+        
+        
+        if not len(mytitle):
+            dlg = QMessageBox(self.parent())
+            dlg.setWindowTitle("WiFlip Network Communication Error")
+            
+            #dlg.setText("No connection.")
+            dlg.setText(self.errorConnTxt)
+            dlg.setIcon(QMessageBox.Warning)
+            dlg.exec()
+            return
+            
+        
+        try:
+            myssid = myssid.get("value")
+        except:
+            myssid = None 
+            
+        try:
+            myport = myport.get("value")
+        except:
+            myport = None 
+            
+        try:
+            myiplo = myiplo.text
+        except:
+            myiplo = None 
+            
+        try:
+            mymacaddr = mymacaddr.text
+        except:
+            mymacaddr = None 
+            
+        if myssid is None or myport is None or myiplo is None or mymacaddr is None:
+            #incompatible version
+            self.ui.groupBox.setTitle("Incompatible device")
+            self.ui.label_1.setText(f"ssid: {myssid} mac addr: {mymacaddr}")
+            self.ui.label_2.setText(f"iplocal: {myiplo} port: {myport}")
+
+            #device version
+            if myssid is not None and myport is not None and myiplo is not None and mymacaddr is None:
+                dlg = QMessageBox(self.parent())
+                dlg.setWindowTitle("WiFlip Network Communication Error")
+                
+                #dlg.setText("No connection.")
+                dlg.setText(self.errorVerTxt)
+                dlg.setIcon(QMessageBox.Warning)
+                dlg.exec()
+
+            return
+            
+        if not len(mytitle):
+            mytitle = "Unknown version of configurator"
+        else:
+            mytitle = mytitle[0]
+        #print("mydata", mytitle.text, myssid.get("value"), myport.text, myiplo.text)
+
+        self.ui.label_1.setText(f"Mac: {mymacaddr}")
+        self.ui.label_2.setText("")
+        self.ui.label_3.setText("")
+        
+        self.ui.groupBox.setTitle(mytitle.text)
+        self.ui.lineEdit.setText(myssid)
+        self.ui.lineEdit_3.setText(myport)
+        self.ui.label_ret1.setText(f"Current IP: {myiplo}")
+        self.ui.label_ret2.setText(f"Current port: {myport}")
+        self.ui.label_ret1.setTextInteractionFlags(Qt.TextSelectableByMouse) 
+
+        self.ui.pushButton_2.setEnabled(True)
+        
+    def setpwdmask(self):
+        if self.ui.checkBox.isChecked():
+            self.ui.lineEdit_2.setEchoMode(QLineEdit.EchoMode.Normal)
+        else:
+            self.ui.lineEdit_2.setEchoMode(QLineEdit.EchoMode.Password)
+        
+            
+    def postdata(self):
+        url = "http://192.168.4.22/config_page"
+        myobj = {
+            "ssid"    : self.ui.lineEdit.text(),
+            "pwd"     : self.ui.lineEdit_2.text(),
+            "portn"   : self.ui.lineEdit_3.text(),
+            "showpwd" : "xxx",
+            }
+
+        print(myobj)
+        
+        ret = requests.post(url, data = myobj)
+
+        print(ret.status_code, ret.text)
+        if ret.status_code != 200:
+            self.ui.label_3.setText(f"http error code: {ret.status_code}")
+        else:
+            soup         = BeautifulSoup(ret.text, 'html.parser')
+            myresponse   = soup.find_all("h1")[0]
+            myresponse2  = soup.find_all("p")[0]
+            self.ui.label_ret1.setText(f"{myresponse} {myresponse2}")
+            self.ui.label_ret2.setText(f"Current port: {myobj['portn']}")
+                
+        
+        
 class MySettings(QtWidgets.QDialog): 
     """
     This dialog box was created with QT
     in settings.ui
     This is system settings dialog box, such as type of start factory/normal/miniprinter
-    /!\ This is not game settings
+    Warning: This is not game settings
     """
     #statusCmd = pyqtSignal(int, str)
     def __init__(self, parent=None):
@@ -1303,6 +1486,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.actionSettings.triggered.connect(self.launchSettings)
         self.ui.actionReprog.triggered.connect(self.launchReprog)
         self.ui.actionGame_settings.triggered.connect(self.launchGameSet)
+        self.ui.actionWifi_config.triggered.connect(self.launchWifiC)
 
         self.ui.actionSound.toggled.connect(self.toggleSound)
 
@@ -1537,12 +1721,12 @@ QPushButton:pressed {
         for game, gdata in RscPin.Models.items():
             try:
                 gfile = gdata['Backglass']
-                print(game, gfile)
+                #print(game, gfile)
                 self.actionGame[game] = QtWidgets.QAction(game)
                 self.actionGame[game].setObjectName("qaction"+game)
                 self.ui.menuRecel_2.addAction(self.actionGame[game])
                 self.actionGame[game].triggered.connect(partial(self.actionGeneric, game))
-                print(game, gfile, actionGame[game])
+                #print(game, gfile, actionGame[game])
                 
             except:
                 #print("Gros pb")
@@ -1866,17 +2050,25 @@ QPushButton:pressed {
         #self.mysettings.show()
         self.mysettings.exec()
 
+    def launchWifiC(self):
+        """
+        Starts the wifi config dialog box
+        """
+        self.mywificnf=MyWIFICnf(self)
+        #self.mysettings.show()
+        self.mywificnf.exec()
+
     def actionGeneric(self, gamename):   
         self.face = gamename
         try:
             fgame =  ":/x/images/1x/"+RscPin.Models[gamename]['Backglass']
         except:
             fgame = ":/x/images/1x/fair_fight_480.png"
-        print("action generic", self.face, fgame)
-        try:
-            print("action generic2", RscPin.Models[gamename]['Backglass'])  
-        except:
-            print("game", gamename, "not registered in RscPin")
+        # print("action generic", self.face, fgame)
+        # try:
+        #     print("action generic2", RscPin.Models[gamename]['Backglass'])  
+        # except:
+        #     print("game", gamename, "not registered in RscPin")
             
         self.ui.label.setPixmap(QtGui.QPixmap(fgame))
                     
