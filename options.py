@@ -9,7 +9,7 @@ Created on 7 sept. 2011
 Copyright AA55 Consulting 2011
 
 adaptation from options of msc project www
-
+Please
 '''
 import time
 
@@ -168,6 +168,13 @@ class Hex:
 class MyOptionsUtils:
     @staticmethod
     def myValidateCombo(val, minval, maxval, option):
+        #print("in myvalidatecombo line 171", val, minval, maxval, option)
+        try:
+            index         = option.items.index(val)
+        except:
+            print("    combo has an invalid value")
+            return False, f"Unknown value: {val} in combo box"
+        
         return True, f"No Problemo"
     
     @staticmethod
@@ -905,7 +912,7 @@ WITHOUT PRESSING THE START BUTTON
         
         errorlist=list()
         for objname, objcontent in MyOptions.defaults.items():  
-            if objcontent[1] == Hex:
+            if objcontent[1] == Hex or objcontent[1] == Combo:
                 #print(objname, self.itemvdict[objname].text())
                 validFunc = MyOptions.defaults[objname][2]       
                 if not validFunc:
@@ -926,15 +933,18 @@ WITHOUT PRESSING THE START BUTTON
                 #        optval.type, 
                 #        optval.dir,
                 #        optval.value)
-            elif objcontent[1] == Combo:
-                #no validfunc required since it is a combo
-                try:
-                    optval = MyOptions.defaults[objname][7] 
-                except:
-                    optval = None
-                #print(objname, self.itemvdict[objname].data(0), self.itemvdict[objname].data(Qt.UserRole))
-                #print(objname, self.itemvdict[objname].data(Qt.UserRole))
-                ilis = self.itemvdict[objname].data(Qt.UserRole)
+                
+            # following elif neutralized 2025-01-11 because combo might have been initialized
+            #with invalid value... Then we handle it now correctly in the previous if, like Hex type
+            # elif objcontent[1] == Combo:
+            #     #no validfunc required since it is a combo
+            #     try:
+            #         optval = MyOptions.defaults[objname][7] 
+            #     except:
+            #         optval = None
+            #     #print(objname, self.itemvdict[objname].data(0), self.itemvdict[objname].data(Qt.UserRole))
+            #     #print(objname, self.itemvdict[objname].data(Qt.UserRole))
+            #     ilis = self.itemvdict[objname].data(Qt.UserRole)
                 
         if len(errorlist):
             self.ui.label.setText("Please check the following fields: "+ ", ".join(errorlist))

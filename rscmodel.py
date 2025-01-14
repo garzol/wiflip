@@ -569,7 +569,7 @@ class RscPin():
     dca = {
         "#Model"          : "1062",
         "Game bin"        : "ca.bin",
-        "Game Fletcher"   : 0x41E7,
+        "Game Fletcher"   : 0x026C,
         "A1762 bin"       : "A1762-13_1K.bin",
         "Switches"        : dcaswt,
         "Switches short"  : dcasswt,

@@ -20,7 +20,7 @@ Dip
 audio sound
 signaling error settings :game
 action generic
-initial sound state 
+initial sound state b'YR
 '''
 
 import os, sys, time, struct
@@ -285,7 +285,12 @@ class MyReprog(QtWidgets.QDialog):
 
         #get status
         papa = self.parent()
+        # try:
+        #     papa.read128Sig.disconnect()
+        # except Exception as e:
+        #     pass   
         papa.read128Sig.connect(self.catch128SigReprog)
+
 
         self.ui.comboBox.addItems(list(RscPin.Models.keys()))
 
@@ -334,9 +339,12 @@ class MyReprog(QtWidgets.QDialog):
             print("read sys conf area failed")
 
     def catch128SigReprog(self, memTypStr):
-        print("catch128SigReprog memTyp", memTypStr)
+        print("Reprog catch128SigReprog memTyp", memTypStr)
+        #print("catch128SigReprog memTyp", self.parent)
         papa = self.parent()
         
+        #papa.read128Sig.disconnect(self.catch128SigReprog)
+
         #game
         rg = papa.nvrlist[2*8+1][1]*256+papa.nvrlist[2*8+0][1]
         cg = papa.nvrlist[3*8+1][1]*256+papa.nvrlist[3*8+0][1]
@@ -731,21 +739,61 @@ class MyReprog(QtWidgets.QDialog):
             pass
         
     def resetthepin(self):
+        # '''
+        # reset with ack
+        # '''
+        # papa = self.parent()
+        # print("message request is", b'YCXQZ')
+        # try:
+        #     papa.thread.sock.send(b'YCXQZ')
+        # except:
+        #     pass
+        # papa.resetAckSig.connect(self.catchResetSig)
+        # self.timertout2 = QTimer(singleShot=True, timeout=self.timeouttr)
+        # self.timertout2.start(5000)
+
         papa = self.parent()
         print("message request is", b'YBXQZ')
         try:
             papa.thread.sock.send(b'YBXQZ')
         except:
             pass
-
+        
         time.sleep(2)
-
+        
         self.frameCnt = 0
         
         #self.frameCntSig.connect(self.frameCounter)
-
+        
         self.refreshReprog()
 
+    def catchResetSig(self):   
+        '''
+        reset ack was received, we can continue
+        '''
+        print("catchResetSig")
+        papa = self.parent()
+        papa.resetAckSig.disconnect(self.catchResetSig)
+        self.timertout2.stop()    
+        time.sleep(0.5)    
+        self.frameCnt = 0
+        
+        #self.frameCntSig.connect(self.frameCounter)
+        
+        self.refreshReprog()
+        
+    def timeouttr(self):
+        print("Time out in ttr (line 780)")
+        dlg = QMessageBox(self.parent())
+        dlg.setWindowTitle("NAck")
+        dlg.setText("Time out. No ack. Please, check connection")
+        dlg.setIcon(QMessageBox.Critical)
+        button = dlg.exec()
+
+        if button == QMessageBox.Ok:
+            self.ui.plainTextEdit.appendPlainText(f"Restart failure: Device not responding.")
+
+        
     
     def actionReadPROM(self):
         papa = self.parent()
@@ -818,6 +866,14 @@ class MyReprog(QtWidgets.QDialog):
                 #print("length  error")
                 self.ui.label_error.setText("file length error")
                 self.ui.label_crc.setText("")
+
+    def closeEvent(self, event):
+        print("guguguuu")
+        papa = self.parent()
+        
+        papa.read128Sig.disconnect(self.catch128SigReprog)
+
+        QtWidgets.QDialog.closeEvent(self, event)
 
 
                         
@@ -1055,9 +1111,13 @@ class MySettings(QtWidgets.QDialog):
         self.timertout = QTimer(singleShot=True, timeout=self.timeoutt)
         self.timertout.start(5000)
         try:
+            #papa.read128Sig.disconnect()
             papa.read128Sig.disconnect(self.cmdDone)
             #self.statusCmd.disconnect(self.cmdDone)
-        except:
+            #print(f"ok in mysettings")
+            
+        except Exception as e:
+            #print(f"exception in mysettings {e}")
             pass   
         #self.statusCmd.connect(self.cmdDone)   
         papa.read128Sig.connect(self.cmdDone)
@@ -1099,7 +1159,7 @@ class MySettings(QtWidgets.QDialog):
         papa = self.parent()
         papa.resetAckSig.disconnect(self.catchResetSig)
         self.timertout2.stop()    
-        time.sleep(0.5)    
+        time.sleep(1.5)    
         self.refreshdlg()
         
     def modscr(self):
@@ -3577,6 +3637,7 @@ class Worker(QThread):
                 if total_ns > 300:
                     print(f"broken pipe. Connection lost")
                     break
+                received = 0
             except ConnectionResetError:
                 print("socket ConnectionResetError")
                 break
@@ -3795,7 +3856,6 @@ def afflcdi(afftab, data):
             afftab[idx].display(dx)
             
 
-    
     
     
     
