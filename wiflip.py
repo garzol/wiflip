@@ -1076,7 +1076,9 @@ class MySettings(QtWidgets.QDialog):
 
        
         
-        self.ui.toolButton_reset.clicked.connect(self.resetthepin)
+        #self.ui.toolButton_reset.clicked.connect(self.resetthepin)
+        self.ui.toolButton_reset.clicked.connect(self.parent().resetthepin_with_ack)
+        
         self.ui.toolButton.setVisible(False)
         self.ui.toolButton_2.setVisible(False)
         
