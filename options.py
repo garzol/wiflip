@@ -9,7 +9,7 @@ Created on 7 sept. 2011
 Copyright AA55 Consulting 2011
 
 adaptation from options of msc project www
-Please
+Please reset
 '''
 import time
 
@@ -890,7 +890,7 @@ WITHOUT PRESSING THE START BUTTON
         if self.applyPresets() != "OK":
             return
         time.sleep(1.0)
-        papa.resetthepin()
+        papa.resetthepin_with_ack()
         time.sleep(2.0)
         self.refreshdlg()
             

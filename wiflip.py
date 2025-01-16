@@ -20,7 +20,7 @@ Dip
 audio sound
 signaling error settings :game
 action generic
-initial sound state b'YR
+initial sound state 
 '''
 
 import os, sys, time, struct
@@ -108,7 +108,7 @@ aboutContent = '''
 from version import prodvers
 print(prodvers)
 VERSION = ".".join(map(str, prodvers)) #"0.95"
-DATE    = "2025-01-15"
+DATE    = "2024-12-11"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
@@ -285,15 +285,13 @@ class MyReprog(QtWidgets.QDialog):
 
         #get status
         papa = self.parent()
-        # try:
-        #     papa.read128Sig.disconnect()
-        # except Exception as e:
-        #     pass   
         papa.read128Sig.connect(self.catch128SigReprog)
-
 
         self.ui.comboBox.addItems(list(RscPin.Models.keys()))
 
+        #we should set the call back to reset with ack
+        #but we won't because it is full manual, we want to keep full control
+        #step by step 
         self.ui.toolButton_reset_2.clicked.connect(self.resetthepin)
         self.ui.toolButton_reprog.clicked.connect(self.gotoreprog)
         self.ui.toolButton_write.clicked.connect(self.actionLoadPROM)
@@ -307,8 +305,11 @@ class MyReprog(QtWidgets.QDialog):
         self.ui.pushButton.clicked.connect(self.start_reprog)
 
         #Reset button in the group Auto
-        #self.ui.pushButton_2.clicked.connect(self.resetthepin)
-        self.ui.pushButton_2.clicked.connect(self.parent().resetthepin_with_ack)
+        self.ui.pushButton_2.clicked.connect(papa.resetthepin_with_ack)
+
+
+        self.ui.buttonBox.accepted.connect(self.close_callback)
+        self.ui.buttonBox.rejected.connect(self.close_callback)
 
 
         self.ui.label_crc_cg.setText("????")
@@ -340,12 +341,9 @@ class MyReprog(QtWidgets.QDialog):
             print("read sys conf area failed")
 
     def catch128SigReprog(self, memTypStr):
-        print("Reprog catch128SigReprog memTyp", memTypStr)
-        #print("catch128SigReprog memTyp", self.parent)
+        print("catch128SigReprog memTyp", memTypStr)
         papa = self.parent()
         
-        #papa.read128Sig.disconnect(self.catch128SigReprog)
-
         #game
         rg = papa.nvrlist[2*8+1][1]*256+papa.nvrlist[2*8+0][1]
         cg = papa.nvrlist[3*8+1][1]*256+papa.nvrlist[3*8+0][1]
@@ -740,61 +738,21 @@ class MyReprog(QtWidgets.QDialog):
             pass
         
     def resetthepin(self):
-        # '''
-        # reset with ack
-        # '''
-        # papa = self.parent()
-        # print("message request is", b'YCXQZ')
-        # try:
-        #     papa.thread.sock.send(b'YCXQZ')
-        # except:
-        #     pass
-        # papa.resetAckSig.connect(self.catchResetSig)
-        # self.timertout2 = QTimer(singleShot=True, timeout=self.timeouttr)
-        # self.timertout2.start(5000)
-
         papa = self.parent()
         print("message request is", b'YBXQZ')
         try:
             papa.thread.sock.send(b'YBXQZ')
         except:
             pass
-        
-        time.sleep(2)
-        
+
+        time.sleep(2.5)
+
         self.frameCnt = 0
         
         #self.frameCntSig.connect(self.frameCounter)
-        
+
         self.refreshReprog()
 
-    def catchResetSig(self):   
-        '''
-        reset ack was received, we can continue
-        '''
-        print("catchResetSig")
-        papa = self.parent()
-        papa.resetAckSig.disconnect(self.catchResetSig)
-        self.timertout2.stop()    
-        time.sleep(0.5)    
-        self.frameCnt = 0
-        
-        #self.frameCntSig.connect(self.frameCounter)
-        
-        self.refreshReprog()
-        
-    def timeouttr(self):
-        print("Time out in ttr (line 780)")
-        dlg = QMessageBox(self.parent())
-        dlg.setWindowTitle("NAck")
-        dlg.setText("Time out. No ack. Please, check connection")
-        dlg.setIcon(QMessageBox.Critical)
-        button = dlg.exec()
-
-        if button == QMessageBox.Ok:
-            self.ui.plainTextEdit.appendPlainText(f"Restart failure: Device not responding.")
-
-        
     
     def actionReadPROM(self):
         papa = self.parent()
@@ -868,15 +826,17 @@ class MyReprog(QtWidgets.QDialog):
                 self.ui.label_error.setText("file length error")
                 self.ui.label_crc.setText("")
 
+
     def closeEvent(self, event):
-        print("guguguuu")
+        self.close_callback()
+        QtWidgets.QDialog.closeEvent(self, event)
+
+    
+    def close_callback(self):
+        #print("guguguuu")
         papa = self.parent()
         
         papa.read128Sig.disconnect(self.catch128SigReprog)
-
-        QtWidgets.QDialog.closeEvent(self, event)
-
-
                         
         
 class MyWIFICnf(QtWidgets.QDialog): 
@@ -1077,9 +1037,7 @@ class MySettings(QtWidgets.QDialog):
 
        
         
-        #self.ui.toolButton_reset.clicked.connect(self.resetthepin)
-        self.ui.toolButton_reset.clicked.connect(self.parent().resetthepin_with_ack)
-        
+        self.ui.toolButton_reset.clicked.connect(self.resetthepin)
         self.ui.toolButton.setVisible(False)
         self.ui.toolButton_2.setVisible(False)
         
@@ -1114,13 +1072,9 @@ class MySettings(QtWidgets.QDialog):
         self.timertout = QTimer(singleShot=True, timeout=self.timeoutt)
         self.timertout.start(5000)
         try:
-            #papa.read128Sig.disconnect()
             papa.read128Sig.disconnect(self.cmdDone)
             #self.statusCmd.disconnect(self.cmdDone)
-            #print(f"ok in mysettings")
-            
-        except Exception as e:
-            #print(f"exception in mysettings {e}")
+        except:
             pass   
         #self.statusCmd.connect(self.cmdDone)   
         papa.read128Sig.connect(self.cmdDone)
@@ -1143,12 +1097,12 @@ class MySettings(QtWidgets.QDialog):
         reset with ack
         '''
         papa = self.parent()
+        papa.resetAckSig.connect(self.catchResetSig)
         print("message request is", b'YCXQZ')
         try:
             papa.thread.sock.send(b'YCXQZ')
         except:
             pass
-        papa.resetAckSig.connect(self.catchResetSig)
         self.timertout2 = QTimer(singleShot=True, timeout=self.timeoutt)
         self.timertout2.start(5000)
         
@@ -3618,7 +3572,7 @@ class Worker(QThread):
         print("hostname ", socket.gethostname())
 
         self.connled.emit("green")
-        self.sock.settimeout(5.0)
+        self.sock.settimeout(None)
 
         # Receive data from the server and shut down
         
@@ -3632,7 +3586,7 @@ class Worker(QThread):
             #     print(f"socket read error 1: {e}")
             #     break
             except socket.timeout as e:
-                print(f"socket timeout: {e} total_ns: {total_ns}")
+                print(f"socket timeout: {e}")
                 #let's check if connection is still there
                 #ask for dip switches b'YDXXX'
                 #self.sock.settimeout(1.0)
@@ -3640,7 +3594,6 @@ class Worker(QThread):
                 if total_ns > 300:
                     print(f"broken pipe. Connection lost")
                     break
-                received = None 
             except ConnectionResetError:
                 print("socket ConnectionResetError")
                 break
@@ -3649,75 +3602,73 @@ class Worker(QThread):
                 break
             
             #print("received", received[0])
-            if received is not None:
-                if received == b'A' or received == b'B':
-                    framesz = 9
-                elif received == b'C':
-                    #3 bytes
-                    framesz = 3
-                elif received == b'D':
-                    framesz = 4
-                elif received == b'E':
-                    framesz = 9
-                elif received == b'Y':   #IO status 7 bytes Oh, Ol, Ih, Il gpioEF, gpioCD, gpioAB
-                    framesz = 9
-                elif received == b'S':
-                    framesz = 5
-                elif received == b'T':
-                    framesz = 5
-                elif received == b'G':
-                    framesz = 5
-                elif received == b'Q':
-                    framesz = 1024
-                elif received == b'R':
-                    framesz = 128
-                elif received == b'N':   #4E
-                    framesz = 256
-                elif received == b'P':
-                    #print("P")
-                    framesz = 32 #32
-                elif received == b'Z':
-                    framesz = 2 #crc
-                elif received == b'@':
-                    framesz = 2 #reset ack frame            
-                elif received == b'x':
-                    framesz = 4 #message from the modem one long representing rssi ('x' code 120)
-                
-                else:
-                    framesz = 0
-    
-                      
-                if  framesz > 0:               
-                    tsz = framesz
-                    msg = b''
-                    while tsz > 0:
-                        try:
-                            msg += self.sock.recv(1)  #(tsz)
-                        except ConnectionResetError:
-                            print("socket read error 2 ConnectionResetError")
-                            # self.sock.close()
-                            #
-                            # self.connled.emit("grey")
-                            # return
-                        except Exception as e:
-                            print(f"socket read error 2: {e} received: {received[0]}, framesz: {framesz}")
-                            self.sock.settimeout(5.0)
-                            break
-                        lm  = len(msg)
-                        #print("lm", framesz, lm, msg)
-                        if lm == framesz:
-                            #print(f"message ack {received} : {msg[0]} {msg[1]} ")
-                            #self.ui.lcdNumber_1.value = 345
-                            #print(f"message ack {received} : {bytearray(msg)}")
-                            self.output.emit(bytearray(msg), received[0])
-                            break
-                        #tsz -= lm
-                        tsz -= 1
-                    # if received == b'R':
-                    #     print(received, msg)
-                else:
-                    pass
-                    #print(received)
+            if received == b'A' or received == b'B':
+                framesz = 9
+            elif received == b'C':
+                #3 bytes
+                framesz = 3
+            elif received == b'D':
+                framesz = 4
+            elif received == b'E':
+                framesz = 9
+            elif received == b'Y':   #IO status 7 bytes Oh, Ol, Ih, Il gpioEF, gpioCD, gpioAB
+                framesz = 9
+            elif received == b'S':
+                framesz = 5
+            elif received == b'T':
+                framesz = 5
+            elif received == b'G':
+                framesz = 5
+            elif received == b'Q':
+                framesz = 1024
+            elif received == b'R':
+                framesz = 128
+            elif received == b'N':   #4E
+                framesz = 256
+            elif received == b'P':
+                #print("P")
+                framesz = 32 #32
+            elif received == b'Z':
+                framesz = 2 #crc
+            elif received == b'@':
+                framesz = 2 #reset ack frame            
+            elif received == b'x':
+                framesz = 4 #message from the modem one long representing rssi ('x' code 120)
+            
+            else:
+                framesz = 0
+
+                  
+            if  framesz > 0:               
+                tsz = framesz
+                msg = b''
+                while tsz > 0:
+                    try:
+                        msg += self.sock.recv(1)  #(tsz)
+                    except ConnectionResetError:
+                        print("socket read error 2 ConnectionResetError")
+                        # self.sock.close()
+                        #
+                        # self.connled.emit("grey")
+                        # return
+                    except Exception as e:
+                        print(f"socket read error 2: {e}")
+                        #self.sock.settimeout(1.0)
+                        break
+                    lm  = len(msg)
+                    #print("lm", framesz, lm, msg)
+                    if lm == framesz:
+                        #print(f"message ack {received} : {msg[0]} {msg[1]} ")
+                        #self.ui.lcdNumber_1.value = 345
+                        self.output.emit(bytearray(msg), received[0])
+                        break
+                    #tsz -= lm
+                    tsz -= 1
+                # if received == b'R':
+                #     print(received, msg)
+            else:
+                pass
+                #print(received)
 
         self.sock.close()
         
@@ -3861,6 +3812,7 @@ def afflcdi(afftab, data):
             afftab[idx].display(dx)
             
 
+    
     
     
     
