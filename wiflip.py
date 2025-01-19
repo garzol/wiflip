@@ -1001,18 +1001,24 @@ Press the reload button of the dialog window, when you think you are ready, to r
             "showpwd" : "xxx",
             }
 
-        print(myobj)
+        #print(myobj)
         
+        QtWidgets.QApplication.setOverrideCursor(Qt.BusyCursor)
+
         ret = requests.post(url, data = myobj)
 
-        print(ret.status_code, ret.text)
+        # do lengthy process
+        QtWidgets.QApplication.restoreOverrideCursor()
+
+        #print(ret.status_code, ret.text)
         if ret.status_code != 200:
             self.ui.label_3.setText(f"http error code: {ret.status_code}")
         else:
             soup         = BeautifulSoup(ret.text, 'html.parser')
             myresponse   = soup.find_all("h1")[0]
             myresponse2  = soup.find_all("p")[0]
-            self.ui.label_ret1.setText(f"{myresponse} {myresponse2}")
+            #self.ui.label_ret1.setText(f"{myresponse} {myresponse2}")
+            self.ui.label_ret1.setText(ret.text)
             self.ui.label_ret2.setText(f"Current port: {myobj['portn']}")
                 
         
