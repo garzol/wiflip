@@ -1007,7 +1007,7 @@ Press the reload button of the dialog window, when you think you are ready, to r
 
         ret = requests.post(url, data = myobj)
 
-        # do lengthy process
+        # do lengthy process 
         QtWidgets.QApplication.restoreOverrideCursor()
 
         #print(ret.status_code, ret.text)
