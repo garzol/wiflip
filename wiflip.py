@@ -21,6 +21,7 @@ audio sound
 signaling error settings :game
 action generic
 initial sound state 
+waiting for host
 '''
 
 import os, sys, time, struct
@@ -43,7 +44,7 @@ from PyQt5.QtGui import *
 
 #from PyQt5.QtWidgets import *   #removed 2024-10-08, (not sure)
 
-from PyQt5.QtWidgets import QMessageBox, QAction, QLineEdit
+from PyQt5.QtWidgets import QMessageBox, QAction, QLineEdit, QPushButton
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import QtNetwork 
 #from PyQt5 import QtMultimedia 
@@ -2414,9 +2415,19 @@ QPushButton:pressed {
             self.thread.finished.connect(self.pipo)
             self.thread.output.connect(self.cmdMng)
             self.thread.connled.connect(self.connled)
-    
+            self.thread.workerErr.connect(self.work_error_received)
             self.thread.start()
     
+
+    def work_error_received(self, str):
+        dlg = QMessageBox(self.parent())
+        dlg.setWindowTitle("Connection error")
+        dlg.setText(str+"\n"+ "Please, check your connection parameters, restart the device and try again.")
+        dlg.setIcon(QMessageBox.Critical)
+        dlg.addButton(QPushButton("Close app"), QMessageBox.NoRole)
+        button = dlg.exec()
+        #exit(0)
+        self.connled("closing")
 
     def connled(self, state):
         if state == "green":
@@ -2433,6 +2444,17 @@ QPushButton:pressed {
             except:
                 pass
             self.myDisconnectSound.play()
+            #QSound.stop(self.mysound)
+            
+            self.ui.pushButton.setText("connect")
+            self.ui.label_12.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+        elif state == "closing":
+            try:
+                self.ui.pushButton.clicked.connect(self.connect)
+                self.ui.pushButton.clicked.disconnect(self.disconnect)
+            except:
+                pass
+            #self.myDisconnectSound.play()
             #QSound.stop(self.mysound)
             
             self.ui.pushButton.setText("connect")
@@ -2650,6 +2672,12 @@ QPushButton:pressed {
                 elif dspBstate == 1 and self.lastBstate == 0:
                     self.ui.label_DBState.setPixmap(QtGui.QPixmap(":/x/ledon.png"))
                 self.lastBstate = dspBstate
+                
+                if dspAstate == 1:
+                    print("display A mask")
+                    return 
+                if dspBstate == 1:
+                    print("display B mask")
                 
                 if   self.game_type == "Gottlieb":   
                     ballinplay = data[1:2]
@@ -3508,8 +3536,9 @@ QPushButton:pressed {
 
                     
 class Worker(QThread):
-    output = pyqtSignal(bytearray, int)
-    connled = pyqtSignal(str)
+    output    = pyqtSignal(bytearray, int)
+    connled   = pyqtSignal(str)
+    workerErr = pyqtSignal(str)
     def __init__(self, parent = None, HOST="192.168.1.26", PORT=23):
         QThread.__init__(self, parent)
         self.exiting = False
@@ -3560,6 +3589,11 @@ class Worker(QThread):
                 #self.sock.connect(("WiFlip_iface", int(self.PORT)))
    
                 break
+            except ConnectionRefusedError:
+                print("Connection refused. Abort")
+                self.workerErr.emit("Connection refused.")
+                return 
+            
             except Exception as e:
                 print("connection delayed")
                 print(e)
