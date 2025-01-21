@@ -22,9 +22,13 @@ signaling error settings :game
 action generic
 initial sound state 
 waiting for host
+Hi, connection to
+reprog
+bad format console
 '''
 
 import os, sys, time, struct
+import select
 
 import resource_rc
 
@@ -61,7 +65,7 @@ from PyQt5.QtNetwork import QHostAddress, QTcpServer
 #from PyQt5 import QtNetwork, QtOpenGL 
 import math
 
-import socket, socketserver
+import socket
 
 #import OpenGL.platform
 #import OpenGL.platform.win32
@@ -908,6 +912,9 @@ Press the reload button of the dialog window, when you think you are ready, to r
             return
         if cnf_pg.status_code != 200:
             self.ui.label_3.setText(f"http error code: {cnf_pg.status_code}")
+        else:
+            self.ui.label_3.setText(f"")
+            
             
         soup = BeautifulSoup(cnf_pg.text, 'html.parser')
         mytitle   = soup.find_all("h1")
@@ -1014,6 +1021,7 @@ Press the reload button of the dialog window, when you think you are ready, to r
         if ret.status_code != 200:
             self.ui.label_3.setText(f"http error code: {ret.status_code}")
         else:
+            self.ui.label_3.setText(f"")
             soup         = BeautifulSoup(ret.text, 'html.parser')
             myresponse   = soup.find_all("h1")[0]
             myresponse2  = soup.find_all("p")[0]
@@ -1243,8 +1251,22 @@ class MySettings(QtWidgets.QDialog):
             for i in range(8):
                 self.flags[i].setChecked(sc_flags1&(1<<i)!=0)
                 
-            if sc_formatString != "AA55C3":
-                self.ui.label.setText(f"Bad format string : {sc_formatString}")
+            if sc_formatString == "AA55C3":
+                #format string for old versions < 2025-01-15
+                msg = f"FRAM formatted correctly (before 2025-01-15)"
+                print(msg)
+                papa.write2Console(msg, insertMode=True)
+            elif sc_formatString == "AA553C":
+                #format string for old versions < 2025-01-15
+                msg = f"FRAM formatted correctly"
+                #print(msg)
+                #papa.write2Console(msg, insertMode=True)
+            else:
+                #format string for old versions < 2025-01-15
+                msg = f"Bad format string : {sc_formatString}"
+                print(msg)
+                papa.write2Console(msg, insertMode=True)
+                self.ui.label.setText(msg)
                 
     # def test(self):
     #     self.statusCmd.emit("zobi")
@@ -2430,7 +2452,7 @@ QPushButton:pressed {
         dlg.setWindowTitle("Connection error")
         dlg.setText(str+"\n"+ "Please, check your connection parameters, restart the device and try again.")
         dlg.setIcon(QMessageBox.Critical)
-        dlg.addButton(QPushButton("Close app"), QMessageBox.NoRole)
+        dlg.addButton(QPushButton("Dismiss"), QMessageBox.NoRole)
         button = dlg.exec()
         #exit(0)
         self.connled("closing")
@@ -2680,11 +2702,12 @@ QPushButton:pressed {
                 self.lastBstate = dspBstate
                 
                 if dspAstate == 1:
-                    print("display A mask")
+                    #print("A display A mask")
                     return 
                 if dspBstate == 1:
-                    print("display B mask")
-                
+                    #print("A display B mask")
+                    pass
+
                 if   self.game_type == "Gottlieb":   
                     ballinplay = data[1:2]
                     tableau1   = data[2:5]
@@ -2783,6 +2806,7 @@ QPushButton:pressed {
                     self.ui.lcdNumber_2.setProperty("value", x)
                 self.ui.lcdNumber_6.setProperty("value", fromBcd2Int(ballinplay))
                 self.ui.lcdNumber_5.setProperty("value", fromBcd2Int(freeplay))
+                
             elif typ == 66:  #'B'
                 dspAstate = 1 if data[0]&0x80 else 0
                 dspBstate = 1 if data[0]&0x40 else 0
@@ -2796,6 +2820,13 @@ QPushButton:pressed {
                 elif dspBstate == 1 and self.lastBstate == 0:
                     self.ui.label_DBState.setPixmap(QtGui.QPixmap(":/x/ledon.png"))
                 self.lastBstate = dspBstate
+
+                if dspAstate == 1:
+                    #print("B display A mask")
+                    return 
+                if dspBstate == 1:
+                    #print("B display B mask")
+                    pass
 
                 if   self.game_type == "Gottlieb":   
                     tableau3   = data[2:5]
@@ -3575,6 +3606,10 @@ class Worker(QThread):
     
     def quit(self):
         print("socket close")
+        try:
+            self.sock.shutdown(socket.SHUT_RDWR)
+        except:
+            pass
         self.sock.close()
         
     def run(self):        
@@ -3612,8 +3647,17 @@ class Worker(QThread):
         print("hostname ", socket.gethostname())
 
         self.connled.emit("green")
-        self.sock.settimeout(None)
+        #self.sock.settimeout(None)
+        self.sock.settimeout(1.0)
 
+        # ready_to_read, ready_to_write, in_error = \
+        #                select.select(
+        #                   [self.sock],
+        #                   [self.sock],
+        #                   [self.sock],
+        #                   10.0)
+        # print(ready_to_read, ready_to_write, in_error)
+        
         # Receive data from the server and shut down
         
         total_ns = 0
@@ -3630,8 +3674,18 @@ class Worker(QThread):
                 #let's check if connection is still there
                 #ask for dip switches b'YDXXX'
                 #self.sock.settimeout(1.0)
+                
+                # ready_to_read, ready_to_write, in_error = \
+                #                select.select(
+                #                   [self.sock],
+                #                   [self.sock],
+                #                   [self.sock],
+                #                   10.0)
+                # print(ready_to_read, ready_to_write, in_error)
+        
+                
                 total_ns += 1
-                if total_ns > 300:
+                if total_ns > 100:
                     print(f"broken pipe. Connection lost")
                     break
             except ConnectionResetError:
@@ -3676,6 +3730,7 @@ class Worker(QThread):
                 framesz = 4 #message from the modem one long representing rssi ('x' code 120)
             
             else:
+                print("frame error")
                 framesz = 0
 
                   
@@ -3710,6 +3765,11 @@ class Worker(QThread):
                 pass
                 #print(received)
 
+        try:
+            self.sock.shutdown(socket.SHUT_RDWR)
+        except: 
+            pass
+        
         self.sock.close()
         
         self.connled.emit("grey")
