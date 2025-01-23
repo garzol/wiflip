@@ -25,6 +25,8 @@ waiting for host
 Hi, connection to
 reprog
 bad format console
+socket timeout
+yoyo
 '''
 
 import os, sys, time, struct
@@ -1148,7 +1150,7 @@ class MySettings(QtWidgets.QDialog):
             #disable the option settings box
             self.ui.groupBox_2.setEnabled(False)
             
-        print("yoyo0", sc_mode)
+        #print("yoyo0", sc_mode)
 
         papa = self.parent()
         
@@ -3155,10 +3157,13 @@ QPushButton:pressed {
         print("/".join(candidates_cg) if len(candidates_cg)>0 else "Unknown" )                    
         print("/".join(candidates_rg) if len(candidates_rg)>0 else "Unknown" )
         
+        
         if rg != cg:
-            cmtTxt = f"Running factory game. crcs don't match. ({rg:04X}/{cg:04X})"
+            cmtTxt = f"Running factory game because crcs don't match. ({rg:04X}/{cg:04X})"
+            self.ui.label_txt_cg.setStyleSheet("QLabel { background-color : red; color : white; font: italic;}")
         else:
             cmtTxt = ""
+            self.ui.label_txt_cg.setStyleSheet("QLabel { background-color : green; color : white; font: bold;}")
             
 
         self.ui.label_crc_cg.setText(f"{cg:04X}")
@@ -3175,9 +3180,11 @@ QPushButton:pressed {
         self.ui.label_crc_cr.setText(f"{cr:04X}")
             
         if rr != cr:
-            cmtTxt = f"Running factory BIOS. crcs don't match. ({rr:04X}/{cr:04X})"
+            cmtTxt = f"Running factory BIOS because crcs don't match. ({rr:04X}/{cr:04X})"
+            self.ui.label_txt_cr.setStyleSheet("QLabel { background-color : red; color : white; font: italic;}")
         else:
             cmtTxt = ""
+            self.ui.label_txt_cr.setStyleSheet("QLabel { background-color : green; color : white; font: bold;}")
             
         self.ui.plainTextEdit.appendPlainText(cmtTxt)             
 
@@ -3648,7 +3655,7 @@ class Worker(QThread):
 
         self.connled.emit("green")
         #self.sock.settimeout(None)
-        self.sock.settimeout(1.0)
+        self.sock.settimeout(2.0)
 
         # ready_to_read, ready_to_write, in_error = \
         #                select.select(
@@ -3683,6 +3690,7 @@ class Worker(QThread):
                 #                   10.0)
                 # print(ready_to_read, ready_to_write, in_error)
         
+                received = None
                 
                 total_ns += 1
                 if total_ns > 100:
@@ -3696,75 +3704,77 @@ class Worker(QThread):
                 break
             
             #print("received", received[0])
-            if received == b'A' or received == b'B':
-                framesz = 9
-            elif received == b'C':
-                #3 bytes
-                framesz = 3
-            elif received == b'D':
-                framesz = 4
-            elif received == b'E':
-                framesz = 9
-            elif received == b'Y':   #IO status 7 bytes Oh, Ol, Ih, Il gpioEF, gpioCD, gpioAB
-                framesz = 9
-            elif received == b'S':
-                framesz = 5
-            elif received == b'T':
-                framesz = 5
-            elif received == b'G':
-                framesz = 5
-            elif received == b'Q':
-                framesz = 1024
-            elif received == b'R':
-                framesz = 128
-            elif received == b'N':   #4E
-                framesz = 256
-            elif received == b'P':
-                #print("P")
-                framesz = 32 #32
-            elif received == b'Z':
-                framesz = 2 #crc
-            elif received == b'@':
-                framesz = 2 #reset ack frame            
-            elif received == b'x':
-                framesz = 4 #message from the modem one long representing rssi ('x' code 120)
-            
+            if received is not None:
+                if received == b'A' or received == b'B':
+                    framesz = 9
+                elif received == b'C':
+                    #3 bytes
+                    framesz = 3
+                elif received == b'D':
+                    framesz = 4
+                elif received == b'E':
+                    framesz = 9
+                elif received == b'Y':   #IO status 7 bytes Oh, Ol, Ih, Il gpioEF, gpioCD, gpioAB
+                    framesz = 9
+                elif received == b'S':
+                    framesz = 5
+                elif received == b'T':
+                    framesz = 5
+                elif received == b'G':
+                    framesz = 5
+                elif received == b'Q':
+                    framesz = 1024
+                elif received == b'R':
+                    framesz = 128
+                elif received == b'N':   #4E
+                    framesz = 256
+                elif received == b'P':
+                    #print("P")
+                    framesz = 32 #32
+                elif received == b'Z':
+                    framesz = 2 #crc
+                elif received == b'@':
+                    framesz = 2 #reset ack frame            
+                elif received == b'x':
+                    framesz = 4 #message from the modem one long representing rssi ('x' code 120)
+                
+                else:
+                    print("frame error")
+                    framesz = 0
+    
+                      
+                if  framesz > 0:               
+                    tsz = framesz
+                    msg = b''
+                    while tsz > 0:
+                        try:
+                            msg += self.sock.recv(1)  #(tsz)
+                        except ConnectionResetError:
+                            print("socket read error 2 ConnectionResetError")
+                            # self.sock.close()
+                            #
+                            # self.connled.emit("grey")
+                            # return
+                        except Exception as e:
+                            print(f"socket read error 2: {e}")
+                            #self.sock.settimeout(1.0)
+                            break
+                        lm  = len(msg)
+                        #print("lm", framesz, lm, msg)
+                        if lm == framesz:
+                            #print(f"message ack {received} : {msg[0]} {msg[1]} ")
+                            #self.ui.lcdNumber_1.value = 345
+                            self.output.emit(bytearray(msg), received[0])
+                            break
+                        #tsz -= lm
+                        tsz -= 1
+                    # if received == b'R':
+                    #     print(received, msg)
+                else:
+                    pass
+                    #print(received)
             else:
-                print("frame error")
-                framesz = 0
-
-                  
-            if  framesz > 0:               
-                tsz = framesz
-                msg = b''
-                while tsz > 0:
-                    try:
-                        msg += self.sock.recv(1)  #(tsz)
-                    except ConnectionResetError:
-                        print("socket read error 2 ConnectionResetError")
-                        # self.sock.close()
-                        #
-                        # self.connled.emit("grey")
-                        # return
-                    except Exception as e:
-                        print(f"socket read error 2: {e}")
-                        #self.sock.settimeout(1.0)
-                        break
-                    lm  = len(msg)
-                    #print("lm", framesz, lm, msg)
-                    if lm == framesz:
-                        #print(f"message ack {received} : {msg[0]} {msg[1]} ")
-                        #self.ui.lcdNumber_1.value = 345
-                        self.output.emit(bytearray(msg), received[0])
-                        break
-                    #tsz -= lm
-                    tsz -= 1
-                # if received == b'R':
-                #     print(received, msg)
-            else:
-                pass
-                #print(received)
-
+                print("received is None")
         try:
             self.sock.shutdown(socket.SHUT_RDWR)
         except: 

@@ -692,6 +692,10 @@ WITHOUT PRESSING THE START BUTTON
             fatherItem.appendRow([myItem, myItem2])
             self.brushvdict[objname]   = myItem.background()
             self.itemvdict[objname] = myItem2
+            
+            #test
+            self.onItemDataChange(myItem2)
+            
         self.myTreev.expandAll()
         self.myTreev.doubleClicked.connect(self.onVItemClick)
         self.myTreev.clicked.connect(self.onVItemClick)
@@ -1020,7 +1024,7 @@ WITHOUT PRESSING THE START BUTTON
 
 
     def onItemDataChange(self, vItem):
-        # print("onItemDataChange", vItem)
+        # print("onItemDataChange", vItem.text())
         # print(vItem, vItem.data(Qt.UserRole), vItem.text(), vItem.model(), vItem.index())
         # print(vItem.index().data(self.PROPERTY))
         # print(vItem.index().data(self.VALUE))

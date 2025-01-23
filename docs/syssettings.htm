@@ -46,14 +46,40 @@
 
 
 <h3 id="fm">Factory</h3>
-<p>In this mode, factory settings are applied. To be used when things went wrong, or when you are lost.
-			You will stay in factory mode, until you change it for Normal, or Miniprinter.</p>
-			
+<p>In this mode, factory settings are applied. To be used on first power on of the mother board to set up its presets or when things went wrong, 
+	or when you are lost.
+    During next reset, this radio button will automatically switch to <strong>Normal</strong>.
+    You will stay in factory mode, until you change it for Normal, or Miniprinter.</p>
+<p>	When factory radio button is selected, option checkboxes are dimmed. You cannot change them.
+</p>
+<p>What is the factory settings state? When factory settings are applied, the options 
+	are all unticked, meaning that they are in the following state:</p>
+<p>Options:
+	<ul>
+		<li><a href="#cro">Coin rejector is active</a></li>
+		<li><a href="#sco">coil self test done</a>, potentially preventing the pinball to complete its test phase.</li>
+		<li><a href="#smo">Standalone switch matrix</a> is off. The MPU won't read switch states if not connected to a good mux board.</li>
+		<li><a href="#cco">Unprotect coil channels</a>. The complementary coil protection is activated.</li>
+	</ul>
+
+	
+</p>
+<p>Miniprinter data: This set of data is restored in such a state that it is compatible with any selected game.</p>			
+<p>RAM data: This set of data is restored in such a state that it is compatible with any selected game.</p>			
+<p>Production number: This field is restored to the real ID of the MPU (actually, it is a subset of 
+	the daughter card's serial</p>
+<p>Model number: This is the current game installed (Given by Recel in the old times, 4-digit). Then, since factory settings 
+   remove any currently installed game, this number is reset to the actual factory installed game. <code>CACE</code> means "Crazy race".
+</p>
+<p>Previous installed game and BIOS version are masked, after a factory reset. This means that the game applied will be the default one.
+   The model number in the game settings indicates what are the factory default games and BIOS. <code>CACE</code> means "Crazy race" is the active
+   game.
+</p>
 <h2> Group box: Option settings</h2>
 <p>Options are actually applied after a reset.</p>
 <p>Options are:
 	<ul>
-		<li><a href="#cro">Coin rejector off</a></li>
+		<li><a href="#cro">Coin rejector is active</a></li>
 		<li><a href="#sco">Skip coils self test</a></li>
 		<li><a href="#smo">Standalone switch matrix</a></li>
 		<li><a href="#cco">Unprotect coil channels</a></li>
