@@ -27,7 +27,9 @@ reprog
 bad format console
 socket timeout
 yoyo
-style
+style hostname
+http://garzol.free.fr/wiflip/wiflip0_97setup.exe
+rssi
 '''
 
 import os, sys, time, struct
@@ -3653,8 +3655,11 @@ class Worker(QThread):
                 time.sleep(2)
             
         print("connected")
-        print("hostname ", socket.gethostname())
-
+        try:
+            print("hostname ", socket.gethostname())
+        except Exception as e:
+            print(f"error hostname call {e}")
+            
         self.connled.emit("green")
         #self.sock.settimeout(None)
         self.sock.settimeout(1.0)
@@ -3742,7 +3747,14 @@ class Worker(QThread):
                     framesz = 4 #message from the modem one long representing rssi ('x' code 120)
                 
                 else:
-                    print(f"frame error: received={int.from_bytes(received):02X}")
+                    try:
+                        #byteorder is explicitly required because of pyinstaller
+                        #otherwise it hangs up
+                        print(f"frame error: received={int.from_bytes(received, byteorder='big'):02X}")
+                    except Exception as e:
+                        print(f"unexpected  exception: {e}")
+                        print(f"frame error: received={received}")
+                        
                     framesz = 0
     
                       
