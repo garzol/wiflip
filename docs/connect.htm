@@ -1,5 +1,6 @@
 
 <h2>First connection</h2>
+<h3>Using your web browser</h3>
 <p>First thing to do is to let Wiflip know about your network in order to connect to it</p>
 <p>Turn on the pinball. Then, from a PC, look for a wifi network with a name like WiFlip_XYZT and connect to it.
 The wifi password for this network is 
@@ -10,14 +11,14 @@ The wifi password for this network is
 <p>Once the connection is established, open your browser (such like Firefox) and in the url field, enter the following address: 
 <font face="Courier New">http://192.168.4.22</font>.
 </p>
-<p><img src=":/help/docs/img/connectstp3.png"></p>
+<p><img src=":/help/docs/img/connectstp3_2.png"></p>
 <p>alternately, you can try to connect to <font face="Courier New">http://WIFLIP_XYZT.local</font> where XYZT are the characters you read
 from your device's Acess Point name</p>
-<p><img src=":/help/docs/img/connectstp3p.png"></p>
+<p><img src=":/help/docs/img/connectstp3p_2.png"></p>
 
 <p>You will reach a page asking for your home gateway credentials, namely name and password</p>
 <p>Enter these data, validate, and wait for a success message.</p>
-<p><img src=":/help/docs/img/connectstp4.png"></p>
+<p><img src=":/help/docs/img/connectstp4_2.png"></p>
 
 <p>If it does not work, this might be that you entered a wrong password or that the network is temporarily unreachable, or off range.</p>
 <p>Repeat the operation until it works (success message).</p>
@@ -49,4 +50,26 @@ Something like <font face="Courier New">192.168.1.18</font></p>
 
 <p>The best way for determining if you have mDNS or not is to try using wiflip_xyzt.local for the url and see if it works. If it does not, get back to the numerical values. 
 	mDNS usually comes with services such as Bonjour</p>
+
+<h3>Using apllication dialog "wifi config..."</h3>
+<p>The wifi config can also be made from the WiFlip appli. 
+   Connect your computer's wifi to the wiflip device Access point (WIFLIP_XYZT). Then, from Tools->Wifi config 
+   start the wifi config dialog box:</p>
+<p><img src=":/help/docs/img/connectapp1.png"></p>
+<p>Enter your network credentials and click "Set".</p>
+<p><img src=":/help/docs/img/connectapp2.png"></p>
+<p>You should get a success message indicating from which local url you can start the communication</p>
+<p>Reconnect the computer's wifi on your network and you can start the wiflip communication</p>
+
+<p>If necessary, you can change the port number of the connection (default 23). There is usually no reason to change it.
+   Don't modify the port number unless you are obliged to.
+</p>
+
+<p>If you change the port number, you will have to restart the device to take the modification into account.</p>
+<h3>Staying on the WiFlip AP</h3>
+<p>If you are in an area where no wifi is available, the pinball will still be fully operable as usual. Configuration
+is also doable (though it's not recommended). You can connect your computer on the wiflip device AP. The connection
+from the application is established by entering either 192.168.4.22 or wiflip_xyzt.local in the host field.
+</p>
+
 <p><span style="color: crimson; font-size: 24pt;">&#x26A0;</span> WiFlip only works on the 2.4GHz band. </p>

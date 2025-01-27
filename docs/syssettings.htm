@@ -2,21 +2,21 @@
 
 <h2>System settings</h2>
 <h3>Purpose</h3>
-<p>This dialog box allows you to alter the persistant data of the board. It is accessible from the menu Tools>System settings. 
+<p>This dialog box allows you to alter system persistant data of the board. It is accessible from the menu Tools>System settings. 
 	You must be connected through wifi (green connection led) before accessing data.</p>
-
+<p>System persistant data are special complementary features that are not available on the original Recel MPU. For example, one can
+   activate/deactivate a special coil protection supervisor, enable/disable the coin coil rejector, which is not useful for home usage of the pinball, etc... 
+   These features are described in details below.  </p>
 <h3>Using the System settings dialog box</h3>
 <p><img src=":/help/docs/img/system_settings.png"></p>
-<p>
-   Data is transferred instantly to the non volatile memory of the board, as soon as a checkbox
+<p>Data is transferred instantly to the non volatile memory of the board, as soon as a checkbox
    is ticked/unticked, or a new startup mode is selected. 
    Nevertheless, the data is not actually applied until a board reset is done 
    (either by the physical reset switch or with the soft reset button of the WiFlip app) 
 </p>
 
 <h2>Group box: Startup mode</h2>
-<p>
-	There are 3 radio buttons:
+<p>There are 3 radio buttons:
 	<ul>
 		<li><a href="#nm">Normal</a>: This is the exact way the original pinball starts.
 		</li>
@@ -48,18 +48,20 @@
 <h3 id="fm">Factory</h3>
 <p>In this mode, factory settings are applied. To be used on first power on of the mother board to set up its presets or when things went wrong, 
 	or when you are lost.
-    During next reset, this radio button will automatically switch to <strong>Normal</strong>.
-    You will stay in factory mode, until you change it for Normal, or Miniprinter.</p>
+    During next reset, this radio button will automatically switch to <strong>Normal</strong>.</p>
 <p>	When factory radio button is selected, option checkboxes are dimmed. You cannot change them.
 </p>
 <p>What is the factory settings state? When factory settings are applied, the options 
 	are all unticked, meaning that they are in the following state:</p>
 <p>Options:
 	<ul>
-		<li><a href="#cro">Coin rejector is active</a></li>
-		<li><a href="#sco">coil self test done</a>, potentially preventing the pinball to complete its test phase.</li>
-		<li><a href="#smo">Standalone switch matrix</a> is off. The MPU won't read switch states if not connected to a good mux board.</li>
-		<li><a href="#cco">Unprotect coil channels</a>. The complementary coil protection is activated.</li>
+		<li><a href="#cro">Coin rejector off</a>:  unticked, meaning that the coin rejector is active</li>
+		<li><a href="#sco">Skip coils self test</a>: unticked. Coils are tested against short/open circuits potentially preventing the pinball enter attract mode. Typically a probleem
+		if you want to test the MPU in standalone mode, with the mux board not attached to it.</li>
+		<li><a href="#smo">Standalone switch matrix</a>: unticked. Typically a probleem
+		if you want to test the MPU in standalone mode, with the mux board not attached to it. In such a situation, all switches are seen closed, because the 4 switch returns are left
+		unconnected, and from the MPU point of view, this is seen as "closed".</li>
+		<li><a href="#cco">Unprotect coil channels</a>, unticked. The complementary coil protection is activated by default.</li>
 	</ul>
 
 	
@@ -79,7 +81,7 @@
 <p>Options are actually applied after a reset.</p>
 <p>Options are:
 	<ul>
-		<li><a href="#cro">Coin rejector is active</a></li>
+		<li><a href="#cro">Coin rejector off</a></li>
 		<li><a href="#sco">Skip coils self test</a></li>
 		<li><a href="#smo">Standalone switch matrix</a></li>
 		<li><a href="#cco">Unprotect coil channels</a></li>

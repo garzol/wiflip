@@ -27,6 +27,7 @@ reprog
 bad format console
 socket timeout
 yoyo
+style
 '''
 
 import os, sys, time, struct
@@ -115,7 +116,7 @@ aboutContent = '''
 from version import prodvers
 print(prodvers)
 VERSION = ".".join(map(str, prodvers)) #"0.95"
-DATE    = "2024-12-11"
+DATE    = "2025-01-24"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
@@ -149,6 +150,7 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.toolButton.setText(u"\u2302") #petite maison
         
         self.ui.textBrowser.append('''
+<b>V0.97.0.1</b> - 2025-01-24<br>Bug fixes in game settings. Factory settings will dim option checkboxes.<br><br>
 <b>V0.96</b> - 2024-12-11<br>moved game binary files. Added RSSI display on compatible devices<br><br>
 <b>V0.95</b> - 2024-11-28<br>Version Signed.<br><br>
 <b>V0.94</b> - 2024-11-17<br>Bug fix on game settings for params such as handicaps 1 where user enters 10 instead of 00010 for example. <br>
@@ -3160,10 +3162,10 @@ QPushButton:pressed {
         
         if rg != cg:
             cmtTxt = f"Running factory game because crcs don't match. ({rg:04X}/{cg:04X})"
-            self.ui.label_txt_cg.setStyleSheet("QLabel { background-color : red; color : white; font: italic;}")
+            self.ui.label_txt_cg.setStyleSheet("QLabel { background-color : red; color : white; font: italic; padding-left : 5px;}")
         else:
             cmtTxt = ""
-            self.ui.label_txt_cg.setStyleSheet("QLabel { background-color : green; color : white; font: bold;}")
+            self.ui.label_txt_cg.setStyleSheet("QLabel { background-color : green; color : white; font: bold; padding-left : 5px;}")
             
 
         self.ui.label_crc_cg.setText(f"{cg:04X}")
@@ -3181,10 +3183,10 @@ QPushButton:pressed {
             
         if rr != cr:
             cmtTxt = f"Running factory BIOS because crcs don't match. ({rr:04X}/{cr:04X})"
-            self.ui.label_txt_cr.setStyleSheet("QLabel { background-color : red; color : white; font: italic;}")
+            self.ui.label_txt_cr.setStyleSheet("QLabel { background-color : red; color : white; font: italic; padding-left : 5px;}")
         else:
             cmtTxt = ""
-            self.ui.label_txt_cr.setStyleSheet("QLabel { background-color : green; color : white; font: bold;}")
+            self.ui.label_txt_cr.setStyleSheet("QLabel { background-color : green; color : white; font: bold; padding-left : 5px;}")
             
         self.ui.plainTextEdit.appendPlainText(cmtTxt)             
 
@@ -3655,7 +3657,7 @@ class Worker(QThread):
 
         self.connled.emit("green")
         #self.sock.settimeout(None)
-        self.sock.settimeout(2.0)
+        self.sock.settimeout(1.0)
 
         # ready_to_read, ready_to_write, in_error = \
         #                select.select(
@@ -3670,6 +3672,7 @@ class Worker(QThread):
         total_ns = 0
         while True:
             framesz = 0
+            received = None
             try:
                 received = self.sock.recv(1)
                 total_ns = 0
@@ -3690,7 +3693,7 @@ class Worker(QThread):
                 #                   10.0)
                 # print(ready_to_read, ready_to_write, in_error)
         
-                received = None
+                
                 
                 total_ns += 1
                 if total_ns > 100:
@@ -3700,7 +3703,7 @@ class Worker(QThread):
                 print("socket ConnectionResetError")
                 break
             except Exception as e:
-                print(f"unexpected exception when checking if a socket is closed {e}")
+                print(f"unexpected socket read exception: {e}")
                 break
             
             #print("received", received[0])
@@ -3739,7 +3742,7 @@ class Worker(QThread):
                     framesz = 4 #message from the modem one long representing rssi ('x' code 120)
                 
                 else:
-                    print("frame error")
+                    print(f"frame error: received={int.from_bytes(received):02X}")
                     framesz = 0
     
                       
