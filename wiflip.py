@@ -150,7 +150,7 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.toolButton.setText(u"\u2302") #petite maison
         
         self.ui.textBrowser.append('''
-<b>V0.97.0.1</b> - 2025-01-24<br>Bug fixes in game settings. Factory settings will dim option checkboxes.<br><br>
+<b>V0.97.0.1</b> - 2025-01-24<br>Bug fixes in game settings. <br>Factory settings will dim option checkboxes.<br><br>
 <b>V0.96</b> - 2024-12-11<br>moved game binary files. Added RSSI display on compatible devices<br><br>
 <b>V0.95</b> - 2024-11-28<br>Version Signed.<br><br>
 <b>V0.94</b> - 2024-11-17<br>Bug fix on game settings for params such as handicaps 1 where user enters 10 instead of 00010 for example. <br>
