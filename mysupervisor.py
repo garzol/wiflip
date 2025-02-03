@@ -6,7 +6,7 @@ Created on 29 jan 2025
 Lucida Grande L/71 L/51
 code rst 
 print(f"val
-message request is b'YQZ
+message request is b'YQZ setValue
 '''
 
 from functools import partial
@@ -69,6 +69,7 @@ class MySuperv(QtWidgets.QDialog):
             self.parent().thread.sock.send(b'YC123')
         except:
             pass
+
 
     def closeEvent(self, event):
         self.parent().resetAckSig.disconnect(self.catchrstSig)
@@ -168,6 +169,7 @@ class MySuperv(QtWidgets.QDialog):
         
         idx = 0
         for val in initval:
+            val = int(val)
             verticalLayout_6 = QtWidgets.QVBoxLayout()
             verticalLayout_6.setObjectName("verticalLayout_6"+name+str(idx))
             #label_IODIR = QtWidgets.QLabel(groupBox)
@@ -224,6 +226,7 @@ class MySuperv(QtWidgets.QDialog):
         
         idx = 0
         for val in initval:
+            val=int(val)
             verticalLayout_A0 = QtWidgets.QVBoxLayout()
             #verticalLayout_A0.setObjectName("verticalLayout_A0"+name+str(idx))
             # lcda0 = QtWidgets.QLCDNumber(groupBox)
@@ -287,13 +290,13 @@ class MySuperv(QtWidgets.QDialog):
             c1 = 0
 
         for (x,y,z) in self.gb[name]:
-            if y!=0:
+            if int(y)!=0:
                 if z.startswith("C/#"):
                     x.setPixmap(QtGui.QPixmap(":/x/ledon.png"))
                 else:
                     x.setPixmap(QtGui.QPixmap(":/x/ledgreen"))
             
-        vals = [x[1] for x in self.gb[name]]
+        vals = [int(x[1]) for x in self.gb[name]]
 
         cx = 0
         pw = 0
@@ -319,8 +322,9 @@ class MySuperv(QtWidgets.QDialog):
         ledit = self.gb[name]
         digit_idx = 0
         for val in ledit:
+            ivalue = int(val[1])
             c3 = 0
-            c2 = (val[1]&0x0F) + ((digit_idx<<4)&0xF0)
+            c2 = (ivalue&0x0F) + ((digit_idx<<4)&0xF0)
             self.superCmd(c1, c2, c3)
             digit_idx += 1
     
@@ -435,7 +439,7 @@ class MySuperv(QtWidgets.QDialog):
         if self.gb[name][idx][1] == 0:
             dontdothat = False
             if self.gb[name][idx][2].startswith("C/#"):
-                if self.parent().settings.value('superWarningTick', True):
+                if self.parent().settings.value('superWarningTick', "True") == "True":
                     cb  = QCheckBox("Show no more these alerts")
                     dlg = QMessageBox(self.parent())
                     dlg.setCheckBox(cb)
@@ -449,7 +453,7 @@ class MySuperv(QtWidgets.QDialog):
                     button = dlg.exec()
                     
                     if cb.checkState() == Qt.Checked:
-                        self.parent().settings.setValue('superWarningTick', False)   
+                        self.parent().settings.setValue('superWarningTick', "False")   
                         self.parent().settings.sync()
 
                     if button == 0:
@@ -517,18 +521,17 @@ class MySuperv(QtWidgets.QDialog):
                     a = [x[0] for x in self.gb[name]]
                     c = [x[2] for x in self.gb[name]]
                     self.gb[name] = list(zip(a,settingsinit,c))
-                        
                     if name in ["Display A","Display B"]:                    
                         for x,y,_ in self.gb[name]:
-                            x.setText(f"{y:01X}")
+                            iy = int(y)
+                            x.setText(f"{iy:01X}")
                     else:
                         for x,y,_ in self.gb[name]:
-                            if y!=0:
+                            if int(y) != 0:
                                 x.setPixmap(QtGui.QPixmap(":/x/ledon.png"))
                             else:
                                 x.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
                     self.setIODsp(name)
-
             
         elif button == self.applyAllBbox:
             for name in self.gb.keys():
@@ -545,9 +548,9 @@ class MySuperv(QtWidgets.QDialog):
                     for x,_,_ in self.gb[name]:
                         x.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
                     
-                self.parent().settings.setValue('super'+name, [x[1] for x in self.gb[name]])
+                self.parent().settings.setValue('super'+name, [int(x[1]) for x in self.gb[name]])
             self.parent().settings.sync()
-
+            
     def bboxAccepted(self):        
         #print("accepted")
         self.parent().resetAckSig.disconnect(self.catchrstSig)
@@ -593,7 +596,7 @@ class MySuperv(QtWidgets.QDialog):
         pass
 
     def optionWarning(self, msgTxt, yesTxt, noTxt=None):
-        if self.parent().settings.value('superWarningTick', True):
+        if self.parent().settings.value('superWarningTick', "True") == "True":
             cb  = QCheckBox("Show no more these alerts")
             dlg = QMessageBox(self.parent())
             dlg.setCheckBox(cb)
@@ -609,7 +612,7 @@ class MySuperv(QtWidgets.QDialog):
             button = dlg.exec()
             
             if cb.checkState() == Qt.Checked:
-                self.parent().settings.setValue('superWarningTick', False)   
+                self.parent().settings.setValue('superWarningTick', "False")   
                 self.parent().settings.sync()
             return button
         return None

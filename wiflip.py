@@ -2184,7 +2184,8 @@ QPushButton:pressed {
                                            QMessageBox.No, 
                                            QMessageBox.No)
         if reply == QMessageBox.Yes:
-            self.settings.setValue('superWarningTick', True)                        
+            #it is "True", not True, because on PC, qsettings returns strings in general (not always, though...)
+            self.settings.setValue('superWarningTick', "True")                        
             self.settings.sync()
             
         
