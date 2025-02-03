@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1229</width>
-    <height>786</height>
+    <width>1024</width>
+    <height>754</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -45,13 +45,13 @@
    <property name="minimumSize">
     <size>
      <width>502</width>
-     <height>480</height>
+     <height>400</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>700</width>
-     <height>520</height>
+     <width>520</width>
+     <height>800</height>
     </size>
    </property>
    <property name="baseSize">
@@ -88,8 +88,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>490</width>
-           <height>452</height>
+           <width>474</width>
+           <height>420</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -1137,7 +1137,7 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>338</width>
+          <width>274</width>
           <height>242</height>
          </rect>
         </property>
@@ -1245,7 +1245,7 @@ All closed switches noted by a code number in ball-in-play display.***
    <property name="minimumSize">
     <size>
      <width>134</width>
-     <height>120</height>
+     <height>96</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -1318,7 +1318,7 @@ All closed switches noted by a code number in ball-in-play display.***
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1229</width>
+     <width>1024</width>
      <height>24</height>
     </rect>
    </property>
@@ -1400,6 +1400,7 @@ All closed switches noted by a code number in ball-in-play display.***
     <addaction name="menuFaces"/>
     <addaction name="separator"/>
     <addaction name="actionClear_all_2"/>
+    <addaction name="actionRearm_warning_messages"/>
     <addaction name="separator"/>
     <addaction name="menuFont_size"/>
     <addaction name="separator"/>
@@ -1413,6 +1414,8 @@ All closed switches noted by a code number in ball-in-play display.***
     <addaction name="actionReprog"/>
     <addaction name="separator"/>
     <addaction name="actionSettings"/>
+    <addaction name="separator"/>
+    <addaction name="actionSupervision"/>
     <addaction name="separator"/>
     <addaction name="actionWifi_config"/>
    </widget>
@@ -1434,7 +1437,7 @@ All closed switches noted by a code number in ball-in-play display.***
    <property name="minimumSize">
     <size>
      <width>547</width>
-     <height>104</height>
+     <height>92</height>
     </size>
    </property>
    <property name="features">
@@ -1824,8 +1827,8 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>319</width>
-          <height>896</height>
+          <width>309</width>
+          <height>898</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_14">
@@ -1852,7 +1855,8 @@ All closed switches noted by a code number in ball-in-play display.***
           <widget class="QLabel" name="label_RSSI">
            <property name="font">
             <font>
-             <pointsize>11</pointsize>
+             <family>.AppleSystemUIFont</family>
+             <pointsize>12</pointsize>
              <italic>true</italic>
             </font>
            </property>
@@ -3046,6 +3050,12 @@ All closed switches noted by a code number in ball-in-play display.***
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_6">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="windowTitle">
     <string>B1 IOx state</string>
    </property>
@@ -3157,7 +3167,7 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>338</width>
+          <width>298</width>
           <height>510</height>
          </rect>
         </property>
@@ -3459,6 +3469,18 @@ All closed switches noted by a code number in ball-in-play display.***
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_7">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>98</width>
+     <height>120</height>
+    </size>
+   </property>
    <property name="windowTitle">
     <string>11696 GPIO Readings</string>
    </property>
@@ -3477,7 +3499,7 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>740</width>
+          <width>612</width>
           <height>83</height>
          </rect>
         </property>
@@ -3523,6 +3545,18 @@ All closed switches noted by a code number in ball-in-play display.***
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_9">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>98</width>
+     <height>60</height>
+    </size>
+   </property>
    <property name="windowTitle">
     <string>A1762 B2 Readings</string>
    </property>
@@ -3541,7 +3575,7 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>302</width>
+          <width>247</width>
           <height>72</height>
          </rect>
         </property>
@@ -3552,6 +3586,99 @@ All closed switches noted by a code number in ball-in-play display.***
             <string>GPIOs 0 to 15</string>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_16"/>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_10">
+   <property name="minimumSize">
+    <size>
+     <width>98</width>
+     <height>120</height>
+    </size>
+   </property>
+   <property name="floating">
+    <bool>false</bool>
+   </property>
+   <property name="windowTitle">
+    <string>Man. Supervision</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_10">
+    <layout class="QGridLayout" name="gridLayout_9">
+     <item row="0" column="0">
+      <widget class="QScrollArea" name="scrollArea_8">
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents_8">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>199</width>
+          <height>216</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_25">
+         <item>
+          <widget class="QGroupBox" name="groupBox_8">
+           <property name="title">
+            <string>Expert mode</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_10">
+            <item row="5" column="1">
+             <widget class="QLineEdit" name="lineEdit_c2"/>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="comboCmd1"/>
+            </item>
+            <item row="7" column="1">
+             <widget class="QLineEdit" name="lineEdit_c3"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_23">
+              <property name="text">
+               <string>CMD1</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_24">
+              <property name="text">
+               <string>CMD2</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0">
+             <widget class="QLabel" name="label_25">
+              <property name="text">
+               <string>CMD3</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="2">
+             <widget class="QPushButton" name="superButton">
+              <property name="text">
+               <string>Super</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="0" colspan="2">
+             <widget class="QPushButton" name="sendButton">
+              <property name="text">
+               <string>Request</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
@@ -3949,6 +4076,16 @@ All closed switches noted by a code number in ball-in-play display.***
   <action name="actionWifi_config">
    <property name="text">
     <string>Wifi config...</string>
+   </property>
+  </action>
+  <action name="actionSupervision">
+   <property name="text">
+    <string>Supervision...</string>
+   </property>
+  </action>
+  <action name="actionRearm_warning_messages">
+   <property name="text">
+    <string>Rearm warning messages</string>
    </property>
   </action>
  </widget>

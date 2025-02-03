@@ -30,6 +30,13 @@ yoyo
 style hostname
 http://garzol.free.fr/wiflip/wiflip0_97setup.exe
 rssi
+super
+papa myCmds settings _with_ack
+actionClear socket connected
+closeEvent
+Reset Ack Frame print(f"val
+message request is b'
+print
 '''
 
 import os, sys, time, struct
@@ -43,7 +50,6 @@ from builtins import staticmethod
 
 import requests
 from bs4 import BeautifulSoup
-from pickle import NONE
 
 sys.path += ['.']
 
@@ -86,6 +92,8 @@ from reprog   import Ui_ReprogDialog
 from gameset  import Ui_GameSettings
 from wificnf  import Ui_DialogWifiC 
 
+from mysupervisor import MySuperv
+
 from clklabel import ClkLabel
 
 import  options
@@ -118,7 +126,7 @@ aboutContent = '''
 from version import prodvers
 print(prodvers)
 VERSION = ".".join(map(str, prodvers)) #"0.95"
-DATE    = "2025-01-24"
+DATE    = "2025-02-02"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
@@ -152,6 +160,9 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.toolButton.setText(u"\u2302") #petite maison
         
         self.ui.textBrowser.append('''
+<b>V0.98.0.0</b> - 2025-02-02<br>Supervisor mode added for compatible devices<br>
+Font for RSSI corrected<br>
+Retry on connection losses improved<br>
 <b>V0.97.0.1</b> - 2025-01-24<br>Bug fixes in game settings. <br>Factory settings will dim option checkboxes.<br><br>
 <b>V0.96</b> - 2024-12-11<br>moved game binary files. Added RSSI display on compatible devices<br><br>
 <b>V0.95</b> - 2024-11-28<br>Version Signed.<br><br>
@@ -208,7 +219,7 @@ Added triple click on switches in order to close a switch permanently.
         self.ui.textBrowser_2.home()
         
     def closeEvent(self, event):
-        print("closing help")
+        #print("closing help")
         # Finally we pass the event to the class we inherit from. It can choose to accept or reject the event, but we don't need to deal with it ourselves
         self.parent().myhelp = None
         super(MyHelp, self).closeEvent(event)
@@ -272,7 +283,7 @@ class MyGameSet(QtWidgets.QDialog):
             #self.ui.treeWidget.setItemWidget(item, 1, widget)
         
     def pipo(self, ev):
-        print("zobi", ev)
+        print("pipo", ev)
       
 class MyReprog(QtWidgets.QDialog): 
     """
@@ -352,7 +363,7 @@ class MyReprog(QtWidgets.QDialog):
             print("read sys conf area failed")
 
     def catch128SigReprog(self, memTypStr):
-        print("catch128SigReprog memTyp", memTypStr)
+        #print("catch128SigReprog memTyp", memTypStr)
         papa = self.parent()
         
         #game
@@ -508,7 +519,7 @@ class MyReprog(QtWidgets.QDialog):
         self.timertout.start(5000)
         
     def timeoutt(self):
-        print("Time out")
+        #print("Time out")
         dlg = QMessageBox(self.parent())
         dlg.setWindowTitle("NAck")
         dlg.setText("Time out. No ack. Please, check connection")
@@ -700,7 +711,7 @@ class MyReprog(QtWidgets.QDialog):
             
         
     def catchFletcherSig(self, crc):
-        print("caught fletchers", f"{crc:04X}")
+        #print("caught fletchers", f"{crc:04X}")
         self.ui.label_crc_3.setText(f"{crc:04X}")
         
     def send_reqfletcher(self):
@@ -1133,7 +1144,7 @@ class MySettings(QtWidgets.QDialog):
         '''
         reset ack was received, we can continue
         '''
-        print("catchResetSig")
+        #print("catchResetSig")
         papa = self.parent()
         papa.resetAckSig.disconnect(self.catchResetSig)
         self.timertout2.stop()    
@@ -1212,10 +1223,10 @@ class MySettings(QtWidgets.QDialog):
                         #to be changed when ack will be implemented
                
     def cmdDone(self, memTypStr):
-        print("Sys settings cmdDone memTyp", memTypStr)
+        #print("Sys settings cmdDone memTyp", memTypStr)
         if memTypStr != "sys conf":
             return  
-        print("nvr read done")
+        #print("nvr read done")
         self.timertout.stop()
         papa = self.parent()
 
@@ -1244,7 +1255,7 @@ class MySettings(QtWidgets.QDialog):
             sc_formatString =  f"{papa.nvrlist[0][1]:02X}"+f"{papa.nvrlist[1][1]:02X}"+f"{papa.nvrlist[2][1]:02X}"
             sc_mode         =  papa.nvrlist[3][1]
             sc_flags1       =  papa.nvrlist[4][1]
-            print(f"sc_formatString: {sc_formatString} sc_mode: {sc_mode} sc_flags1: {sc_flags1:08b}")
+            #print(f"sc_formatString: {sc_formatString} sc_mode: {sc_mode} sc_flags1: {sc_flags1:08b}")
             self.ui.groupBox_2.setEnabled(True)
             if sc_mode == 1:
                 self.ui.radioButton_startmnprn.setChecked(True)
@@ -1281,7 +1292,7 @@ class MySettings(QtWidgets.QDialog):
         print("elapsed")
         
     def timeoutt(self):
-        print("Time out")
+        #print("Time out")
         dlg = QMessageBox(self.parent())
         dlg.setWindowTitle("Network")
         dlg.setText("Time out. Please, check your connection")
@@ -1318,6 +1329,7 @@ class MainForm(QtWidgets.QMainWindow):
     """
     fletcherSig   = pyqtSignal(int)
     resetAckSig   = pyqtSignal(int)
+    resetButSig   = pyqtSignal(int)
     read128Sig    = pyqtSignal(str)
     frameCntSig   = pyqtSignal(str)
     
@@ -1539,6 +1551,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.actionReprog.triggered.connect(self.launchReprog)
         self.ui.actionGame_settings.triggered.connect(self.launchGameSet)
         self.ui.actionWifi_config.triggered.connect(self.launchWifiC)
+        self.ui.actionSupervision.triggered.connect(self.launchSuperV)
 
         self.ui.actionSound.toggled.connect(self.toggleSound)
 
@@ -1599,8 +1612,14 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.pb_wmem.clicked.connect(self.send_reqwriteall)
         self.ui.pb_reset.clicked.connect(self.resetthepin)
 
-
-
+        #supervisor
+        self.ui.superButton.clicked.connect(self.superReq)
+        self.ui.sendButton.clicked.connect(self.superCmd)
+        self.mycmds = {"Display A":0x5A, "Display B":0x5B, 
+                       "B2":0x20,        "B3-AB":0x30, 
+                       "B3-CD":0x31,     "B3-EF":0x32}
+        self.ui.comboCmd1.addItems(self.mycmds.keys())
+        
         #improve look of buttons
         self.ui.pb_rmem.setStyleSheet(
             '''
@@ -1767,6 +1786,7 @@ QPushButton:pressed {
         #                        self.clearSettin)
         
         self.ui.actionClear_all_2.triggered.connect(self.clearSettin)
+        self.ui.actionRearm_warning_messages.triggered.connect(self.clearWarnMsg)
         
         #generic facelift menu generator
         self.actionGame = dict()
@@ -1817,7 +1837,7 @@ QPushButton:pressed {
         
         
     def text_changed(self, s):
-        print("change calque settings for:", s)
+        #print("change calque settings for:", s)
         self.settings.setValue('calqueStr', s)
 
         
@@ -1840,6 +1860,14 @@ QPushButton:pressed {
             self.thread.sock.send(b'YDXXX')
         except:
             pass
+
+    def superReq(self):
+        print("message request is", b'YCXQ0')
+        try:
+            self.thread.sock.send(b'YCXQ0')
+        except:
+            pass
+
         
     def resetthepin_with_ack(self):
         print("message request is", b'YCXQZ')
@@ -1958,7 +1986,7 @@ QPushButton:pressed {
         if typ == "A":
             self.frameCnt += 1
         
-        print("frame A cnt", self.frameCnt)
+        #print("frame A cnt", self.frameCnt)
         
         if self.frameCnt == 10:
             self.frameCntSig.disconnect()
@@ -2110,6 +2138,14 @@ QPushButton:pressed {
         #self.mysettings.show()
         self.mywificnf.exec()
 
+    def launchSuperV(self):
+        """
+        Starts the supervisor dialog box
+        """
+        self.mysuperv=MySuperv(self)
+        #self.mysettings.show()
+        self.mysuperv.exec()
+
     def actionGeneric(self, gamename):   
         self.face = gamename
         try:
@@ -2132,16 +2168,35 @@ QPushButton:pressed {
         #self.ui.label.setStyleSheet("background-image: url(images/1x/crazy_race_480.png);")
         self.ui.label.setPixmap(QtGui.QPixmap(":/x/images/1x/crazy_race_480.png"))
         self.face = 'crazy_race'
+
+
+        
+    def clearWarnMsg(self):
+        """
+        Called by a menu item of the menu bar
+        Used to reset the checkboxes of certain warning messages
+        """
+        #print("clearWarnMsg")
+        reply = QMessageBox.question(self, 
+                                           'Please confirm',
+                                           "You are about to rearm certain warning alert boxes. Are you sure ?", 
+                                           QMessageBox.Yes | 
+                                           QMessageBox.No, 
+                                           QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.settings.setValue('superWarningTick', True)                        
+            self.settings.sync()
+            
         
     def clearSettin(self):
         """
         Called by a menu item of the menu bar
         Used to reset windowing to factory default
         """
-        print("clearsettings")
+        #print("clearsettings")
         reply = QMessageBox.question(self, 
                                            'Please confirm',
-                                           "You are about to clear your window settings. Are you sure ?", 
+                                           "You are about to clear your window layout. Are you sure ?", 
                                            QMessageBox.Yes | 
                                            QMessageBox.No, 
                                            QMessageBox.No)
@@ -2231,7 +2286,7 @@ QPushButton:pressed {
         
     def send_nvrdump(self): 
         self.linenb = 0
-        print("send command R")
+        #print("send command R")
         try:
             self.thread.sock.send(b' R')
         except:
@@ -2292,7 +2347,36 @@ QPushButton:pressed {
                     self.thread.sock.send(b'YW'+memtyp.to_bytes(1, byteorder='big')+baddr+bbyt)
                 except:
                     pass
-                
+
+
+    def superCmd(self):
+        
+        try:
+            c1byte = self.mycmds[self.ui.comboCmd1.currentText()]
+            #c1byte = int(self.ui.lineEdit_c1.text(), 0)&0xFF
+        except:
+            c1byte = 0
+        try:
+            c2byte = int(self.ui.lineEdit_c2.text(), 0)&0xFF
+        except:
+            c2byte = 0
+        try:
+            c3byte = int(self.ui.lineEdit_c3.text(), 0)&0xFF
+        except:
+            c3byte = 0
+        
+        c1byte = c1byte.to_bytes(1, byteorder='big')   
+        c2byte = c2byte.to_bytes(1, byteorder='big')   
+        c3byte = c3byte.to_bytes(1, byteorder='big')   
+        print("message request is", b'YQ'+c1byte+c2byte+c3byte)
+
+        try:
+            self.thread.sock.send(b'YQ'+c1byte+c2byte+c3byte)
+        except:
+            pass
+        
+
+                        
     def send_reqwrbyte(self):
         self.linenb = 0
         if   self.ui.rb_sysconf.isChecked():
@@ -2449,11 +2533,14 @@ QPushButton:pressed {
             self.thread.finished.connect(self.pipo)
             self.thread.output.connect(self.cmdMng)
             self.thread.connled.connect(self.connled)
+            self.thread.commErr.connect(self.commError)
             self.thread.workerErr.connect(self.work_error_received)
             self.thread.start()
     
 
     def work_error_received(self, str):
+        self.thread.commErr.disconnect(self.commError)
+        self.thread.workerErr.disconnect(self.work_error_received)
         dlg = QMessageBox(self.parent())
         dlg.setWindowTitle("Connection error")
         dlg.setText(str+"\n"+ "Please, check your connection parameters, restart the device and try again.")
@@ -2462,6 +2549,13 @@ QPushButton:pressed {
         button = dlg.exec()
         #exit(0)
         self.connled("closing")
+
+    def commError(self, msgStr):
+        self.write2Console(f"{msgStr}\r\n", insertMode=True)
+        # if msgStr == f"connection lost. Broken pipe. Retry...":
+        #     self.thread.commErr.disconnect(self.commError)
+        #     self.thread.workerErr.disconnect(self.work_error_received)
+        #     self.connect()
 
     def connled(self, state):
         if state == "green":
@@ -3080,6 +3174,13 @@ QPushButton:pressed {
                 #self.write2Console(f"diag {data[0]:08b} {data[1]:08b} {data[2]:08b}{data[3]:08b}", insertMode=True)
                 self.msg68 = f"diag {data[0]:08b} {data[1]:08b} {data[2]:08b}{data[3]:08b}"
 
+            elif typ == 86:  #'V' 2 bytes
+                #data[0] is superMode&010000
+                #data[1] is always 0, or 255 after pressing reset button
+                if data[1] == 255:
+                    self.write2Console(f"Reset Switch pressed: {data[0]:02X} / {data[1]:02X}\r\n", insertMode=True)
+                    self.resetButSig.emit(data[0])
+
             elif typ == 69:  #'E'
                 #print(str(data))
                 self.write2Console(f"dip switches: {data[0]:08b}\r\n", insertMode=True)
@@ -3581,12 +3682,17 @@ QPushButton:pressed {
             self.mled[i].setObjectName(f"matchled_{i}")
 
 
-
-                    
+#########################
+#
+#
+#Worker is the place where the comm is
+#
+#########################
 class Worker(QThread):
     output    = pyqtSignal(bytearray, int)
     connled   = pyqtSignal(str)
     workerErr = pyqtSignal(str)
+    commErr   = pyqtSignal(str)
     def __init__(self, parent = None, HOST="192.168.1.26", PORT=23):
         QThread.__init__(self, parent)
         self.exiting = False
@@ -3621,226 +3727,203 @@ class Worker(QThread):
             self.sock.shutdown(socket.SHUT_RDWR)
         except:
             pass
-        self.sock.close()
+        try:
+            self.sock.close()
+        except:
+            pass
         
     def run(self):        
         # Note: This is never called directly. It is called by Qt once the
         # thread environment has been set up.
         
-        print("Hi, connection to", (self.HOST, self.PORT))
-
         while True:
-            self.connled.emit("yellow")
-
-            try:
-                self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self.sock.settimeout(8.0)
-                #self.sock.setblocking(False)
-                
-                self.sock.connect((self.HOST, int(self.PORT)))
-                #self.sock.connect(("WiFlip_iface", int(self.PORT)))
-   
-                break
-            except ConnectionRefusedError:
-                print("Connection refused. Abort")
-                self.workerErr.emit("Connection refused.")
-                return 
-            
-            except Exception as e:
-                print("connection delayed")
-                print(e)
-                print("waiting for host...")
-                
-                #self.connled.emit("grey")
-                time.sleep(2)
-            
-        print("connected")
-        try:
-            print("hostname ", socket.gethostname())
-        except Exception as e:
-            print(f"error hostname call {e}")
-            
-        self.connled.emit("green")
-        #self.sock.settimeout(None)
-        self.sock.settimeout(1.0)
-
-        # ready_to_read, ready_to_write, in_error = \
-        #                select.select(
-        #                   [self.sock],
-        #                   [self.sock],
-        #                   [self.sock],
-        #                   10.0)
-        # print(ready_to_read, ready_to_write, in_error)
-        
-        # Receive data from the server and shut down
-        
-        total_ns = 0
-        while True:
-            framesz = 0
-            received = None
-            try:
-                received = self.sock.recv(1)
-                total_ns = 0
-            # except socket.error as e:
-            #     print(f"socket read error 1: {e}")
-            #     break
-            except socket.timeout as e:
-                print(f"socket timeout: {e}")
-                #let's check if connection is still there
-                #ask for dip switches b'YDXXX'
-                #self.sock.settimeout(1.0)
-                
-                # ready_to_read, ready_to_write, in_error = \
-                #                select.select(
-                #                   [self.sock],
-                #                   [self.sock],
-                #                   [self.sock],
-                #                   10.0)
-                # print(ready_to_read, ready_to_write, in_error)
-        
-                
-                
-                total_ns += 1
-                if total_ns > 100:
-                    print(f"broken pipe. Connection lost")
-                    break
-            except ConnectionResetError:
-                print("socket ConnectionResetError")
-                break
-            except Exception as e:
-                print(f"unexpected socket read exception: {e}")
-                break
-            
-            #print("received", received[0])
-            if received is not None:
-                if received == b'A' or received == b'B':
-                    framesz = 9
-                elif received == b'C':
-                    #3 bytes
-                    framesz = 3
-                elif received == b'D':
-                    framesz = 4
-                elif received == b'E':
-                    framesz = 9
-                elif received == b'Y':   #IO status 7 bytes Oh, Ol, Ih, Il gpioEF, gpioCD, gpioAB
-                    framesz = 9
-                elif received == b'S':
-                    framesz = 5
-                elif received == b'T':
-                    framesz = 5
-                elif received == b'G':
-                    framesz = 5
-                elif received == b'Q':
-                    framesz = 1024
-                elif received == b'R':
-                    framesz = 128
-                elif received == b'N':   #4E
-                    framesz = 256
-                elif received == b'P':
-                    #print("P")
-                    framesz = 32 #32
-                elif received == b'Z':
-                    framesz = 2 #crc
-                elif received == b'@':
-                    framesz = 2 #reset ack frame            
-                elif received == b'x':
-                    framesz = 4 #message from the modem one long representing rssi ('x' code 120)
-                
-                else:
-                    try:
-                        #byteorder is explicitly required because of pyinstaller
-                        #otherwise it hangs up
-                        print(f"frame error: received={int.from_bytes(received, byteorder='big'):02X}")
-                    except Exception as e:
-                        print(f"unexpected  exception: {e}")
-                        print(f"frame error: received={received}")
-                        
-                    framesz = 0
+            print("Hi, connection to", (self.HOST, self.PORT))
+            #brutUrl = socket.gethostbyname(self.HOST)
+            while True:
+                self.connled.emit("yellow")
     
-                      
-                if  framesz > 0:               
-                    tsz = framesz
-                    msg = b''
-                    while tsz > 0:
-                        try:
-                            msg += self.sock.recv(1)  #(tsz)
-                        except ConnectionResetError:
-                            print("socket read error 2 ConnectionResetError")
-                            # self.sock.close()
-                            #
-                            # self.connled.emit("grey")
-                            # return
-                        except Exception as e:
-                            print(f"socket read error 2: {e}")
-                            #self.sock.settimeout(1.0)
-                            break
-                        lm  = len(msg)
-                        #print("lm", framesz, lm, msg)
-                        if lm == framesz:
-                            #print(f"message ack {received} : {msg[0]} {msg[1]} ")
-                            #self.ui.lcdNumber_1.value = 345
-                            self.output.emit(bytearray(msg), received[0])
-                            break
-                        #tsz -= lm
-                        tsz -= 1
-                    # if received == b'R':
-                    #     print(received, msg)
-                else:
-                    pass
-                    #print(received)
-            else:
-                print("received is None")
-        try:
-            self.sock.shutdown(socket.SHUT_RDWR)
-        except: 
-            pass
-        
-        self.sock.close()
-        
-        self.connled.emit("grey")
-        
-        
-        # self.sock.listen()
-        # conn, addr = self.sock.accept()
-        # with conn:
-        #     self.output.emit(bytearray(f"Connected by {addr}".encode("ascii")), 0)
-        #     chunk = list()
-        #     while True:
-        #         try:
-        #             data = conn.recv(1024)
-        #             #data = conn.recvfrom(5)
-        #         except:
-        #             data = None
-        #             break
-        #         if not data:
-        #             break
-        #         buf_ptr=0
-        #         while buf_ptr<len(data):
-        #             while len(chunk) < MSGLEN:
-        #                 resteafaire = MSGLEN - len(chunk)
-        #                 restealire  = len(data) - buf_ptr
-        #                 if restealire <= 0:
-        #                     break
-        #                 #handlin desync cases
-        #                 if not chunk:
-        #                     if data[buf_ptr] != 49: #'1' is code of start frame
-        #                         print("sync", data[buf_ptr])
-        #                         buf_ptr += 1
-        #                         break
-        #                 nb2add = min(resteafaire, restealire)
-        #                 chunk += data[buf_ptr:buf_ptr+nb2add]
-        #                 buf_ptr += nb2add
-        #
-        #             if len(chunk) >= MSGLEN:
-        #                 self.output.emit(bytearray(chunk), 1) 
-        #                 print("received chunk", chunk)
-        #                 chunk = list()
-        #
-        #
-        #         #conn.sendall(data)            
-        # print("pipi")
-
+                try:
+                    self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    self.sock.settimeout(8.0)
+                    #self.sock.setblocking(False)
+                    print("Trying", (self.HOST, self.PORT))
+                    
+                    self.sock.connect((self.HOST, int(self.PORT)))
+                    #self.sock.bind((self.HOST, int(self.PORT)))
+                    #self.sock.connect(("WiFlip_iface", int(self.PORT)))
+                    break
+                except ConnectionRefusedError:
+                    print("Connection refused. Abort")
+                    self.workerErr.emit("Connection refused.")
+                    
+                    return 
+                
+                except Exception as e:
+                    print("connection delayed")
+                    print(e)
+                    print("waiting for host...")
+                    
+                    #self.connled.emit("grey")
+                    time.sleep(2)
+    
+            self.commErr.emit(f"socket connected.")
+                
+            print("connected")
+            try:
+                print("hostname ", socket.gethostname())
+            except Exception as e:
+                print(f"error hostname call {e}")
+                
+            self.connled.emit("green")
+            #self.sock.settimeout(None)
+            self.sock.settimeout(1.0)
+    
+            # ready_to_read, ready_to_write, in_error = \
+            #                select.select(
+            #                   [self.sock],
+            #                   [self.sock],
+            #                   [self.sock],
+            #                   10.0)
+            # print(ready_to_read, ready_to_write, in_error)
             
+            # Receive data from the server and shut down
+            
+            total_ns = 0
+            while True:
+                framesz = 0
+                received = None
+                try:
+                    received = self.sock.recv(1)
+                    total_ns = 0
+                # except socket.error as e:
+                #     print(f"socket read error 1: {e}")
+                #     break
+                except socket.timeout as e:
+                    print(f"socket timeout: {e}")
+                    #let's check if connection is still there
+                    #ask for dip switches b'YDXXX'
+                    #self.sock.settimeout(1.0)
+                    self.commErr.emit(f"socket timeout: {e}. Retry {total_ns}/4")
+                    # ready_to_read, ready_to_write, in_error = \
+                    #                select.select(
+                    #                   [self.sock],
+                    #                   [self.sock],
+                    #                   [self.sock],
+                    #                   10.0)
+                    # print(ready_to_read, ready_to_write, in_error)
+            
+                    
+                    
+                    total_ns += 1
+                    if total_ns > 4:
+                        print(f"broken pipe. Connection lost")
+                        break
+                except ConnectionResetError:
+                    print("socket ConnectionResetError")
+                    break
+                except Exception as e:
+                    print(f"unexpected socket read exception: {e}")
+                    break
+                
+                #print("received", received[0])
+                if received is not None:
+                    if received == b'A' or received == b'B':
+                        framesz = 9
+                    elif received == b'C':
+                        #3 bytes
+                        framesz = 3
+                    elif received == b'D':
+                        framesz = 4
+                    elif received == b'E':
+                        framesz = 9
+                    elif received == b'G':
+                        framesz = 5
+                    elif received == b'N':   #4E
+                        framesz = 256
+                    elif received == b'P':
+                        #print("P")
+                        framesz = 32 #32
+                    elif received == b'Q':
+                        framesz = 1024
+                    elif received == b'R':
+                        framesz = 128
+                    elif received == b'S':
+                        framesz = 5
+                    elif received == b'T':
+                        framesz = 5
+                    elif received == b'V':   #86 (0x56)
+                        framesz = 2
+                    elif received == b'Y':   #IO status 7 bytes Oh, Ol, Ih, Il gpioEF, gpioCD, gpioAB
+                        framesz = 9
+                    elif received == b'Z':
+                        framesz = 2 #crc
+                    elif received == b'@':
+                        framesz = 2 #reset ack frame            
+                    elif received == b'x':
+                        framesz = 4 #message from the modem one long representing rssi ('x' code 120)
+                    
+                    else:
+                        try:
+                            #byteorder is explicitly required because of pyinstaller
+                            #otherwise it hangs up
+                            print(f"frame error: received={int.from_bytes(received, byteorder='big'):02X}")
+                        except Exception as e:
+                            print(f"unexpected  exception: {e}")
+                            print(f"frame error: received={received}")
+                            
+                        framesz = 0
+        
+                          
+                    if  framesz > 0:               
+                        tsz = framesz
+                        msg = b''
+                        while tsz > 0:
+                            try:
+                                msg += self.sock.recv(1)  #(tsz)
+                                total_ns2 = 0
+                            except ConnectionResetError:
+                                print("socket read error 2 ConnectionResetError")
+                                # self.sock.close()
+                                #
+                                # self.connled.emit("grey")
+                                # return
+                            except Exception as e:
+                                print(f"socket read error 2: {e}")
+                                #self.commErr.emit(f"socket timeout inside: {e}. Retry {total_ns2}/4")
+                                #self.sock.settimeout(1.0)
+                                total_ns2 += 1
+                                if total_ns2>4:
+                                    break
+                            lm  = len(msg)
+                            #print("lm", framesz, lm, msg)
+                            if lm == framesz:
+                                #print(f"message ack {received} : {msg[0]} {msg[1]} ")
+                                #self.ui.lcdNumber_1.value = 345
+                                self.output.emit(bytearray(msg), received[0])
+                                break
+                            #tsz -= lm
+                            tsz -= 1
+                        # if received == b'R':
+                        #     print(received, msg)
+                    else:
+                        pass
+                        #print(received)
+                else:
+                    print("received is None")
+            # try:
+            #     self.sock.shutdown(socket.SHUT_RDWR)
+            # except: 
+            #     pass
+            
+            self.sock.close()
+            print("socket closed in loop")
+            
+            #self.connled.emit("grey")
+            self.connled.emit("yellow")
+            
+            self.commErr.emit(f"connection lost. Broken pipe. Retry...")
+            
+
 
 class MSCGui:
     
