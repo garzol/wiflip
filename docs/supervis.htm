@@ -1,0 +1,66 @@
+
+<h2>Supervisor mode</h2>
+<h3>Purpose of supervisor</h3>
+<p>
+In supervisor mode, you'll take full control of the pinball: Displays, lamps, and solenoids. 
+</p>
+<h4>Usage</h4>
+
+<p>
+To open the supervisor dialog box, select "Tools->Supervisor..." from the menu bar. Opening the dialog box won't change
+the current mode, Hence, at the first opening the selected mode is the normal mode. To switch to supervisor mode and get control on all outputs
+you'll have to click the red button labelled "Super". The led on the top right of the window then turns red, indicating you have 
+the control. At this time, lamps and coils are all turned off for security. The GUI shows in yellow all the outputs that will be activated when
+you click "Apply" on the corresponding bank or "Apply all" for applying your set-up on all banks. 
+</p>
+<p>
+In parallel, display control is immediately taken over. For example, if your setup for display A is something like "01234...",
+you'll see display of player 2 displaying 012340. 
+</p>
+
+
+<p>
+What we call Display A0..15 and Display B0..15, is actually the internal shift register of the 10788 PPS4 GKPD chip.
+There is a simple correspondance between the digits position and the corresponding internal value.
+</p>
+<h4 id="cssm">Setup management</h4>
+ <h5>Restore defaults</h5>
+ <p>
+The previous setup is erased and replaced with default values. Default values are "F" everywhere for the display and
+they are all outputs off.
+</p>
+     
+ <h5>Reset</h5>
+ <p>
+Default values are applied to the outputs and displays. The setup is untouched. Recall will reapply them.
+</p>
+     
+ <h5>Recall</h5>
+ <p>
+With Recall, you applied your previous saved setup.
+</p>
+     
+<h5>Save</h5>
+ <p>
+Save current commands as new setup.
+</p>
+     
+<h5>Apply all</h5>
+ <p>
+Apply all the current commands.
+</p>
+     
+<h5>Close</h5>
+ <p>
+Close the dialog box. The outputs will stay as they were applied. To get back to normal mode, it is necessary to reopen the dialog box
+and click "Leave control".
+</p>
+     
+     
+     
+     
+</div>
+
+
+
+        

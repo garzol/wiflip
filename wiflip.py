@@ -36,7 +36,8 @@ actionClear socket connected
 closeEvent
 Reset Ack Frame print(f"val
 message request is b'
-print
+print Dump Game PROM pushButton_7
+Ack received
 '''
 
 import os, sys, time, struct
@@ -1575,10 +1576,15 @@ class MainForm(QtWidgets.QMainWindow):
         #dump button
         self.ui.pushButton_2.clicked.connect(self.send_dump)
         #game prom dump button
-        self.ui.pushButton_7.clicked.connect(self.send_dump_game_prom)
-        self.ui.pushButton_8.clicked.connect(self.send_dump_A1762_prom)
+        # self.ui.pushButton_7.clicked.connect(self.send_dump_game_prom)
+        # self.ui.pushButton_8.clicked.connect(self.send_dump_A1762_prom)
         self.ui.pushButton_9.clicked.connect(self.resetthepin_with_ack)
- 
+        
+        self.ui.pushButton_7.clicked.connect(self.resetthepin)
+        self.ui.pushButton_8.clicked.connect(self.send_dump_A1762_prom)
+        self.ui.pushButton_8.setDisabled(True)
+        self.ui.pushButton_7.setText("Reset Pinball w/o ack")
+        self.ui.pushButton_7.setToolTip("Reset w/o ack is for early versions of devices, where ack was not yet implemented")
 
 
         #The hard way
@@ -2989,7 +2995,7 @@ QPushButton:pressed {
             elif typ == 64: #40 '@' reset ack frame
                 ident = data[0]
                 rtype = data[1]
-                self.write2Console(f"Reset Ack Frame received: Ident: {ident:02X}. Reset Type: {rtype:02X}\r\n")
+                #self.write2Console(f"Reset Ack Frame received: Ident: {ident:02X}. Reset Type: {rtype:02X}\r\n")
                 self.resetAckSig.emit(rtype)
                     
             elif typ == 67:  #'C'

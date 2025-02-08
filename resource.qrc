@@ -44,6 +44,7 @@
     <file>alarm1-b238.wav</file>
   </qresource>
   <qresource prefix="help">
+    <file>docs/supervis.htm</file>
     <file>docs/img/connectapp1.png</file>
     <file>docs/img/connectapp2.png</file>
     <file>docs/img/connectstp4_2.png</file>
