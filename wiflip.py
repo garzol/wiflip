@@ -37,7 +37,7 @@ closeEvent
 Reset Ack Frame print(f"val
 message request is b'
 print Dump Game PROM pushButton_7
-Ack received
+Ack received DIP
 '''
 
 import os, sys, time, struct
@@ -1581,12 +1581,14 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.pushButton_9.clicked.connect(self.resetthepin_with_ack)
         
         self.ui.pushButton_7.clicked.connect(self.resetthepin)
-        self.ui.pushButton_8.clicked.connect(self.send_dump_A1762_prom)
-        self.ui.pushButton_8.setDisabled(True)
+        # self.ui.pushButton_8.clicked.connect(self.send_dump_A1762_prom)
+        # self.ui.pushButton_8.setDisabled(True)
         self.ui.pushButton_7.setText("Reset Pinball w/o ack")
         self.ui.pushButton_7.setToolTip("Reset w/o ack is for early versions of devices, where ack was not yet implemented")
 
-
+        self.ui.pushButton_8.clicked.connect(self.reqswVers)
+        self.ui.pushButton_8.setText("Get Device SW UUID")
+        
         #The hard way
         self.pushButton_10 = QtWidgets.QPushButton(self.ui.scrollAreaWidgetContents_3)
         self.pushButton_10.setObjectName("pushButton_10")
@@ -1864,6 +1866,13 @@ QPushButton:pressed {
         print("message request is", b'YDXXX')
         try:
             self.thread.sock.send(b'YDXXX')
+        except:
+            pass
+
+    def reqswVers(self):
+        print("message request is", b'YDDXX')
+        try:
+            self.thread.sock.send(b'YDDXX')
         except:
             pass
 
