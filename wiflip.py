@@ -3958,13 +3958,13 @@ class MSCGui:
         print(argv)
         app = QtWidgets.QApplication(argv)
         
-        pixmap = QtGui.QPixmap(":/x/images/panthera-bg.png")
-        splash = QtWidgets.QSplashScreen(pixmap)
-        splash.show()
-        app.processEvents()
-        time.sleep(4)
+        # pixmap = QtGui.QPixmap(":/x/images/panthera-bg.png")
+        # splash = QtWidgets.QSplashScreen(pixmap)
+        # splash.show()
+        # app.processEvents()
+        # time.sleep(4)
         self.showGui()
-        splash.finish(self.mainWindow)
+        #splash.finish(self.mainWindow)
 
         app.exec_()
 
