@@ -127,7 +127,7 @@ aboutContent = '''
 from version import prodvers
 print(prodvers)
 VERSION = ".".join(map(str, prodvers)) #"0.95"
-DATE    = "2025-02-02"
+DATE    = "2025-02-18"
 
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
@@ -3958,8 +3958,14 @@ class MSCGui:
         print(argv)
         app = QtWidgets.QApplication(argv)
         
-
+        pixmap = QtGui.QPixmap(":/x/images/panthera-bg.png")
+        splash = QtWidgets.QSplashScreen(pixmap)
+        splash.show()
+        app.processEvents()
+        time.sleep(4)
         self.showGui()
+        splash.finish(self.mainWindow)
+
         app.exec_()
 
     def showGui(self, parent=None):
