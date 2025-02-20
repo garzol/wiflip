@@ -129,6 +129,10 @@ print(prodvers)
 VERSION = ".".join(map(str, prodvers)) #"0.95"
 DATE    = "2025-02-18"
 
+__version__ = VERSION
+__author__ = 'garzol'
+__credits__ = 'AA55 Consulting'
+
 #Here is the about dialog box
 class MyAbout(QtWidgets.QDialog):
     """

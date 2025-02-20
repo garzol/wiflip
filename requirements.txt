@@ -1,6 +1,5 @@
-
 pyqt5==5.15.11
-
-
+requests
+bs4
 
 

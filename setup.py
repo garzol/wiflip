@@ -1,20 +1,28 @@
-import sys
-from cx_Freeze import setup, Executable
-
-# Dependencies are automatically detected, but it might need fine tuning.
-build_exe_options = {
-    "excludes": ["tkinter", "unittest"],
-}
-
-# base="Win32GUI" should be used only for Windows GUI app
-base = "Win32GUI" if sys.platform == "win32" else None
-
-bdist_dmg_options = {'volume_label': 'K'}
+from setuptools import setup
 
 setup(
-    name="wiflip",
-    version="0.1",
-    description="My wiflip application!",
-    options={"build_exe": build_exe_options, 'bdist_dmg': bdist_dmg_options},
-    executables=[Executable("bibou2.py", base=base)],
+    name='wiflip',
+    version='0.98.1.0',    
+    description='WiFlip in a package',
+    url='https://github.com/garzol/wiflip.git',
+    author='garzol',
+    author_email='garzol@free.fr',
+    license='BSD 2-clause',
+    packages=['wiflip'],
+    install_requires=['PyQt5',
+                      'bs4',   
+                      'requests'                  
+                      ],
+
+    classifiers=[
+        'Development Status :: 1 - Planning',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: BSD License',  
+        'Operating System :: POSIX :: Linux',        
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+    ],
 )
