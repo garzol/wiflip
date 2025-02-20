@@ -16,7 +16,10 @@ Additional protections are available for coils.
 # Prerequisites  
 ## Python libraries  
 1. pyqt5==5.15.11
+2. requests
+3. bs4
 
+   
 # Make an executable with pyinstaller  
 That's as easy as bonjour:  
 `pyinstaller wiflip.spec`
