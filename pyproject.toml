@@ -1,6 +1,6 @@
 [project]
 name = "WiFlip"
-version = "0.98.1"
+version = "0.98.2"
 authors = [
   { name="Garzol", email="garzol@free.fr" },
 ]
@@ -18,7 +18,8 @@ dependencies = [
   "bs4",
 ]
 
-
+[project.scripts]
+wiflip-zero = "wiflip.wiflip:main"
 
 [project.urls]
 Homepage = "https://github.com/garzol/wiflip"

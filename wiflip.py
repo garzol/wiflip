@@ -43,7 +43,7 @@ Ack received DIP
 import os, sys, time, struct
 import select
 
-import resource_rc
+#import resource_rc
 
 from time import sleep
 from functools import partial
@@ -128,6 +128,7 @@ from version import prodvers
 print(prodvers)
 VERSION = ".".join(map(str, prodvers)) #"0.95"
 DATE    = "2025-02-18"
+print("release date", DATE)
 
 __version__ = VERSION
 __author__ = 'garzol'
@@ -4050,7 +4051,7 @@ def afflcdi(afftab, data):
     
     
     
-            
+print("__name__:", __name__)            
 if __name__ == '__main__':
     MSCGui().runApp(argv=sys.argv)
 
