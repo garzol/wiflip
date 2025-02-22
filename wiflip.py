@@ -95,7 +95,7 @@ from wificnf  import Ui_DialogWifiC
 
 from mysupervisor import MySuperv
 
-from clklabel import ClkLabel
+from    clklabel import ClkLabel
 
 import  options
 
@@ -127,7 +127,7 @@ aboutContent = '''
 from version import prodvers
 print(prodvers)
 VERSION = ".".join(map(str, prodvers)) #"0.95"
-DATE    = "2025-02-18"
+DATE    = "2025-02-22"
 print("release date", DATE)
 
 __version__ = VERSION
@@ -166,6 +166,7 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.toolButton.setText(u"\u2302") #petite maison
         
         self.ui.textBrowser.append('''
+<b>V0.98.7.0</b> - 2025-02-22<br>Internal cleanings of the package to prepare it for pypi<br><br>
 <b>V0.98.0.0</b> - 2025-02-02<br>Supervisor mode added for compatible devices<br>
 Font for RSSI corrected<br>
 Retry on connection losses improved<br>
@@ -4050,9 +4051,10 @@ def afflcdi(afftab, data):
     
     
     
-    
-print("__name__:", __name__)            
-if __name__ == '__main__':
-    MSCGui().runApp(argv=sys.argv)
+#
+# print("__name__:", __name__)            
+# if __name__ == '__main__':
+#     MSCGui().runApp(argv=sys.argv)
+#
 
 

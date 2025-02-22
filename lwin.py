@@ -2070,4 +2070,4 @@ class Ui_MainWindow(object):
         self.actionWifi_config.setText(_translate("MainWindow", "Wifi config..."))
         self.actionSupervision.setText(_translate("MainWindow", "Supervision..."))
         self.actionRearm_warning_messages.setText(_translate("MainWindow", "Rearm warning messages"))
-import resource_rc
+#import resource_rc
