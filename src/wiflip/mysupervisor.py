@@ -15,9 +15,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QDialogButtonBox, QMessageBox, QCheckBox, QPushButton
 
-from clklabel import ClkLabel
+from .clklabel import ClkLabel
 
-from supervis  import Ui_SupervisDialog 
+from .supervis  import Ui_SupervisDialog 
 from PyQt5.Qt import QPixmap
 
 

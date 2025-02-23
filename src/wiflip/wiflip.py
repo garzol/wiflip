@@ -30,7 +30,7 @@ yoyo
 style hostname
 http://garzol.free.fr/wiflip/wiflip0_97setup.exe
 rssi
-super
+super disconnect
 papa myCmds settings _with_ack
 actionClear socket connected
 closeEvent
@@ -54,7 +54,9 @@ from bs4 import BeautifulSoup
 
 sys.path += ['.']
 
-from fletcher import Fletcher
+#print("wiflip.py name, package", __name__,__package__)
+#print("path", sys.path)
+    
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
@@ -83,23 +85,42 @@ import socket
 #import OpenGL.platform.win32
 #from OpenGL import *
 #from OpenGL import GL 
+from .fletcher import Fletcher
+from .lwin     import Ui_MainWindow
 
-from lwin     import Ui_MainWindow
+from .about    import Ui_AboutDialog
+from .help     import Ui_HelpDialog
+from .settings import Ui_DialogSettings
+from .reprog   import Ui_ReprogDialog
+from .gameset  import Ui_GameSettings
+from .wificnf  import Ui_DialogWifiC 
 
-from about    import Ui_AboutDialog
-from help     import Ui_HelpDialog
-from settings import Ui_DialogSettings
-from reprog   import Ui_ReprogDialog
-from gameset  import Ui_GameSettings
-from wificnf  import Ui_DialogWifiC 
+from .mysupervisor import MySuperv
 
-from mysupervisor import MySuperv
+from    .clklabel import ClkLabel
 
-from    clklabel import ClkLabel
 
-import  options
+from .rscmodel import RscPin
 
-from rscmodel import RscPin
+# except:
+#     from fletcher import Fletcher
+#
+#     from lwin     import Ui_MainWindow
+#
+#     from about    import Ui_AboutDialog
+#     from help     import Ui_HelpDialog
+#     from settings import Ui_DialogSettings
+#     from reprog   import Ui_ReprogDialog
+#     from gameset  import Ui_GameSettings
+#     from wificnf  import Ui_DialogWifiC 
+#
+#     from mysupervisor import MySuperv
+#
+#     from    clklabel import ClkLabel
+#
+#
+#     from rscmodel import RscPin
+from  .options import MyOptions
 # import sys
 # from PyQt5.QtGui import *
 # from PyQt5.QtWidgets import *
@@ -124,10 +145,10 @@ aboutContent = '''
 </td></tr></table>
 '''
 
-from version import prodvers
+from .version import prodvers
 print(prodvers)
 VERSION = ".".join(map(str, prodvers)) #"0.95"
-DATE    = "2025-02-22"
+DATE    = "2025-02-23"
 print("release date", DATE)
 
 __version__ = VERSION
@@ -166,6 +187,9 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.toolButton.setText(u"\u2302") #petite maison
         
         self.ui.textBrowser.append('''
+<b>V0.98.12.0</b> - 2025-02-23<br>Hidden changes in the machinery to make SW compatible with package structure<br>
+Improvement in the communication thread at disconnection/connection (we don't kill the thread abruptly any more<br>
+wiflip can now be downloaded through pip with pip install wiflip. Then you can run the application by calling <i>wiflip-zero</i><br><br>
 <b>V0.98.7.0</b> - 2025-02-22<br>Internal cleanings of the package to prepare it for pypi<br><br>
 <b>V0.98.0.0</b> - 2025-02-02<br>Supervisor mode added for compatible devices<br>
 Font for RSSI corrected<br>
@@ -1368,7 +1392,9 @@ class MainForm(QtWidgets.QMainWindow):
                              self.saveGeometry())
         self.settings.setValue("MainWindow/default/windowState", 
                              self.saveState())        
-
+        #self.ui.menuBar.setNativeMenuBar(False)
+        #self.ui.menuBar.clear()
+        
         # Then we look at our settings to see if there is a setting called geometry saved. Otherwise we default to an empty string
         geometry = self.settings.value('geometry', None)
         state    = self.settings.value('state', None)
@@ -1511,7 +1537,8 @@ class MainForm(QtWidgets.QMainWindow):
         self.msg68 = ""
         self.msg83 = ""
         
-        self.ui.label_RSSI.setVisible(False)
+        self.ui.label_RSSI.setVisible(True)
+        self.ui.label_RSSI.setText("")
         self.ui.label_RSSI.setToolTip("-80 < RSSI< -40: good\n -40 < RSSI: Incredibly excellent\nBad otherwise")
 
         self.lastAstate = 0
@@ -2129,7 +2156,8 @@ QPushButton:pressed {
         Starts the game settings dialog box
         """
         #V1.2.20 added param 'self' in next command, to avoid window to disappear
-        self.options = options.MyOptions(self)
+        #self.options = options.MyOptions(self)
+        self.options = MyOptions(self)
         self.options.config(self.settings)
         self.options.exec_()
         
@@ -2530,18 +2558,28 @@ QPushButton:pressed {
         #
 
     def disconnect(self):
-        print("disconnect")
+        #print("disconnect")
         self.ui.label_12.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
-        self.ui.pushButton.clicked.connect(self.connect)
+        #self.ui.pushButton.clicked.connect(self.connect)
         self.ui.pushButton.clicked.disconnect(self.disconnect)
         self.ui.pushButton.setText("connect")
         # try:
         #     self.thread.sock.close()
         # except:
         #     pass
-        self.thread.terminate()
+        try: # conn. thread
+            #self.thread.sock.close()
+            #self.thread.sock.shutdown(socket.SHUT_RDWR)
+            #self.thread.terminate()
+            #print("Request thread interruption")
+            self.thread.requestInterruption()
+            self.thread.wait()
+            #print("Thread is DONE", self.thread)
+        except Exception as e:
+            print(f"Disconnect exception {e}")
         
     def connect(self):
+        #print("connect")
         self.ui.pushButton.clicked.connect(self.disconnect)
         self.ui.pushButton.clicked.disconnect(self.connect)
         self.ui.pushButton.setText("disconnect")
@@ -2558,15 +2596,19 @@ QPushButton:pressed {
             self.thread.commErr.connect(self.commError)
             self.thread.workerErr.connect(self.work_error_received)
             self.thread.start()
-    
+            #print("creation of Thread", self.thread)
 
     def work_error_received(self, str):
         self.thread.commErr.disconnect(self.commError)
         self.thread.workerErr.disconnect(self.work_error_received)
         dlg = QMessageBox(self.parent())
         dlg.setWindowTitle("Connection error")
-        dlg.setText(str+"\n"+ "Please, check your connection parameters, restart the device and try again.")
-        dlg.setIcon(QMessageBox.Critical)
+        if str.startswith("Connection aborted"):
+            dlg.setText(str)
+            dlg.setIcon(QMessageBox.Information)
+        else:
+            dlg.setText(str+"\n"+ "Please, check your connection parameters, restart the device and try again.")
+            dlg.setIcon(QMessageBox.Critical)
         dlg.addButton(QPushButton("Dismiss"), QMessageBox.NoRole)
         button = dlg.exec()
         #exit(0)
@@ -3757,7 +3799,6 @@ class Worker(QThread):
     def run(self):        
         # Note: This is never called directly. It is called by Qt once the
         # thread environment has been set up.
-        
         while True:
             print("Hi, connection to", (self.HOST, self.PORT))
             #brutUrl = socket.gethostbyname(self.HOST)
@@ -3769,7 +3810,7 @@ class Worker(QThread):
                     self.sock.settimeout(8.0)
                     #self.sock.setblocking(False)
                     print("Trying", (self.HOST, self.PORT))
-                    
+                    #print("  In thread", self)
                     self.sock.connect((self.HOST, int(self.PORT)))
                     #self.sock.bind((self.HOST, int(self.PORT)))
                     #self.sock.connect(("WiFlip_iface", int(self.PORT)))
@@ -3781,13 +3822,16 @@ class Worker(QThread):
                     return 
                 
                 except Exception as e:
-                    print("connection delayed")
-                    print(e)
+                    print(f"connection delayed {e}")
                     print("waiting for host...")
                     
                     #self.connled.emit("grey")
                     time.sleep(2)
-    
+                if self.isInterruptionRequested():
+                    #print("Interruption request handling by Worker (loop2)", self)
+                    self.workerErr.emit("Connection aborted by user.")
+                    return 
+                
             self.commErr.emit(f"socket connected.")
                 
             print("connected")
@@ -3812,6 +3856,10 @@ class Worker(QThread):
             
             total_ns = 0
             while True:
+                if self.isInterruptionRequested():
+                    #print("Interruption request handling by Worker (loop3)")
+                    self.workerErr.emit("Connection aborted by user.")
+                    return
                 framesz = 0
                 received = None
                 try:
@@ -3931,20 +3979,24 @@ class Worker(QThread):
                         pass
                         #print(received)
                 else:
-                    print("received is None")
+                    pass
+                    #print("received is None")
             # try:
             #     self.sock.shutdown(socket.SHUT_RDWR)
             # except: 
             #     pass
             
             self.sock.close()
-            print("socket closed in loop")
+            #print("socket closed in loop")
             
             #self.connled.emit("grey")
             self.connled.emit("yellow")
             
             self.commErr.emit(f"connection lost. Broken pipe. Retry...")
             
+        #print("Worker: Bye bye les comiques")
+        self.sock.close()
+        self.connled.emit("grey")
 
 
 class MSCGui:

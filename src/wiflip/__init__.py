@@ -1,5 +1,5 @@
 # Définir une variable globale
-VERSION0 = "1.0.0"
+#VERSION0 = "1.0.0"
 
 # # Importer des modules
 # # from .module1 import fonction1

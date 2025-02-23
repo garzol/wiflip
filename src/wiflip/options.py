@@ -23,11 +23,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox, QAbstractItemView
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtCore import QTimer
-from gameset  import Ui_GameSettings
+from .gameset  import Ui_GameSettings
 #from mytreewidget import MyTreeWidget
 #from PyQt5.Qt import *
 
-from mytreeview import MyTreeView, MyDelegate
+from .mytreeview import MyTreeView, MyDelegate
 
 
 class Combo:

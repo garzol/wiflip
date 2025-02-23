@@ -1,16 +1,16 @@
 [project]
 name = "WiFlip"
-version = "0.98.7"
+version = "0.98.11"
 authors = [
   { name="Garzol", email="garzol@free.fr" },
 ]
 description = "Communication tool with pps4 clones"
-readme = "README.md"
+readme = "wiflip/README.md"
 requires-python = ">=3.6"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
-    "License :: OSI Approved :: MIT License",
+    #"License :: OSI Approved :: MIT License",
 ]
 dependencies = [
   "PyQt5",

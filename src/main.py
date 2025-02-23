@@ -1,6 +1,6 @@
 print('wiflip/__main__.py executed')
 import sys
-from src.wiflip import MSCGui
+from wiflip import MSCGui
 
 print("__name__:", __name__)            
 if __name__ == '__main__':
