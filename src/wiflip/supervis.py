@@ -74,4 +74,4 @@ class Ui_SupervisDialog(object):
         self.superButton.setText(_translate("SupervisDialog", "Super"))
         self.leaveButton.setText(_translate("SupervisDialog", "Leave control"))
         self.panicButton.setText(_translate("SupervisDialog", "Panic/Reset pinball"))
-import wiflip.resource_rc
+#import wiflip.resource_rc

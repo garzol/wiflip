@@ -1,11 +1,16 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "WiFlip"
-version = "0.98.14"
+version = "0.98.22"
 authors = [
+  { name="Phil Dubious", email="phil.dubious@free.fr" },
   { name="Garzol Garzol", email="garzol@free.fr" },
 ]
-description = "Communication tool with pps4 clones"
-readme = "README.md"
+description = "Communication tool with pps4 wifi clones"
+readme = "README_pypi.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.6"
 classifiers = [
@@ -28,7 +33,3 @@ Documentation = "https://www.pps4.fr/wiflip"
 
 [project.optional-dependencies]
 gui = ["PyQt5"]
-cli = [
-  "rich",
-  "click",
-]
