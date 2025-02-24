@@ -1,5 +1,6 @@
 # WiFlip repository  
-All python source files of WiFlip.
+All python source files of WiFlip are available on GitHub:    
+[WiFlip repo](https://github.com/garzol/wiflip/tree/tracer)  
 
 WiFlip is an application that communicates with any PPS4 Clone through wifi.  
 The main benefit of wiflip is game reprogramming (on Recel System 3 MPU Clones) 
@@ -13,9 +14,24 @@ Replication of the display, on a PC or Mac, allows you for diagnosing the real d
 
 Additional protections are available for coils.
 
-# Prerequisites  
+# Installation  
+Having recent python installed on your machine, just type:  
+```pip install wiflip``` 
+
+Then, you can launch the GUI with:  
+```wiflip-zero``` 
+
+If it does not work, please try from the python shell:  
+```
+from wiflip import MSCGui
+MSCGui.runApp()
+```
+If this also fails, this is that your python installation is not good or too complicated for us.
+Please try to use a pyinstaller version instead.
+
+# Dependencies    
 ## Python libraries  
-1. pyqt5==5.15.11
+1. pyqt5>=5.15.11
 2. requests
 3. bs4
 
@@ -24,7 +40,7 @@ Additional protections are available for coils.
 That's as easy as bonjour:  
 `pyinstaller wiflip.spec`
 
-[wiflip.spec](https://github.com/garzol/wiflip/blob/tracer/wiflip.spec) resides in this repo.
+[wiflip.spec](https://github.com/garzol/wiflip/blob/tracer/src/wiflip/wiflip.spec) resides in this repo.
 # Signing the executable (PC)
 All informations collected from there:  
 https://gist.github.com/PaulCreusy/7fade8d5a8026f2228a97d31343b335e
