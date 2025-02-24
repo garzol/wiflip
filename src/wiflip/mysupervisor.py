@@ -156,7 +156,7 @@ class MySuperv(QtWidgets.QDialog):
         groupBox = QtWidgets.QGroupBox(self)
         groupBox.setTitle(_translate("SupervisDialog", name))
         groupBox.setObjectName("groupBox"+name)
-        groupBox.setMinimumSize(0, 120)
+        groupBox.setMinimumSize(0, 160)
         verticalLayout_17 = QtWidgets.QVBoxLayout(groupBox)
         verticalLayout_17.setObjectName("verticalLayout_17")
         horizontalLayout_2 = QtWidgets.QHBoxLayout()
