@@ -584,7 +584,7 @@ class MySuperv(QtWidgets.QDialog):
         pass    
     
     def dspInpRejected(self, name, idx):
-        #print("dspInpRejected", name, idx, self.gb[name][idx][0].text(), "fin")
+        print("dspInpRejected", name, idx, self.gb[name][idx][0].text(), "fin")
         try:
             val = self.gb[name][idx][1]
         except:

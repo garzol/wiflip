@@ -60,4 +60,4 @@ class Ui_AboutDialog(object):
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">%(Copyright)s</span></p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">Version %(version)s</span></p></td></tr></table></body></html>"))
         self.pushButton.setText(_translate("AboutDialog", "OK"))
-import wiflip.resource_rc
+#import wiflip.resource_rc

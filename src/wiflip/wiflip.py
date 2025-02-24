@@ -37,7 +37,7 @@ closeEvent
 Reset Ack Frame print(f"val
 message request is b'
 print Dump Game PROM pushButton_7
-Ack received DIP
+Ack received DIP inputRejected
 '''
 
 import os, sys, time, struct
@@ -187,7 +187,7 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.toolButton.setText(u"\u2302") #petite maison
         
         self.ui.textBrowser.append('''
-<b>V0.98.12.0</b> - 2025-02-23<br>Hidden changes in the machinery to make SW compatible with package structure<br>
+<b>V0.98.2x.0</b> - 2025-02-23<br>Hidden changes in the machinery to make SW compatible with package structure<br>
 Improvement in the communication thread at disconnection/connection (we don't kill the thread abruptly any more<br>
 wiflip can now be downloaded through pip with pip install wiflip. Then you can run the application by calling <i>wiflip-zero</i><br><br>
 <b>V0.98.7.0</b> - 2025-02-22<br>Internal cleanings of the package to prepare it for pypi<br><br>

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/Users/garzol/git/wiflip_tracer/ui/lwin.ui'
+# Form implementation generated from reading ui file '/Users/garzol/git/wiflip_tracer/src/wiflip/ui/lwin.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -14,8 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-
-        MainWindow.resize(1024, 706)
+        MainWindow.resize(1024, 754)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -580,7 +579,6 @@ class Ui_MainWindow(object):
         self.menuBar.setAutoFillBackground(False)
         self.menuBar.setDefaultUp(False)
         self.menuBar.setObjectName("menuBar")
-        
         self.menuFile = QtWidgets.QMenu(self.menuBar)
         self.menuFile.setObjectName("menuFile")
         self.menu = QtWidgets.QMenu(self.menuBar)
@@ -783,7 +781,7 @@ class Ui_MainWindow(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.scrollArea_3.setObjectName("scrollArea_3")
         self.scrollAreaWidgetContents_3 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 309, 898))
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 309, 899))
         self.scrollAreaWidgetContents_3.setObjectName("scrollAreaWidgetContents_3")
         self.verticalLayout_14 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_3)
         self.verticalLayout_14.setObjectName("verticalLayout_14")
@@ -797,8 +795,8 @@ class Ui_MainWindow(object):
         self.label_RSSI = QtWidgets.QLabel(self.scrollAreaWidgetContents_3)
         font = QtGui.QFont()
         font.setFamily(".AppleSystemUIFont")
-        font.setPointSize(12)
-        font.setItalic(True)
+        font.setPointSize(13)
+        font.setItalic(False)
         self.label_RSSI.setFont(font)
         self.label_RSSI.setObjectName("label_RSSI")
         self.verticalLayout_14.addWidget(self.label_RSSI)
@@ -1383,7 +1381,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 298, 510))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 296, 510))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout_10 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_10.setObjectName("verticalLayout_10")
@@ -1499,7 +1497,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.dockWidget_7.sizePolicy().hasHeightForWidth())
         self.dockWidget_7.setSizePolicy(sizePolicy)
-        self.dockWidget_7.setMinimumSize(QtCore.QSize(98, 60))
+        self.dockWidget_7.setMinimumSize(QtCore.QSize(98, 120))
         self.dockWidget_7.setObjectName("dockWidget_7")
         self.dockWidgetContents_7 = QtWidgets.QWidget()
         self.dockWidgetContents_7.setObjectName("dockWidgetContents_7")
@@ -1542,7 +1540,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.dockWidget_9.sizePolicy().hasHeightForWidth())
         self.dockWidget_9.setSizePolicy(sizePolicy)
-        self.dockWidget_9.setMinimumSize(QtCore.QSize(98, 60))
+        self.dockWidget_9.setMinimumSize(QtCore.QSize(98, 120))
         self.dockWidget_9.setObjectName("dockWidget_9")
         self.dockWidgetContents_9 = QtWidgets.QWidget()
         self.dockWidgetContents_9.setObjectName("dockWidgetContents_9")
@@ -1577,7 +1575,7 @@ class Ui_MainWindow(object):
         self.scrollArea_8.setWidgetResizable(True)
         self.scrollArea_8.setObjectName("scrollArea_8")
         self.scrollAreaWidgetContents_8 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_8.setGeometry(QtCore.QRect(0, 0, 199, 216))
+        self.scrollAreaWidgetContents_8.setGeometry(QtCore.QRect(0, 0, 202, 216))
         self.scrollAreaWidgetContents_8.setObjectName("scrollAreaWidgetContents_8")
         self.verticalLayout_25 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_8)
         self.verticalLayout_25.setObjectName("verticalLayout_25")
@@ -2000,8 +1998,8 @@ class Ui_MainWindow(object):
         self.groupBox_5.setTitle(_translate("MainWindow", "GPIOs 1 to 24 (of B3 - 11696)"))
         self.dockWidget_9.setWindowTitle(_translate("MainWindow", "A1762 B2 Readings"))
         self.groupBox_7.setTitle(_translate("MainWindow", "GPIOs 0 to 15"))
-        self.dockWidget_10.setWindowTitle(_translate("MainWindow", "Supervision"))
-        self.groupBox_8.setTitle(_translate("MainWindow", "GroupBox"))
+        self.dockWidget_10.setWindowTitle(_translate("MainWindow", "Man. Supervision"))
+        self.groupBox_8.setTitle(_translate("MainWindow", "Expert mode"))
         self.label_23.setText(_translate("MainWindow", "CMD1"))
         self.label_24.setText(_translate("MainWindow", "CMD2"))
         self.label_25.setText(_translate("MainWindow", "CMD3"))
@@ -2072,4 +2070,4 @@ class Ui_MainWindow(object):
         self.actionWifi_config.setText(_translate("MainWindow", "Wifi config..."))
         self.actionSupervision.setText(_translate("MainWindow", "Supervision..."))
         self.actionRearm_warning_messages.setText(_translate("MainWindow", "Rearm warning messages"))
-#import resource_rc
+#import wiflip.resource_rc

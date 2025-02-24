@@ -89,7 +89,7 @@
            <x>0</x>
            <y>0</y>
            <width>474</width>
-           <height>420</height>
+           <height>372</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -1828,7 +1828,7 @@ All closed switches noted by a code number in ball-in-play display.***
           <x>0</x>
           <y>0</y>
           <width>309</width>
-          <height>898</height>
+          <height>899</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_14">
@@ -1856,8 +1856,8 @@ All closed switches noted by a code number in ball-in-play display.***
            <property name="font">
             <font>
              <family>.AppleSystemUIFont</family>
-             <pointsize>12</pointsize>
-             <italic>true</italic>
+             <pointsize>13</pointsize>
+             <italic>false</italic>
             </font>
            </property>
            <property name="text">
@@ -3167,7 +3167,7 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>298</width>
+          <width>296</width>
           <height>510</height>
          </rect>
         </property>
@@ -3554,7 +3554,7 @@ All closed switches noted by a code number in ball-in-play display.***
    <property name="minimumSize">
     <size>
      <width>98</width>
-     <height>60</height>
+     <height>120</height>
     </size>
    </property>
    <property name="windowTitle">
@@ -3623,7 +3623,7 @@ All closed switches noted by a code number in ball-in-play display.***
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>199</width>
+          <width>202</width>
           <height>216</height>
          </rect>
         </property>
