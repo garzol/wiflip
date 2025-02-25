@@ -45,6 +45,8 @@ gridLayout_4
 
 import os, sys, time, struct
 import select
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 from .resource_rc import *
 
