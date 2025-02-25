@@ -1632,7 +1632,7 @@ class MainForm(QtWidgets.QMainWindow):
         #The hard way
         self.pushButton_10 = QtWidgets.QPushButton(self.ui.scrollAreaWidgetContents_3)
         self.pushButton_10.setObjectName("pushButton_10")
-        self.ui.gridLayout_4.addWidget(self.pushButton_10, 6, 1, 1, 1)
+        self.ui.gridLayout_4.addWidget(self.pushButton_10, 7, 1, 1, 1)
         self.pushButton_10.setText("Dip switches status")
         self.pushButton_10.clicked.connect(self.reqdips)
          
