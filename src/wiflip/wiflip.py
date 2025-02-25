@@ -39,6 +39,8 @@ message request is b'
 print Dump Game PROM pushButton_7
 Ack received DIP inputRejected
 :/x/images/1x/pinballbell480.png
+gridLayout_4
+
 '''
 
 import os, sys, time, struct
@@ -1626,7 +1628,7 @@ class MainForm(QtWidgets.QMainWindow):
         #The hard way
         self.pushButton_10 = QtWidgets.QPushButton(self.ui.scrollAreaWidgetContents_3)
         self.pushButton_10.setObjectName("pushButton_10")
-        self.ui.gridLayout_4.addWidget(self.pushButton_10, 4, 1, 1, 1)
+        self.ui.gridLayout_4.addWidget(self.pushButton_10, 6, 1, 1, 1)
         self.pushButton_10.setText("Dip switches status")
         self.pushButton_10.clicked.connect(self.reqdips)
          
