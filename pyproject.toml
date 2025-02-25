@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "WiFlip"
-version = "0.98.25"
+version = "0.98.27"
 authors = [
   { name="Phil Dubious", email="phil.dubious@free.fr" },
   { name="Garzol Garzol", email="garzol@free.fr" },

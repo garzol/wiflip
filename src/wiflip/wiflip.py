@@ -1545,7 +1545,9 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.label_RSSI.setVisible(True)
         self.ui.label_RSSI.setText("")
         self.ui.label_RSSI.setToolTip("-80 < RSSI< -40: good\n -40 < RSSI: Incredibly excellent\nBad otherwise")
-
+        self.ui.label_RSSI.setStyleSheet("QLabel { background-color : transparent;\
+                                                   color : white;\
+                                                   font-size: 13pt }")
         self.lastAstate = 0
         self.lastBstate = 0
         
@@ -2645,6 +2647,12 @@ QPushButton:pressed {
             
             self.ui.pushButton.setText("connect")
             self.ui.label_12.setPixmap(QtGui.QPixmap(":/x/ledgrey.png"))
+
+            self.ui.label_RSSI.setText("")
+            self.ui.label_RSSI.setStyleSheet("QLabel { background-color : transparent;\
+                                   color : white;\
+                                   font-size: 13pt }")
+        
         elif state == "closing":
             try:
                 self.ui.pushButton.clicked.connect(self.connect)
@@ -2661,6 +2669,11 @@ QPushButton:pressed {
             try:
                 self.myDisconnectSound.stop()
             except: pass
+
+        self.ui.label_RSSI.setText("")
+        self.ui.label_RSSI.setStyleSheet("QLabel { background-color : transparent;\
+                               color : white;\
+                               font-size: 13pt }")
 
     #convenient routine to allow the outside for writing to the script edit text window
     def write2ScriptEdit(self, msg, insertMode=True):
@@ -3262,6 +3275,20 @@ QPushButton:pressed {
                 rssi = int.from_bytes(data, byteorder='little', signed=True)
                 #self.write2Console(f"RSSI: {rssi} dB\r\n", insertMode=True)
                 rssitxt = f"(RSSI: {rssi} dB)"
+
+                if rssi > -64:
+                    self.ui.label_RSSI.setStyleSheet("QLabel { background-color : ForestGreen;\
+                                           color : white;\
+                                           font-size: 13pt }")
+                elif rssi < -75:
+                    self.ui.label_RSSI.setStyleSheet("QLabel { background-color : OrangeRed;\
+                                           color : white;\
+                                           font-size: 13pt }")
+                else:
+                    self.ui.label_RSSI.setStyleSheet("QLabel { background-color : RebeccaPurple;\
+                                           color : white;\
+                                           font-size: 13pt }")
+                    
                 
                 self.ui.label_RSSI.setVisible(True)
                 self.ui.label_RSSI.setText(rssitxt)

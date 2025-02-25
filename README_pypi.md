@@ -19,14 +19,22 @@ Having recent python installed on your machine, just type:
 ```pip install wiflip``` 
 
 Then, you can launch the GUI with:  
+```wiflip``` 
+
+or with:  
 ```wiflip-zero``` 
 
-If it does not work, please try from the python shell:  
+The only difference between this 2 scripts is that with wiflip-zero, you will ensure to print logging infos to stdout. Might be useful ‹hen things go wrong.    
+
+If nothing works, please try to find out where these scripts are located. In the end, try from the python shell:  
 ```
 from wiflip import MSCGui
 MSCGui.runApp()
 ```
-If this also fails, this is that your python installation is not good or too complicated for us.
+If this also fails, there is a bollock in te soup.   
+
+This is likely that your python installation is not good or too complicated for us.  
+
 Please try to use a pyinstaller version instead.
 
 # Dependencies    
