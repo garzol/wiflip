@@ -4,13 +4,16 @@ Created on 23 mars 2022
 
 
 @author: garzol 
+
+
+pyinstaller wiflip.py  --onedir -w -i src/wiflip/images/flipp.icns --exclude-module PyQt5.QtTextToSpeech --exclude-module PyQt5.QtOpenGL --exclude-module  PyQt5.QtPrintSupport --exclude-module PyQt5.QtDesigner --exclude-module PyQt5.QtSql --exclude-module PyQt5.QtQuick3D --exclude-module PyQt5.QtSensors --exclude-module PyQt5.QtNfc --exclude-module PyQt5.QtBluetooth --exclude-module  PyQt5.QtMultimediaWidgets --exclude-module  PyQt5.QtHelp --exclude-module PyQt5.QtSerialPort --exclude-module PyQt5.QtLocation --exclude-module PyQt5.QtXml --exclude-module  PyQt5.QtQuick  --exclude-module PyQt5.QtPositioning  --exclude-module PyQt5.QtQml  --exclude-module  PyQt5.QtTest --exclude-module  PyQt5.QtDBus --exclude-module  PyQt5.QtXmlPatterns  --exclude-module   PyQt5.QtWebChannel --exclude-module PyQt5.QtSvg
 search keywords: switches reset open transparent I have a alarm1
 WebEngine WebView OpenGL numpy QtTextToSpeech pickle Crazy Race index ======
 signaling Fletcher console open timeout signaling error resetthe dockWidget_5 reset 
 switch signal emit QTimer foo
 checkBox_flag3
 QPixmap
-dockWidget_2
+dockWidget_2  SVG
 dockWidget
 Bios
 memTyp
@@ -39,7 +42,7 @@ message request is b'
 print Dump Game PROM pushButton_7
 Ack received DIP inputRejected
 :/x/images/1x/pinballbell480.png
-gridLayout_4
+gridLayout_4 OpenGL
 
 '''
 
@@ -1547,7 +1550,7 @@ class MainForm(QtWidgets.QMainWindow):
         self.ui.label_RSSI.setToolTip("-80 < RSSI< -40: good\n -40 < RSSI: Incredibly excellent\nBad otherwise")
         self.ui.label_RSSI.setStyleSheet("QLabel { background-color : transparent;\
                                                    color : white;\
-                                                   font-size: 13pt }")
+                                                   font-size: 10pt }")
         self.lastAstate = 0
         self.lastBstate = 0
         
@@ -2651,7 +2654,7 @@ QPushButton:pressed {
             self.ui.label_RSSI.setText("")
             self.ui.label_RSSI.setStyleSheet("QLabel { background-color : transparent;\
                                    color : white;\
-                                   font-size: 13pt }")
+                                   font-size: 10pt }")
         
         elif state == "closing":
             try:
@@ -2673,7 +2676,7 @@ QPushButton:pressed {
         self.ui.label_RSSI.setText("")
         self.ui.label_RSSI.setStyleSheet("QLabel { background-color : transparent;\
                                color : white;\
-                               font-size: 13pt }")
+                               font-size: 10pt }")
 
     #convenient routine to allow the outside for writing to the script edit text window
     def write2ScriptEdit(self, msg, insertMode=True):
@@ -3274,20 +3277,22 @@ QPushButton:pressed {
                 #print(data[0],data[1],data[2],data[3])
                 rssi = int.from_bytes(data, byteorder='little', signed=True)
                 #self.write2Console(f"RSSI: {rssi} dB\r\n", insertMode=True)
-                rssitxt = f"(RSSI: {rssi} dB)"
-
+                rssitxt = f"RSSI: {rssi} dB"
+                ##663399 RebeccaPurple
+                #228B22 ForestGreen
+                #FF4500 OrangeRed
                 if rssi > -64:
-                    self.ui.label_RSSI.setStyleSheet("QLabel { background-color : ForestGreen;\
+                    self.ui.label_RSSI.setStyleSheet("QLabel { background-color : #228B22;\
                                            color : white;\
-                                           font-size: 13pt }")
+                                           font-size: 10pt }")
                 elif rssi < -75:
-                    self.ui.label_RSSI.setStyleSheet("QLabel { background-color : OrangeRed;\
+                    self.ui.label_RSSI.setStyleSheet("QLabel { background-color : #FF4500;\
                                            color : white;\
-                                           font-size: 13pt }")
+                                           font-size: 10pt }")
                 else:
-                    self.ui.label_RSSI.setStyleSheet("QLabel { background-color : RebeccaPurple;\
+                    self.ui.label_RSSI.setStyleSheet("QLabel { background-color : #663399;\
                                            color : white;\
-                                           font-size: 13pt }")
+                                           font-size: 10pt }")
                     
                 
                 self.ui.label_RSSI.setVisible(True)
