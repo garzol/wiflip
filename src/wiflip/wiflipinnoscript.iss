@@ -3,7 +3,7 @@
     Tasks: desktopiconNNO SETUP SCRIPT FILES!
 
 #define MyAppName "WiFlip"
-#define MyAppVersion "0.97.0.1"
+#define MyAppVersion "0.98.29.0"
 #define MyAppPublisher "AA55 Consulting"
 #define MyAppURL "https://www.pps4.fr/"
 #define MyAppExeName "wiflip.exe"
