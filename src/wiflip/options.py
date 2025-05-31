@@ -445,7 +445,7 @@ WITHOUT PRESSING THE START BUTTON
 (This state affects all 3 coin rejectors)
                                          ''',
                                          CoinSlStr,
-                                         Combo("?Unknown", [(0, "Normal Price"), (4, "Premium Price")], 8, 0xA1)],
+                                         Combo("?Unknown", [(0, "Normal Price"), (4, "Premium Price")], 4, 0xA1)],
                 u"Balls per Play":[defaultBallPerPlay, 
                                          Combo, 
                                          MyOptionsUtils.myValidateCombo, 0, 9, 
