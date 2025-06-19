@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<!-- saved from url=(0019)http://192.168.0.2/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>wsWiFlip</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!--
+<link rel="icon" href="https://www.pps4.fr/static/img/icons/favicon.ico">
+<link rel="short-icon" href="https://www.pps4.fr/static/img/icons/favicon.ico">
+-->
+
+<link rel="icon" href="./wifliplogo.png">
+<link rel="short-icon" href="./wifliplogo.png">
+
+<link href="bootstrap-5.0.2-dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="bootstrap-icons-1.13.1/bootstrap-icons.css" rel="stylesheet">
+
+<script src="bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script>
+<script src="./events.js"></script>
+<script src="./rscmodels.js"></script>
+<script src="./utils.js"></script>
+<script src="./dsply.js"></script>
+<script src="./gbin.js"></script>
+<script src="./variablecols.js"></script>
+<script src="./gamesettings.js" defer></script>
+
+<style>
+/* Add some basic styling for the chat window */
+body {
+  /*background-color: black;*/
+  /*font-size: 16px;*/
+}
+.chat-container {
+  width: 400px;
+  margin: 0 auto;
+  padding: 10px;
+}
+.chat-messages {
+  height: 250px;
+  overflow-y: auto;
+  border: 1px solid #444;
+  padding: 5px;
+  margin-bottom: 5px;
+}
+.user-input {
+  display: flex;
+  margin-bottom: 20px;
+}
+.user-input input {
+  flex: 1;
+  border: 1px solid #444;
+  padding: 5px;
+}
+.user-input button {
+  margin-left: 5px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.websocket {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.websocket button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.websocket .label {
+  margin-left: auto;
+}
+
+  
+</style>
+
+<style>
+*{box-sizing: border-box;}
+.flexicol{border-collapse:collapse;}
+td,th{padding:5px 15px;text-align:left;}
+.flexicol,th,td{border:1px solid #000;}
+</style>
+
+
+<link rel="stylesheet" href="leds.css">
+
+
+
+<script src="leds.js"></script>
+<script>
+var ws;
+var wsm_max_len = 4096; /* bigger length causes uart0 buffer overflow with low speed smart device */
+
+window.addEventListener( 'offline', function (e) {connect_onclick()} );
+
+function update_text(text) {
+  //console.log("write text to console "+text);
+  var chat_messages = document.getElementById("chat-messages");
+  chat_messages.innerHTML += text + '<br>';
+  chat_messages.scrollTop = chat_messages.scrollHeight;
+}
+
+function update_rconsole(text) {
+  var chat_messages = document.getElementById("reprog-messages");
+  chat_messages.innerHTML += text + '<br>';
+  chat_messages.scrollTop = chat_messages.scrollHeight;
+}
+
+function sendmsg_onclick(message) {
+  if(ws != null) {
+    
+    if (message) {
+      const b = new Blob([message.buffer]);
+      //console.log(message, b);
+      ws.send(b, { binary: true });
+      //ws.send('YCXQZ', { binary: true });
+      	
+    }
+  }
+}
+
+function send_onclick() {
+  if(ws != null) {
+    var message = document.getElementById("message").value;
+    
+    if (message) {
+      document.getElementById("message").value = "";
+      ws.send(message + "\n");
+      update_text('<span style="color:navy">' + message + '</span>');
+      // You can send the message to the server or process it as needed
+    }
+  }
+}
+
+
+function connect_onclick() {
+  const re_mac4 = new RegExp("^([0-9]|[A-F]){4}$", "i");
+  
+  if(ws == null) {
+    var hostname = document.getElementById("hostname").value;
+    localStorage.setItem("ls-hostname", hostname); 
+    if (hostname == null) {
+    	hostname = "ws://" + "wiflip_7f96.local" + ":81";
+    	}
+    else if (hostname == "") {
+    	hostname = "ws://" + "wiflip_7f96.local" + ":81";
+    }
+    else if (checkIp(hostname)) {
+     		hostname = "ws://" + hostname + ":81";       	
+    }
+    else if (re_mac4.test(hostname))
+    {
+     		hostname = "ws://wiflip_" + hostname + ".local:81";       	
+    }
+    else {
+     		hostname = "ws://" + hostname + ".local:81";       	
+    }
+    ws = new WebSocket(hostname);
+    // Change binary type from "blob" to "arraybuffer"
+	//ws.binaryType = "blob";
+    update_text("opening websocket " +hostname+"...");
+    //console.log("opening websocket "+hostname+ws+ws.url);
+    document.getElementById("ws_state").innerHTML = "CONNECTING";
+    ws.onopen = ws_onopen;
+    ws.onclose = ws_onclose;
+    ws.onmessage = ws_onmessage;
+  } else
+    ws.close();
+}
+
+async function ws_onopen() {
+  document.getElementById("ws_state").innerHTML = "<span style='color:blue'>CONNECTED</span>";
+  document.getElementById("bt_connect").innerHTML = "Disconnect";
+  document.getElementById("main_connect").innerHTML = "Disconnect";
+  document.getElementById("chat-messages").innerHTML = "";
+
+  memRequest(0);
+  await sleep(600);
+  populategsData();
+}
+
+function ws_onclose() {
+
+  update_text("closing websocket "+ws.url);
+  console.log("opening websocket "+ws+ws.url);
+
+  document.getElementById("ws_state").innerHTML = "<span style='color:gray'>CLOSED</span>";
+  document.getElementById("bt_connect").innerHTML = "Connect";
+  document.getElementById("main_connect").innerHTML = "Connect";
+  ws.onopen = null;
+  ws.onclose = null;
+  ws.onmessage = null;
+  ws = null;
+}
+
+function blobToByteArray(blob) { 
+	return new Promise((resolve, reject) => { 
+		const reader = new FileReader(); 
+		reader.readAsArrayBuffer(blob); 
+		reader.onload = () => { 
+			const arrayBuffer = reader.result; 
+			const byteArray = new Uint8Array(arrayBuffer); 
+			resolve(byteArray); }; 
+		reader.onerror = reject; 
+	}); 
+}
+
+var timerRef;
+async function manageFrame(frameTyp, frameArray) {
+	switch(frameTyp) {
+		case 64:
+			//acknowledge of reset req 2 bytes
+			update_text('reset ack frame: '+frameArray);
+			console.log("reset ack");
+			OnResetReceived(frameArray);
+			memRequest(0);
+			await sleep(500);
+			memRequest(1);
+			break;
+	    case 65:
+			var dspl_zone = document.getElementById("dsplA-zone");
+			//dspl_zone.innerHTML = frameArray;
+			affdspl(65, frameArray);
+	        break;
+	    case 66:
+			var dspl_zone = document.getElementById("dsplB-zone");
+			//dspl_zone.innerHTML = frameArray;
+			affdspl(66, frameArray);
+			break;
+	    case 82:
+	        //read 128 bytes ram
+			//var dspl_zone = document.getElementById("dsplB-zone");
+			//dspl_zone.innerHTML = frameArray;
+			console.log("128 bytes ram");
+			console.log(frameArray);
+			OnDumpReceived(frameArray);
+			break;
+	  	case 83:
+	  	    //switch matrix
+			var dspl_zone = document.getElementById("83-zone");
+			//dspl_zone.innerHTML = frameArray;
+			const cols = 4;
+			const rows = 10;
+            for (let ix=0; ix<40; ix++) {
+                let bitnumber  = ix%8;
+                let bytenumber = Math.floor(ix / 8);
+                let c = cols-1 - ix%cols;
+                let r = bytenumber*2;
+                if (bitnumber<4)
+                    r+=1;
+                let idx = r+10*c;
+                let ledElem = document.getElementById("sm-"+idx);
+                //print(i, bitnumber, bytenumber, r,c)
+                //console.log("ledElem "+idx+' '+c+' '+r+' '+bitnumber+' '+bytenumber+' '+ledElem);
+                //console.log("ledElem "+ix+' '+bitnumber+' '+bytenumber+' '+r+' '+c);
+                if (frameArray[bytenumber]&(1<<bitnumber))
+					ledElem.setAttribute("class",  "cled led-yellow");
+                else
+					ledElem.setAttribute("class",  "cled led-black border border-3");
+				}
+
+
+			break;
+	  	case 89:
+	  	    //gpios and b2
+			var dspl_zone = document.getElementById("89-zone");
+			//dspl_zone.innerHTML = frameArray;
+			for (let i=0; i<24; i++) {
+				let byten = 6 - Math.floor(i / 8);
+				let ledElem = document.getElementById(gpiotooltip[i]);
+				//console.log('frame '+ ' ' + frameArray[byten]+ ' '+ (frameArray[byten]&&(1<<(i%8))) +' '+byten +' '+ i);
+				if ( frameArray[byten]&(1<<(i%8)) ) {
+					ledElem.setAttribute("class",  "led led-green");
+					}
+				else {
+					ledElem.setAttribute("class",  "led led-black border border-3");
+					}
+				}
+					
+			for (let i=0; i<16; i++) {
+				let byten = 8 - Math.floor(i / 8);
+				let ledElem = document.getElementById(b2tooltip[i]);
+				//console.log('frame '+ ' ' + frameArray[byten]+ ' '+ (frameArray[byten]&&(1<<(i%8))) +' '+byten +' '+ i);
+				if ( frameArray[byten]&(1<<(i%8)) ) {
+					ledElem.setAttribute("class",  "led led-black border border-3");
+					}
+				else {
+					ledElem.setAttribute("class",  "led led-blue");
+					}
+				}
+					
+				
+			break;		
+		case 90:		
+	        //read 2 bytes. in Reply to the 5A request
+			//Fletcher code
+			//dspl_zone.innerHTML = frameArray;
+			console.log("received 2 bytes fletcher", frameArray);
+			OnFletcherReceived(frameArray);
+			break;
+		case 120:
+			//RSSI frame (free running from server)
+			console.log("received 4 bytes RSSI", frameArray);
+			const rssi = ((frameArray[3]) << 24)
+			     | ((frameArray[2]) << 16)
+			     | ((frameArray[1]) << 8)
+			     | ((frameArray[0]));	
+			if (rssi < -80)		
+				document.getElementById("rssi_state").innerHTML = `<span class="bg-danger text-white">&nbsp;${rssi} dB&nbsp;</span>`;
+			else if (rssi < -60)
+				document.getElementById("rssi_state").innerHTML = `<span class="bg-info text-white">&nbsp;${rssi} dB&nbsp;</span>`;
+			else if (rssi > 0)
+				document.getElementById("rssi_state").innerHTML = '<span class="bg-secondary text-white">&nbsp;Error&nbsp;</span>';
+			else
+				document.getElementById("rssi_state").innerHTML = `<span class="bg-success text-white">&nbsp;${rssi} dB&nbsp;</span>`;
+
+			try {
+				clearTimeout(timerRef);
+				}
+			catch(err) {
+				}
+			timerRef = setTimeout(function() {
+				document.getElementById("rssi_state").innerHTML = '<span class="bg-secondary text-white">&nbsp;???&nbsp;</span>';
+			}, 8000);
+						
+			break;
+	    default:
+	        break;
+	    }     //switch  	
+	
+}
+
+var startOfFrame = true;
+var frameArray;
+var frameIdx = 0;
+var frameTyp = 0;
+var framesz = 0;
+function handle_ba(ba) {
+  var idx = 0; 
+  while (idx < ba.length) {
+	  if (startOfFrame == true) {
+          frameTyp = ba[idx];
+		  startOfFrame = false;
+		  frameIdx = 0;
+	      switch(frameTyp) {
+		      case 64:
+			      //update_text('display A frame '+idx+' '+ frameIdx+ ' ' + ba.length);
+			      framesz = 2;
+			      frameArray = new Uint8Array(framesz);
+			      break;
+		      case 65:
+			      //update_text('display A frame '+idx+' '+ frameIdx+ ' ' + ba.length);
+			      framesz = 9;
+			      frameArray = new Uint8Array(framesz);
+			      break;
+			  case 66:
+			      //update_text('display B frame '+idx+' '+ frameIdx+ ' ' + ba.length);
+			      framesz = 9;
+			      frameArray = new Uint8Array(framesz);
+			      break;
+			  case 82:
+			  	  //128 bytes ram fram
+				  //update_text('ram dump 128 bytes '+idx+' '+ frameIdx+ ' ' + ba.length);
+				  framesz = 128;
+				  frameArray = new Uint8Array(framesz);
+				  break;
+			  case 83:
+				  //update_text('display B frame '+idx+' '+ frameIdx+ ' ' + ba.length);
+				  framesz = 5;
+				  frameArray = new Uint8Array(framesz);
+				  break;
+			  case 89:
+			      //update_text('display B frame '+idx+' '+ frameIdx+ ' ' + ba.length);
+			      framesz = 9;
+			      frameArray = new Uint8Array(framesz);
+			      break;
+			  case 90:
+				  //update_text('display B frame '+idx+' '+ frameIdx+ ' ' + ba.length);
+				  framesz = 2;
+				  frameArray = new Uint8Array(framesz);
+				  break;
+		      case 120:
+		      	  framesz = 4;
+				  frameArray = new Uint8Array(framesz);
+				  break;
+	          default:
+	          	  //console.log(frameTyp+"default frame");
+			  	  startOfFrame = true;
+	              break;
+	          }     //switch   
+		   idx = idx+1;	
+      	   }        //if start of frame
+	    else {
+			var left2write = framesz-frameIdx;
+			var leftInba   = ba.length - idx;
+			var tobeWritten = Math.min(left2write, leftInba);
+			for (var n=0; n<tobeWritten; n++) {
+				frameArray[frameIdx++] = ba[idx++];
+			}
+			if (frameIdx >= framesz) {
+				//update_text('frame typ '+frameTyp+". "+frameArray);
+				manageFrame(frameTyp, frameArray);
+				//console.log("frame typ: "+frameTyp+". "+frameArray);
+				startOfFrame = true;
+			}
+		}  //if not start of frame
+	}
+}
+
+function ws_onmessage(e_msg) {
+  e_msg = e_msg || window.event; // MessageEvent
+  //console.log(e_msg.data);
+  //update_text('<span style="color:blue">' + e_msg.data + '</span>');
+
+  //blobToByteArray(e_msg.data) .then(byteArray => { console.log(byteArray); update_text('<span style="color:green">' + byteArray + '</span>'); handle_ba(byteArray)}) .catch(error => console.error(error));
+  blobToByteArray(e_msg.data) .then(byteArray => {  handle_ba(byteArray)}) .catch(error => console.error(error));
+
+
+}
+</script>
+
+</head>
+<body > <!-- class="bg-secondary"> -->
+
+<div class="container p-3 my-3 rounded border border-3 shadow p-4 mb-4 bg-white">
+	<h3>Control</h3>
+
+  <div class="d-flex justify-content-between mb-0">
+      <div class="px-2 "><span class="label">Connection: <span id="ws_state"></span></span></div>
+      <div class="px-2 "><span class="label small">Signal strength: <span id="rssi_state"></span></span></div>
+  </div>
+    <!--<div><span class="label">Connection: <span id="ws_state"></span></span><span class="label text-end">RSSI: <span id="rssi_state"></span></span></div>-->
+    <div class="user-input">
+      <button class="connect-button" id="main_connect" onclick="connect_onclick()">Connect</button>
+      <!--<input form="connect-formId" type="text" id="hostname" placeholder="wiflip_xyzt">-->
+    <form id="connect-formId">
+      <input form="connect-formId" type="text" id="hostname" placeholder="wiflip_xyzt" >
+    </form>
+    </div>
+
+
+ <script>
+   const x = localStorage.getItem("ls-hostname"); 
+ 
+document.getElementById("hostname").value = x;
+</script>
+
+	    	
+    <div class="user-input mt-3">
+      <!--<button onclick="sendmsg_onclick('YCXQZ')">Reset</button>-->
+      <button onclick="sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 90]))">Reset</button>
+	</div>
+	
+</div>	
+
+<!-- The Modal -->
+<div class="modal" id="reprog-myModal" tabindex='-1'>
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title" id="modal-title-id">Reprogramming done</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body" id="modal-body-id">
+        success
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success" id="modal-button-id" data-bs-dismiss="modal">OK</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- end of modal -->
+
+
+
+<div class="container p-3 my-3 rounded border border-3 shadow p-4 mb-4 bg-white">
+<!--
+  <h3>Toggleable Tabs</h3>
+  <br>
+-->
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">  
+    <li class="nav-item">
+      <a title="Status" class="nav-link active" data-bs-toggle="tab" id="htab-status-Id" href="#status"><span class="fs-2 d-block d-sm-none"><i class="bi bi-list-check"></i></span><span class="d-none d-sm-block">Status</span></a>  
+      
+    </li>
+    <li class="nav-item">
+      <a title="Reprog" class="nav-link" data-bs-toggle="tab" id="htab-reprog-Id" href="#reprog"><span class="fs-2 d-block d-sm-none"><i class="bi bi-download"></i></span><span class="d-none d-sm-block">Reprog</span></a>  
+    </li>
+    <li class="nav-item">
+      <a title="System Settings" class="nav-link" data-bs-toggle="tab" id="htab-sys-settings-Id" href="#system-settings"><span class="fs-2 d-block d-sm-none"><i class="bi bi-gear"></i></span><span class="d-none d-sm-block">System Settings</span></a>
+    </li>
+    <li class="nav-item">  
+      <a title="Game Settings" class="nav-link" data-bs-toggle="tab" id="htab-game-settings-Id" href="#game-settings"><span class="fs-2 d-block d-sm-none"><i class="bi bi-sliders"></i></span><span class="d-none d-sm-block">Game Settings</span></a>
+    </li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+  
+ <!--game data -->
+    <div id="status" class="container tab-pane active"><br>
+	<div class="row">
+	    <div class="col">
+	
+			  <fieldset disabled>
+			    <legend>Active Game</legend>
+					<div class="input-group input-group-sm mb-3">
+					  <span class="input-group-text">Name</span>
+					  <input id="name-cgId" type="text" class="form-control text-white" aria-label="Active game" aria-describedby="Active game">
+					</div>
+					<div class="input-group input-group-sm mb-3">
+					  <span class="input-group-text">#Model</span>
+					  <input id="modl-cgId" type="text" class="form-control monospace text-uppercase" aria-label="Active model number" aria-describedby="Active model number">
+					</div>
+					<div class="input-group input-group-sm mb-3">
+					  <span class="input-group-text">CRC</span>
+					  <input id="crc-cgId" type="text" class="form-control monospace text-uppercase" aria-label="crc" aria-describedby="Active crc">
+					</div>
+			  </fieldset>
+	
+	
+	    </div>
+	    <div class="col">
+			  <fieldset disabled>
+			    <legend>Active Boot</legend>
+					<div class="input-group input-group-sm mb-3">
+					  <span class="input-group-text">Name</span>
+					  <input id="name-crId" type="text" class="form-control text-white" aria-label="Active boot" aria-describedby="Active boot">
+					</div>
+					<div class="input-group input-group-sm mb-3">
+					  <span class="input-group-text">CRC</span>
+					  <input id="crc-crId" type="text" class="form-control monospace text-uppercase" aria-label="crc" aria-describedby="Active crc">
+					</div>
+			  </fieldset>
+			
+	    </div>
+	</div>
+</div>
+	<!--end game data -->
+	 
+  
+  
+    <!--start reprog tab -->
+    <div id="reprog" class="container tab-pane fade"><br>
+		<label class="form-label">Select game:</label>
+	    <select class="form-select form-select-sm" id="game-select-reprog" name="game-select-reprog" onchange="update_sm_labels(this)">
+	    </select>
+	
+     <div class="user-input mt-3">
+      <!--<button onclick="sendmsg_onclick('YBXQR')">go into reprog mode</button>-->
+      <button onclick="start_reprog()">Reprog</button>
+      
+	</div>
+
+
+
+
+    <h3 class="small">Reprog console</h3>
+    <div class="chat-messages small" id="reprog-messages"></div>
+ 
+
+</div>
+    
+    
+    <script>window.onload = create_game_select("game-select-reprog")</script>
+    <!--end reprog tab -->
+
+    <!--start system settings tab -->    
+    <div id="system-settings" class="container tab-pane fade"><br>
+      <p>Click the button Apply&Reset to get your changes applied.</p>
+
+	<div class="row">
+	    <div class="col">
+	
+			  <fieldset>
+			    <!--<legend>Options</legend>-->
+					<div class="input-group input-group-sm mb-3">
+						<div class="form-check">
+						  <input class="form-check-input" type="checkbox" value="" id="coin-rejector-optId" onclick="checkAddress(this)">
+						  <label class="form-check-label" for="flexCheckDefault">
+						    Coin rejector off
+						  </label>
+						</div>
+					</div>
+					<div class="input-group input-group-sm mb-3">
+						<div class="form-check">
+						  <input class="form-check-input" type="checkbox" value="" id="skip-coiltest-optId" onclick="checkAddress(this)">
+						  <label class="form-check-label" for="flexCheckDefault">
+						    Skip coils self-test
+						  </label>
+						</div>
+					</div>
+					<div class="input-group input-group-sm mb-3">
+						<div class="form-check">
+						  <input class="form-check-input" type="checkbox" value="" id="standalone-switchmatrix-optId" onclick="checkAddress(this)">
+						  <label class="form-check-label" for="flexCheckDefault">
+						    Stand alone switch matrix
+						  </label>
+						</div>
+					</div>
+					<div class="input-group input-group-sm mb-3">
+						<div class="form-check">
+						  <input class="form-check-input" type="checkbox" value="" id="unprotect-coils-optId" onclick="checkAddress(this)">
+						  <label class="form-check-label" for="flexCheckDefault">
+						    Unprotect coil channels
+						  </label>
+						</div>
+					</div>
+			  </fieldset>
+	
+	
+	    </div>
+	    <div class="col">
+			  <fieldset>
+			    <!--<legend>Control</legend>-->
+					<div class="d-grid gap-3">
+						<button type="button" class="btn btn-sm btn-primary btn-block" id="sys-apply-btnId" onclick="applySysOptions()" disabled>Apply&Reset</button>
+						<button type="button" class="btn btn-sm btn-success btn-block">Cancel</button>
+						<button type="button" class="btn btn-sm btn-danger btn-block" onclick="applySysFactory()">Factory reset</button>
+					</div>
+			  </fieldset>
+			
+	    </div>
+	</div>
+
+
+
+    </div>
+    <!--end system settings-->
+    
+    <!--start game settings tab -->    
+    <div id="game-settings" class="container tab-pane fade"><br>
+      <p>Apply and reset for your changes to take effect.</p>
+ 		<div>
+			<button type="button" class="btn btn-sm btn-primary border-radius w-100 me-2 mb-3" id="gameset-apply-btnId" onclick="checkandwriteGS()">Apply&Reset</button>
+ 		</div>
+        <div class="overflow-auto border"   style="height: 380px">
+				<table class="table table-striped monospace flexicol" id="game-settings-tableId">
+				 <thead>
+				  <tr>
+				   <th class="text-center">Property</th>
+				   <th class="text-center">Value</th>
+				  </tr>
+				 </thead>
+				 <tbody>
+				  <tr>
+				  </tr>
+				 </tbody>
+				</table> 
+		</div> 
+      
+    </div>
+    <!--end game settings-->
+
+<!--general purpose toast-->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+  <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <!--<img src="bootstrap-icons-1.13.1/cpu-fill.svg" class="rounded me-2" alt="icon header">-->
+      <img src="./cpu-fill.svg" class="rounded me-2" alt="icon header">
+      <strong class="me-auto" id="imgTitle-toastId">Bootstrap</strong>
+      <small  id="timeInfo-toastId">11 mins ago</small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body" id="main-toastId">
+      Hello, world! This is a toast message.
+    </div>
+  </div>
+</div>
+<!--end of toast-->
+
+  </div>
+</div>
+
+
+
+<div class="container p-3 my-3 bg-dark text-white rounded">
+
+
+
+	   
+		  <h3>Displays</h3>
+		  
+		  
+		  	<div id="freeplays" class="row">
+		  		<div class="col ms-auto text-end">Freeplays</div>
+		  		<div id="fp-0" class="col-1 border"></div>
+		  		<div id="fp-1" class="col-1 border"></div>
+		  		<div class="col ms-auto text-end"></div>
+		  	</div>
+		 
+		  	<div id="tableau-1" class="row mt-3 border border-3 ">
+		  		<div class="col-1 ms-auto border">P1</div>
+		  		<div class="col-1 border">
+			  		<div id="p1-1M"  class="font-monospace fs-2">1</div> 		  		
+		  		</div>
+		  		<div class="col-8 fs-1 d-inline">
+					<div id="p1-d1-0" class="d-inline p1-d1  text-end">.</div>
+					<div id="p1-0" class="d-inline border font-monospace">8</div>
+					<div id="p1-d1-1" class="d-inline p1-d1  text-end">.</div>
+					<div id="p1-1" class="d-inline border font-monospace">8</div>
+					<div id="p1-d1-2" class="d-inline p1-d1  text-end">.</div>
+					<div id="p1-2" class="d-inline border font-monospace">8</div>
+					<div id="p1-d1-3" class="d-inline p1-d1  text-end">.</div>
+					<div id="p1-3" class="d-inline border font-monospace">8</div>
+					<div id="p1-d1-4" class="d-inline p1-d1  text-end">.</div>
+					<div id="p1-4" class="d-inline border font-monospace">8</div>
+				  	<div id="p1-d1-5" class="d-inline p1-d1  text-end">.</div>
+				  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
+				  	<div id="p1-5" class="d-inline border font-monospace">0</div>
+				</div>
+		  		
+		  		<div class="col-2 border inline-block">
+		  				<div id="p1-l1" class="row miniled led-black border border-1"></div>
+		  				<div id="p1-l2" class="row miniled led-black border border-1"></div>
+		  		</div>
+		    </div>
+		    
+		 
+		  	<div id="tableau-2" class="row mt-3 border border-3">
+		  		<div class="col-1 ms-auto border">P2</div>
+		  		<div class="col-1 border">
+			  		<div id="p2-1M"  class=" font-monospace fs-2">1</div> 		  		
+		  		</div>
+		  		<div class="col-8 fs-1">
+					<div id="p2-d1-0" class="d-inline p2-d1  text-end">.</div>
+					<div id="p2-0" class="d-inline border font-monospace">8</div>
+					<div id="p2-d1-1" class="d-inline p2-d1  text-end">.</div>
+					<div id="p2-1" class="d-inline border font-monospace">8</div>
+					<div id="p2-d1-2" class="d-inline p2-d1  text-end">.</div>
+					<div id="p2-2" class="d-inline border font-monospace">8</div>
+					<div id="p2-d1-3" class="d-inline p2-d1  text-end">.</div>
+					<div id="p2-3" class="d-inline border font-monospace">8</div>
+					<div id="p2-d1-4" class="d-inline p2-d1  text-end">.</div>
+					<div id="p2-4" class="d-inline border font-monospace">8</div>
+				  	<div id="p2-d1-5" class="d-inline p2-d1  text-end">.</div>
+				  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
+				  	<div id="p2-5" class="d-inline border font-monospace">0</div>
+				</div>
+		  		
+		  		<div class="col-2 border">
+		  				<div id="p2-l1" class="row miniled led-black border border-1"></div>
+		  				<div id="p2-l2" class="row miniled led-black border border-1"></div>
+		  		</div>
+		    </div>
+		    
+		 
+		  	<div id="tableau-3" class="row mt-3 border border-3">
+		  		<div class="col-1 border">P3</div>
+		  		<div class="col-1 border">
+			  		<div id="p3-1M"  class=" font-monospace fs-2">1</div> 		  		
+		  		</div>
+		  		<div class="col-8 fs-1">
+					<div id="p3-d1-0" class="d-inline p3-d1  text-end">.</div>
+					<div id="p3-0" class="d-inline border font-monospace">8</div>
+					<div id="p3-d1-1" class="d-inline p3-d1  text-end">.</div>
+					<div id="p3-1" class="d-inline border font-monospace">8</div>
+					<div id="p3-d1-2" class="d-inline p3-d1  text-end">.</div>
+					<div id="p3-2" class="d-inline border font-monospace">8</div>
+					<div id="p3-d1-3" class="d-inline p3-d1  text-end">.</div>
+					<div id="p3-3" class="d-inline border font-monospace">8</div>
+					<div id="p3-d1-4" class="d-inline p3-d1  text-end">.</div>
+					<div id="p3-4" class="d-inline border font-monospace">8</div>
+				  	<div id="p3-d1-5" class="d-inline p3-d1  text-end">.</div>
+				  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
+				  	<div id="p3-5" class="d-inline border font-monospace">0</div>
+				</div>
+		  		
+		  		<div class="col-2 border">
+		  				<div id="p3-l1" class="row miniled led-black border border-1"></div>
+		  				<div id="p3-l2" class="row miniled led-black border border-1"></div>
+		  		</div>
+		    </div>
+		    
+	 
+		  	<div id="tableau-4" class="row mt-3 border border-3">
+		  		<div class="col-1 border">P4</div>
+		  		<div class="col-1 border">
+			  		<div id="p4-1M"  class=" font-monospace fs-2">1</div> 		  		
+		  		</div>
+		  		<div class="col-8 fs-1">
+					<div id="p4-d1-0" class="d-inline p4-d1  text-end">.</div>
+					<div id="p4-0" class="d-inline border font-monospace">8</div>
+					<div id="p4-d1-1" class="d-inline p4-d1  text-end">.</div>
+					<div id="p4-1" class="d-inline border font-monospace">8</div>
+					<div id="p4-d1-2" class="d-inline p4-d1  text-end">.</div>
+					<div id="p4-2" class="d-inline border font-monospace">8</div>
+					<div id="p4-d1-3" class="d-inline p4-d1  text-end">.</div>
+					<div id="p4-3" class="d-inline border font-monospace">8</div>
+					<div id="p4-d1-4" class="d-inline p4-d1  text-end">.</div>
+					<div id="p4-4" class="d-inline border font-monospace">8</div>
+				  	<div id="p4-d1-5" class="d-inline p4-d1  text-end">.</div>
+				  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
+				  	<div id="p4-5" class="d-inline border font-monospace">0</div>
+				</div>
+		  		
+		  		<div class="col-2 border">
+		  			<div >
+		  				<div id="p4-l1" class="row miniled led-black border border-1"></div>
+		  				<div id="p4-l2" class="row miniled led-black border border-1"></div>
+		  			</div>
+		  		</div>
+		    </div>
+		    
+				    
+
+		
+		  	<div id="credits" class="row mt-3 ">
+		  		<div class="col ms-auto text-end">Credits</div>
+		  		<div id="cr-0" class="col-1 border"></div>
+		  		<div id="cr-1" class="col-1 border"></div>
+		  		<div class="col ms-auto text-end"></div>
+		  	</div>
+		
+		  	<div id="lottery" class="row mt-2">
+		  		<div class="col ms-auto text-end">Lottery</div>
+		  		<div id="ltry-0" class="col-1 border"></div>
+		  		<div id="ltry-1" class="col-1 border"></div>
+		  		<div class="col ms-auto text-end"></div>
+		  	</div>
+		
+		
+		  	<div id="binplay" class="row mt-3 fs-2">
+		  		<div id="bip-1" class="col text-warning"><i class="bi bi-1-circle-fill"></i></div>
+		  		<div id="bip-2" class="col text-warning"><i class="bi bi-2-circle-fill"></i></div>
+		  		<div id="bip-3" class="col text-warning"><i class="bi bi-3-circle-fill"></i></div>
+		  		<div id="bip-4" class="col text-warning"><i class="bi bi-4-circle-fill"></i></div>
+		  		<div id="bip-5" class="col text-warning"><i class="bi bi-5-circle-fill"></i></div>
+		  		<div id="bip-tilt" class="col bg-warning text-center">Tilt</div>
+		  		<div id="bip-go" class="col fs-3 bg-warning text-center">G.Over</div>
+		  	</div>
+		
+		
+  	
+  </div>
+  
+  
+
+<div class="container p-3 my-3 bg-dark text-white rounded">
+	<h3>GPIO Coils and lamps</h3>
+	<div class="overflow-scroll led-bar-container ">
+	
+		<div id="gpioled-bar" class="d-inline-flex p-3 bg-secondary "> 
+		</div>
+	</div>
+</div>	
+<div class="container p-3 my-3 bg-dark text-white rounded">
+	<h3>B2 lamps </h3>
+	<div class="overflow-scroll led-bar-container ">
+	
+		<div id="b2led-bar" class="d-inline-flex p-3 bg-secondary "> 
+		</div>
+	</div>
+</div>	
+<script>create_ledbar(gpiotooltip, "gpioled-bar")</script>
+<script>create_ledbar(b2tooltip, "b2led-bar")</script>
+
+<div id="switch-matrix-window" class="container p-3 my-3 bg-dark text-white rounded">
+    
+	<h3>Switch matrix </h3>
+	<label class="form-label">Select game:</label>
+    <select class="form-select form-select-sm" id="game-select" name="game-select" onchange="update_sm_labels(this)">
+    </select>
+	
+	<div class="row mt-5">
+	<div class="col-1"></div>
+	<div class="col-1"><div class="border text-center">0</div></div>
+	<div class="col-1"><div class="border text-center">1</div></div>
+	<div class="col-1 text-center"><div class="border border-1">2</div></div>
+	<div class="col-1 text-center"><div class="border border-1">3</div></div>
+	<div class="col-1 text-center"><div class="border border-1">4</div></div>
+	<div class="col-1 text-center"><div class="border border-1">5</div></div>
+	<div class="col-1 text-center"><div class="border border-1">6</div></div>
+	<div class="col-1 text-center"><div class="border border-1">7</div></div>
+	<div class="col-1 text-center"><div class="border border-1">8</div></div>
+	<div class="col-1 text-center"><div class="border border-1">9</div></div>
+	</div>
+
+	<!--
+	
+	<div class="row mt-3">
+	<div class="col-1"><span class="fs-6 d-flex justify-content-center overflow-hidden">A</span></div>
+	<div class="col-1 "><div ><div class="d-flex justify-content-center" ><div class="cled led-green"></div></div><div  class="d-flex justify-content-center overflow-visible small" >Replay.</div></div></div>
+	<div class="col-1 "><div ><div class="d-flex justify-content-center" ><div class="cled led-green"></div></div><div  class="d-flex justify-content-center overflow-visible small" >Replay.</div></div></div>
+	<div class="col-1 "><div ><div class="d-flex justify-content-center" ><div class="cled led-green"></div></div><div  class="d-flex justify-content-center overflow-visible small" >Replayklklkl.</div></div></div>
+	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
+	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
+	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
+	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
+	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
+	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
+	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
+	</div>
+	
+	-->
+</div>	
+
+<script>window.onload = create_game_select("game-select")</script>
+<script>window.onload = create_switch_matrix("switch-matrix-window")</script>
+
+<div class="container p-3 my-3 bg-dark text-white rounded">
+    <h3>WiFlip (ws console)</h3>
+    <div class="websocket">
+      <button class="connect-button" id="bt_connect" onclick="connect_onclick()">Connect</button>
+      <!-- <span class="label">WebSocket: <span id="ws_state"><span style="color:blue">CLOSED</span></span></span> -->
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <!--
+    <div class="user-input">
+      <input type="text" id="message" placeholder="Type your message...">
+      <button onclick="send_onclick()">Send</button>
+    </div>
+    -->
+
+</div>
+
+<div class="container shadow p-4 mb-4 bg-white">
+    <img src="./wifliplogo.png" class="rounded me-2 w-25" alt="icon wiflip logo"> 
+</div>
+
+<!--	
+<iframe src="wswiflip.html?interframe=true" style="height:380px;width:50%" title="Iframe Example"></iframe>	
+-->
+
+</body></html>

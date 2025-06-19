@@ -467,7 +467,7 @@ WITHOUT PRESSING THE START BUTTON
                 u"F.P. Mode":[defaultModeFP, 
                                          Combo, 
                                          MyOptionsUtils.myValidateCombo, 0, 9, 
-                                         "E.B. Mode",
+                                         "F.P. Mode",
                                          ModePlStr,
                                          Combo("?Unknown", [(0, "Free Play not Repetitive"), (4, "Free Play Repetitive")], 4, 0xB1)],
                 
