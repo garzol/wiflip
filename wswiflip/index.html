@@ -95,8 +95,9 @@ td,th{padding:5px 15px;text-align:left;}
 var ws;
 var wsm_max_len = 4096; /* bigger length causes uart0 buffer overflow with low speed smart device */
 
-window.addEventListener( 'offline', function (e) {connect_onclick()} );
-
+//window.addEventListener( 'offline', function (e) {console.log("offline evt"); connect_onclick()} );
+//window.addEventListener( 'error', function (e) {console.log("error", e);} );
+console.log("eventlistener done");
 function update_text(text) {
   //console.log("write text to console "+text);
   var chat_messages = document.getElementById("chat-messages");
@@ -168,6 +169,7 @@ function connect_onclick() {
     ws.onopen = ws_onopen;
     ws.onclose = ws_onclose;
     ws.onmessage = ws_onmessage;
+	//ws.onerror = ws_onerror;
   } else
     ws.close();
 }
@@ -183,10 +185,44 @@ async function ws_onopen() {
   populategsData();
 }
 
-function ws_onclose() {
+function mng_ws_errors(event) {
+	var reason;
+	// See https://www.rfc-editor.org/rfc/rfc6455#section-7.4.1
+	if (event.code == 1000)
+	    reason = "Normal closure, meaning that the purpose for which the connection was established has been fulfilled.";
+	else if(event.code == 1001)
+	    reason = "An endpoint is \"going away\", such as a server going down or a browser having navigated away from a page.";
+	else if(event.code == 1002)
+	    reason = "An endpoint is terminating the connection due to a protocol error";
+	else if(event.code == 1003)
+	    reason = "An endpoint is terminating the connection because it has received a type of data it cannot accept (e.g., an endpoint that understands only text data MAY send this if it receives a binary message).";
+	else if(event.code == 1004)
+	    reason = "Reserved. The specific meaning might be defined in the future.";
+	else if(event.code == 1005)
+	    reason = "No status code was actually present.";
+	else if(event.code == 1006)
+	   reason = "The connection was closed abnormally, e.g., without sending or receiving a Close control frame";
+	else if(event.code == 1007)
+	    reason = "An endpoint is terminating the connection because it has received data within a message that was not consistent with the type of the message (e.g., non-UTF-8 [https://www.rfc-editor.org/rfc/rfc3629] data within a text message).";
+	else if(event.code == 1008)
+	    reason = "An endpoint is terminating the connection because it has received a message that \"violates its policy\". This reason is given either if there is no other sutible reason, or if there is a need to hide specific details about the policy.";
+	else if(event.code == 1009)
+	   reason = "An endpoint is terminating the connection because it has received a message that is too big for it to process.";
+	else if(event.code == 1010) // Note that this status code is not used by the server, because it can fail the WebSocket handshake instead.
+	    reason = "An endpoint (client) is terminating the connection because it has expected the server to negotiate one or more extension, but the server didn't return them in the response message of the WebSocket handshake. <br /> Specifically, the extensions that are needed are: " + event.reason;
+	else if(event.code == 1011)
+	    reason = "A server is terminating the connection because it encountered an unexpected condition that prevented it from fulfilling the request.";
+	else if(event.code == 1015)
+	    reason = "The connection was closed due to a failure to perform a TLS handshake (e.g., the server certificate can't be verified).";
+	else
+	    reason = "Unknown reason";
+	
+	return(reason);
+}
+function ws_onclose(event) {
 
-  update_text("closing websocket "+ws.url);
-  console.log("opening websocket "+ws+ws.url);
+  const reason = mng_ws_errors(event);
+  update_text("closing websocket "+ws.url+ " ("+event.code+")"); 
 
   document.getElementById("ws_state").innerHTML = "<span style='color:gray'>CLOSED</span>";
   document.getElementById("bt_connect").innerHTML = "Connect";
@@ -195,6 +231,12 @@ function ws_onclose() {
   ws.onclose = null;
   ws.onmessage = null;
   ws = null;
+  if (event.code != 1000) {
+	  //console.log("error", reason);
+	  //console.log("trying to reopening websocket "+ws+ws.url);
+	  update_text("reopening websocket "+ " ("+event.code+")"); 
+	  connect_onclick();
+  }
 }
 
 function blobToByteArray(blob) { 
@@ -304,19 +346,19 @@ async function manageFrame(frameTyp, frameArray) {
 			break;
 		case 120:
 			//RSSI frame (free running from server)
-			console.log("received 4 bytes RSSI", frameArray);
+			//console.log("received 4 bytes RSSI", frameArray);
 			const rssi = ((frameArray[3]) << 24)
 			     | ((frameArray[2]) << 16)
 			     | ((frameArray[1]) << 8)
 			     | ((frameArray[0]));	
 			if (rssi < -80)		
-				document.getElementById("rssi_state").innerHTML = `<span class="bg-danger text-white">&nbsp;${rssi} dB&nbsp;</span>`;
+				document.getElementById("rssi_state").innerHTML = `<span class="bg-danger text-white">&nbsp;<i class="bi bi-wifi-1"></i>&nbsp;${rssi} dB&nbsp;</span>`;
 			else if (rssi < -60)
-				document.getElementById("rssi_state").innerHTML = `<span class="bg-info text-white">&nbsp;${rssi} dB&nbsp;</span>`;
+				document.getElementById("rssi_state").innerHTML = `<span class="bg-info text-white">&nbsp;<i class="bi bi-wifi-2"></i>&nbsp;${rssi} dB&nbsp;</span>`;
 			else if (rssi > 0)
 				document.getElementById("rssi_state").innerHTML = '<span class="bg-secondary text-white">&nbsp;Error&nbsp;</span>';
 			else
-				document.getElementById("rssi_state").innerHTML = `<span class="bg-success text-white">&nbsp;${rssi} dB&nbsp;</span>`;
+				document.getElementById("rssi_state").innerHTML = `<span class="bg-success text-white">&nbsp;<i class="bi bi-wifi"></i>&nbsp;${rssi} dB&nbsp;</span>`;
 
 			try {
 				clearTimeout(timerRef);
@@ -627,9 +669,9 @@ document.getElementById("hostname").value = x;
 			  <fieldset>
 			    <!--<legend>Control</legend>-->
 					<div class="d-grid gap-3">
-						<button type="button" class="btn btn-sm btn-primary btn-block" id="sys-apply-btnId" onclick="applySysOptions()" disabled>Apply&Reset</button>
-						<button type="button" class="btn btn-sm btn-success btn-block">Cancel</button>
-						<button type="button" class="btn btn-sm btn-danger btn-block" onclick="applySysFactory()">Factory reset</button>
+						<button type="button" class="btn btn-sm btn-primary btn-block" id="sys-apply-btnId" onclick="applySysOptions(req_sc_flags1)" disabled>Apply&Reset</button>
+						<button type="button" class="btn btn-sm btn-success btn-block" onclick="cancelSysChanges()">Cancel</button>
+						<button type="button" class="btn btn-sm btn-danger btn-block"  onclick="applySysFactory()">Factory reset</button>
 					</div>
 			  </fieldset>
 			
@@ -928,7 +970,7 @@ document.getElementById("hostname").value = x;
 </div>
 
 <div class="container shadow p-4 mb-4 bg-white">
-    <img src="./wifliplogo.png" class="rounded me-2 w-25" alt="icon wiflip logo"> 
+    <img src="./wifliplogo.png" class="rounded me-2 w-50" alt="icon wiflip logo"> 
 </div>
 
 <!--	

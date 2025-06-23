@@ -13,6 +13,21 @@ const sysFlagsHmi = {
 	"unprotect-coils-optId"         : {"bit-num": 3,},
 };
 
+function hmi_flags_update(sc_flags) {
+	for (let i in sysFlagsHmi) {
+		//console.log(i, sysFlagsHmi[i]);
+		//console.log(sysFlagsHmi[i]["bit-num"]);
+		let elem = document.getElementById(i);
+		if (sc_flags&(1<<sysFlagsHmi[i]["bit-num"])) {
+			elem.checked = true;
+		}
+		else {
+			elem.checked = false;						
+		}
+	}
+	
+}
+
 function OnResetReceived(frameArray) {
     var evt = new CustomEvent('ResetReceived', { detail: frameArray });
 
@@ -138,17 +153,7 @@ async function memRequest(memTyp)
 				update_text('Start mode: '+ sc_mode_txtArr[sc_mode]);
 				//update_text('sc_flags1 '+sc_flags1);
 				
-				for (let i in sysFlagsHmi) {
-					//console.log(i, sysFlagsHmi[i]);
-					//console.log(sysFlagsHmi[i]["bit-num"]);
-					let elem = document.getElementById(i);
-					if (sc_flags1&(1<<sysFlagsHmi[i]["bit-num"])) {
-						elem.checked = true;
-					}
-					else {
-						elem.checked = false;						
-					}
-				}
+				hmi_flags_update(sc_flags1);
 				break;
 			default:
 				update_text('dump unknown received: '+e.detail);
@@ -188,11 +193,16 @@ function checkAddress(checkbox)
 
 }
 
-async function applySysOptions()
+function cancelSysChanges()
+{
+	req_sc_flags1 = sc_flags1;
+	hmi_flags_update(sc_flags1);
+}
+async function applySysOptions(req_flags)
 {
 	const memtyp = 0;
 	const addr   = 4;
-	const bbyt   = req_sc_flags1;
+	const bbyt   = req_flags;
 
 
 	//write flags to mem 0
