@@ -9,8 +9,12 @@
 <link rel="short-icon" href="https://www.pps4.fr/static/img/icons/favicon.ico">
 -->
 
+<!--
 <link rel="icon" href="./wifliplogo.png">
 <link rel="short-icon" href="./wifliplogo.png">
+-->
+<link rel="icon" href="http://garzol.free.fr/wswiflip/wifliplogo.png">
+<link rel="short-icon" href="http://garzol.free.fr/wswiflip/wifliplogo.png">
 
 <link href="bootstrap-5.0.2-dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="bootstrap-icons-1.13.1/bootstrap-icons.css" rel="stylesheet">
@@ -22,6 +26,7 @@
 <script src="./dsply.js"></script>
 <script src="./gbin.js"></script>
 <script src="./variablecols.js"></script>
+<script src="./superv.js"></script>
 <script src="./gamesettings.js" defer></script>
 
 <style>
@@ -30,6 +35,12 @@ body {
   /*background-color: black;*/
   /*font-size: 16px;*/
 }
+
+/*raw experimentation*/
+.textarea {
+    transition: height 0.2s ease-in-out;
+}
+
 .chat-container {
   width: 400px;
   margin: 0 auto;
@@ -97,7 +108,12 @@ var wsm_max_len = 4096; /* bigger length causes uart0 buffer overflow with low s
 
 //window.addEventListener( 'offline', function (e) {console.log("offline evt"); connect_onclick()} );
 //window.addEventListener( 'error', function (e) {console.log("error", e);} );
-console.log("eventlistener done");
+//console.log("eventlistener done");
+
+if (!("WebSocket" in window)) {
+	alert("Your browser does not support websockets. Choose another one");
+}
+
 function update_text(text) {
   //console.log("write text to console "+text);
   var chat_messages = document.getElementById("chat-messages");
@@ -141,6 +157,7 @@ function send_onclick() {
 function connect_onclick() {
   const re_mac4 = new RegExp("^([0-9]|[A-F]){4}$", "i");
   
+  console.log("connect_onclick", ws)
   if(ws == null) {
     var hostname = document.getElementById("hostname").value;
     localStorage.setItem("ls-hostname", hostname); 
@@ -169,12 +186,26 @@ function connect_onclick() {
     ws.onopen = ws_onopen;
     ws.onclose = ws_onclose;
     ws.onmessage = ws_onmessage;
-	//ws.onerror = ws_onerror;
-  } else
-    ws.close();
+	ws.onerror = ws_onerror;
+	
+  } else {
+	console.log("In connectonclick, call close websocket ");
+	try {
+		//ws.onopen = null;
+		ws.onclose = ws_oncloseforced;
+		//ws.onmessage = null;
+		//ws.onerror = ws_onerror;
+	    ws.close(3001, "zobi la mouche");
+	    //ws=null;
+		}
+	catch(err) {
+		console.log("catching error close", err);
+	    }
+	}
 }
 
 async function ws_onopen() {
+  //console.log("In onopen");
   document.getElementById("ws_state").innerHTML = "<span style='color:blue'>CONNECTED</span>";
   document.getElementById("bt_connect").innerHTML = "Disconnect";
   document.getElementById("main_connect").innerHTML = "Disconnect";
@@ -185,6 +216,11 @@ async function ws_onopen() {
   populategsData();
 }
 
+function ws_onerror(event) {
+	console.log("ws error", event);
+	event.preventDefault();
+
+}
 function mng_ws_errors(event) {
 	var reason;
 	// See https://www.rfc-editor.org/rfc/rfc6455#section-7.4.1
@@ -222,21 +258,38 @@ function mng_ws_errors(event) {
 function ws_onclose(event) {
 
   const reason = mng_ws_errors(event);
-  update_text("closing websocket "+ws.url+ " ("+event.code+")"); 
+  update_text("closing websocket "+ " ("+event.code+")"); 
+  console.log("In onclose websocket "+ reason);
+
+  ws = null;
+
+  if (event.code != 1000) {
+    //console.log("error", reason);
+    //console.log("trying to reopening websocket "+ws+ws.url);
+    console.log("Inside onclose "+ " ("+event.code+")");
+    update_text("reopening websocket "+ " ("+event.code+")"); 
+    connect_onclick();
+	return;
+  }
+  //ws.onopen = null;
+  //ws.onclose = null;
+  //ws.onmessage = null;
 
   document.getElementById("ws_state").innerHTML = "<span style='color:gray'>CLOSED</span>";
   document.getElementById("bt_connect").innerHTML = "Connect";
   document.getElementById("main_connect").innerHTML = "Connect";
-  ws.onopen = null;
-  ws.onclose = null;
-  ws.onmessage = null;
+}
+function ws_oncloseforced(event) {
+
+  const reason = mng_ws_errors(event);
+  update_text("closing websocket forced"+ " ("+event.code+")"); 
+  console.log("In oncloseforced websocket "+ reason);
+
   ws = null;
-  if (event.code != 1000) {
-	  //console.log("error", reason);
-	  //console.log("trying to reopening websocket "+ws+ws.url);
-	  update_text("reopening websocket "+ " ("+event.code+")"); 
-	  connect_onclick();
-  }
+
+  document.getElementById("ws_state").innerHTML = "<span style='color:gray'>CLOSED</span>";
+  document.getElementById("bt_connect").innerHTML = "Connect";
+  document.getElementById("main_connect").innerHTML = "Connect";
 }
 
 function blobToByteArray(blob) { 
@@ -252,6 +305,7 @@ function blobToByteArray(blob) {
 }
 
 var timerRef;
+var supervisionState = "Unknown";
 async function manageFrame(frameTyp, frameArray) {
 	switch(frameTyp) {
 		case 64:
@@ -260,8 +314,22 @@ async function manageFrame(frameTyp, frameArray) {
 			console.log("reset ack");
 			OnResetReceived(frameArray);
 			memRequest(0);
-			await sleep(500);
+			await sleep(300);
 			memRequest(1);
+			await sleep(300);
+			if (frameArray[1]==132 || frameArray[1]==200) {
+				supervisionState ="Supervision is ON";
+				document.getElementById("supervision-btnId").innerHTML = "Stop Supervision";
+				
+				
+			}
+			else {
+				supervisionState ="Supervision is OFF";
+				document.getElementById("supervision-btnId").innerHTML = "Start Supervision";
+				
+			}
+			document.getElementById("supervision-statusId").innerHTML = supervisionState;
+			
 			break;
 	    case 65:
 			var dspl_zone = document.getElementById("dsplA-zone");
@@ -535,18 +603,21 @@ document.getElementById("hostname").value = x;
   <!-- Nav tabs -->
   <ul class="nav nav-tabs" role="tablist">  
     <li class="nav-item">
-      <a title="Status" class="nav-link active" data-bs-toggle="tab" id="htab-status-Id" href="#status"><span class="fs-2 d-block d-sm-none"><i class="bi bi-list-check"></i></span><span class="d-none d-sm-block">Status</span></a>  
+      <a title="Status" class="nav-link active" data-bs-toggle="tab" id="htab-status-Id" href="#status"><span class="fs-2 d-block d-md-none"><i class="bi bi-list-check"></i></span><span class="d-none d-md-block">Status</span></a>  
       
     </li>
     <li class="nav-item">
-      <a title="Reprog" class="nav-link" data-bs-toggle="tab" id="htab-reprog-Id" href="#reprog"><span class="fs-2 d-block d-sm-none"><i class="bi bi-download"></i></span><span class="d-none d-sm-block">Reprog</span></a>  
+      <a title="Reprog" class="nav-link" data-bs-toggle="tab" id="htab-reprog-Id" href="#reprog"><span class="fs-2 d-block d-md-none"><i class="bi bi-download"></i></span><span class="d-none d-md-block">Reprog</span></a>  
     </li>
     <li class="nav-item">
-      <a title="System Settings" class="nav-link" data-bs-toggle="tab" id="htab-sys-settings-Id" href="#system-settings"><span class="fs-2 d-block d-sm-none"><i class="bi bi-gear"></i></span><span class="d-none d-sm-block">System Settings</span></a>
+      <a title="System Settings" class="nav-link" data-bs-toggle="tab" id="htab-sys-settings-Id" href="#system-settings"><span class="fs-2 d-block d-md-none"><i class="bi bi-gear"></i></span><span class="d-none d-md-block">Sys. Settings</span></a>
     </li>
-    <li class="nav-item">  
-      <a title="Game Settings" class="nav-link" data-bs-toggle="tab" id="htab-game-settings-Id" href="#game-settings"><span class="fs-2 d-block d-sm-none"><i class="bi bi-sliders"></i></span><span class="d-none d-sm-block">Game Settings</span></a>
-    </li>
+	<li class="nav-item">  
+	  <a title="Game Settings" class="nav-link" data-bs-toggle="tab" id="htab-game-settings-Id" href="#game-settings"><span class="fs-2 d-block d-md-none"><i class="bi bi-sliders"></i></span><span class="d-none d-md-block">Game Settings</span></a>
+	</li>
+	<li class="nav-item">  
+	  <a title="Supervision" class="nav-link" data-bs-toggle="tab" id="htab-supervision-Id" href="#supervision"><span class="fs-2 d-block d-md-none"><i class="bi bi-hand-index-thumb"></i></span><span class="d-none d-md-block">Supervision</span></a>
+	</li>
   </ul>
 
   <!-- Tab panes -->
@@ -706,6 +777,46 @@ document.getElementById("hostname").value = x;
       
     </div>
     <!--end game settings-->
+
+	
+	<!--start supervision tab -->    
+	<div id="supervision" class="container tab-pane fade"><br>
+	  <p id="supervision-statusId">Take control of outputs</p>
+	  
+		<div>
+			<button type="button" class="btn btn-sm btn-primary border-radius w-100 me-2 mb-3" id="supervision-btnId" onclick="start_supervis();">Start Supervision</button>
+		</div>
+
+		<div class="container p-3 my-3 bg-dark text-white rounded">
+			<h3>Display A</h3>
+			<div id='dsplA-errorvalidate'></div>
+
+			<div class="overflow-scroll d-flex align-items-center justify-content-center ">
+				<div id="dsplA-superId" class="d-inline-flex p-3 bg-secondary "> 
+				</div>
+			</div>
+			<div class="mt-2">
+				<button type="button" class="btn btn-sm btn-primary border-radius w-100 me-2 mb-3" id="supervision-applAId" onclick="setDspls('dsplA');">Apply Display A</button>
+			    <button type="button" class="btn btn-sm btn-primary border-radius w-100 me-2 mb-3"                          onclick="setInitVals('dsplA', 'F');">Reset data of Display A</button>
+			</div>
+			<h3 class="mt-3">Display B</h3>
+			<div id='dsplB-errorvalidate'></div>
+			<div class="overflow-scroll d-flex align-items-center justify-content-center ">
+	
+				<div id="dsplB-superId" class="d-inline-flex p-3 bg-secondary "> 
+				</div>
+			</div>
+			<div class="mt-2">
+			<button type="button" class="btn btn-sm btn-primary border-radius w-100 me-2 mb-3" id="supervision-applAId" onclick="setDspls('dsplB');">Apply Display B</button>
+		    <button type="button" class="btn btn-sm btn-primary border-radius w-100 me-2 mb-3"                          onclick="setInitVals('dsplB', 'F');">Reset data of Display B</button>
+			</div>
+		</div>	
+
+			  
+	</div>
+	<script>create_dsplSuper("dsplA")</script>
+	<script>create_dsplSuper("dsplB")</script>
+	<!--end supervision-->
 
 <!--general purpose toast-->
 <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">

@@ -116,3 +116,23 @@ function displayToast(txt1, txt2) {
 	
 }
 
+
+function modalShow(title, body, bg_level) {
+
+	const  modalTitleElem= document.getElementById("modal-title-id");
+	const  modalBodyElem= document.getElementById("modal-body-id");
+	const  modalButtonElem= document.getElementById("modal-button-id");
+
+	const modalElem = document.getElementById("reprog-myModal");
+	var myModal = new bootstrap.Modal(modalElem, {
+	  keyboard: true
+	});
+	
+	modalButtonElem.classList.remove("bg-danger");					
+	modalButtonElem.classList.remove("bg-success");					
+	modalButtonElem.classList.add(bg_level);					
+	modalTitleElem.innerHTML = title;
+	modalBodyElem.innerHTML  = body;
+	myModal.show();
+
+}

@@ -255,8 +255,6 @@ function checkCRC(model) {
 
 
 
-
-
 async function start_reprog( ) {
 	const gsElement = document.getElementById("game-select-reprog");
 	const req_game = gsElement.options[ gsElement.selectedIndex ].value;

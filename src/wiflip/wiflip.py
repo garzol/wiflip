@@ -3073,7 +3073,7 @@ QPushButton:pressed {
             elif typ == 64: #40 '@' reset ack frame
                 ident = data[0]
                 rtype = data[1]
-                #self.write2Console(f"Reset Ack Frame received: Ident: {ident:02X}. Reset Type: {rtype:02X}\r\n")
+                self.write2Console(f"Reset Ack Frame received: Ident: {ident:02X}. Reset Type: {rtype:02X}\r\n")
                 self.resetAckSig.emit(rtype)
                     
             elif typ == 67:  #'C'
