@@ -124,6 +124,12 @@ function affdspl(typ, data) {
 			container.innerHTML = d.toString(16).toUpperCase();//parseInt(d, 16);
 	}
 
+	function dsplf0(d, eId) {
+		const container = document.getElementById(eId);
+		const d0 = d&0x0F;
+		container.innerHTML = d0.toString(16).toUpperCase();//parseInt(d, 16);
+	}
+
 	function dspll(d, teId) {
 		let container1M = document.getElementById(teId[0]);
 		if (!(d&0b0100)) {
