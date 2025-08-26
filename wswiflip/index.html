@@ -812,6 +812,34 @@ document.getElementById("hostname").value = x;
 			</div>
 		</div>	
 
+		
+		<!--IOs control start-->
+
+		<div class="container p-3 my-3 bg-dark text-white rounded">
+			<h3>Super GPIO Coils and lamps</h3>
+			<div class="overflow-scroll led-bar-container ">
+			
+				<div id="gpioled-bar-s" class="d-inline-flex p-3 bg-secondary "> 
+				</div>
+			</div>
+		</div>	
+		<div class="container p-3 my-3 bg-dark text-white rounded">
+			<h3>Super B2 lamps </h3>
+			<div class="overflow-scroll led-bar-container ">
+			
+				<div id="b2led-bar-s" class="d-inline-flex p-3 bg-secondary "> 
+				</div>
+			</div>
+		</div>	
+		<script>create_ledbar(gpiotooltip, "gpioled-bar-s")</script>
+		<script>create_ledbar(b2tooltip, "b2led-bar-s")</script>
+		
+		<!--IOs control end-->
+		
+		
+		
+		
+		
 			  
 	</div>
 	<script>create_dsplSuper("dsplA")</script>

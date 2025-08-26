@@ -592,7 +592,7 @@
         }
         
     dfl = {
-        "#Model"          : "0000",    
+        "#Model"          : "1067",    
         "Game bin"        : "flgame.bin",
         "Game Fletcher"   : 0x4EA1,    
         "A1762 bin"       : "flA1762.bin",
