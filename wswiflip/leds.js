@@ -51,16 +51,66 @@ const b2tooltip = [
 	    "L/28"   //#IO-15
 	    ];
 
+		
+		
+//for the wsc3c.html
+const patooltip = [
+	"A0",
+	"A1",
+	"A2",
+	"A3",
+	"A4",
+	"A5",
+	"A6",
+	"A7"
+	];
+const pbtooltip = [
+		"B0",
+		"B1",
+		"B2",
+		"B3",
+		"B4",
+		"B5",
+		"B6",
+		"B7"
+		];
+const pctooltip = [
+		"C0",
+		"C1",
+		"C2",
+		"C3",
+		"C4",
+		"C5",
+		"C6",
+		"C7"
+		];
+const pdtooltip = [
+		"D0",
+		"D1",
+		"D2",
+		"D3",
+		"D4",
+		"D5",
+		"D6",
+		"D7"
+		];
+	
 function create_ledbar(ledblock, container_id) {
 	const ledcElement = document.getElementById(container_id);
-	
+	var   strsgn;
 //	const att_ledc = document.createAttribute("class");
 //	att_ledc.value = "container overflow-scroll";
 //	ledcElement.setAttributeNode(att_ledc);
 
+	if (ledblock == gpiotooltip)
+		strsgn = "gpiotooltip";
+	else if (ledblock == b2tooltip)
+		strsgn = "b2tooltip";
+	else
+		strsgn = "unknowntooltip";
 	
 	ledblock.forEach(initleds);
-	function initleds(n) {
+	function initleds(n, index) {
 		// Create element:
 		const led_container = document.createElement("div");
 		ledcElement.appendChild(led_container);
@@ -89,7 +139,9 @@ function create_ledbar(ledblock, container_id) {
 		led_led.setAttributeNode(att);
 		// Create a class attribute:
 		const att2 = document.createAttribute("class");
-		led_led.setAttribute("id", n);
+		led_led.setAttribute("id", n+container_id);
+		//console.log("ledclass_"+n+container_id);
+		//led_led.classList.add("ledclass_"+strsgn+index);
 		led_led.setAttribute("title", n);
 
 		// Set the value of the class attribute

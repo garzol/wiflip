@@ -606,7 +606,7 @@ class RscPin():
         }
         
     dfl = {
-        "#Model"          : "0000",    #TODO
+        "#Model"          : "1067",    #TODO
         "Game bin"        : "flgame.bin",
         "Game Fletcher"   : 0x4EA1,    
         "A1762 bin"       : "flA1762.bin",

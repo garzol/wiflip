@@ -4,6 +4,10 @@
 
 var stored_dsplA = new Array(16).fill(0xC);
 var stored_dsplB = new Array(16).fill(0xB);
+var stored_B2    = new Array(16).fill(0);
+var stored_B3_AB = new Array(8).fill(0);
+var stored_B3_CD = new Array(8).fill(0);
+var stored_B3_EF = new Array(8).fill(0);
 try {
 	console.log("array A storage is", JSON.parse(localStorage.stored_dsplA));
 	stored_dsplA = JSON.parse(localStorage.stored_dsplA);	
@@ -25,7 +29,10 @@ catch (err) {
 	localStorage.setItem("stored_dsplB", JSON.stringify(stored_dsplB));
 
 }
-var stored_items = {"dsplA": stored_dsplA, "dsplB": stored_dsplB};
+var stored_items = {"dsplA": stored_dsplA, "dsplB": stored_dsplB, 
+	                "B2"   : stored_B2,    "B3-AB": stored_B3_AB,
+					"B3-CD": stored_B3_CD, "B3-EF": stored_B3_EF
+};
 
 const super_mycmds = {"dsplA":0x5A, "dsplB":0x5B, 
                "B2":0x20,        "B3-AB":0x30, 
@@ -186,6 +193,209 @@ function setDspls(typD) {
 
 	}
 }
+
+function set_SuperIOs(zoneIO, index) {
+
+	//YQxyz 
+	const c1 = super_mycmds[zoneIO];
+	var c2 = 0;
+	var c3 = 0;
+    var offset_index;
+	
+	if (zoneIO == "B2")
+		offset_index = 0;
+	else if (zoneIO == "B3-AB")
+		offset_index = 0;
+	else if (zoneIO == "B3-CD")
+		offset_index = 8;
+	else if (zoneIO == "B3-EF")
+		offset_index = 16;
+	else
+		return;
+
+	var cx = 0;
+	var pw = 0;
+	var state;
+	for (let i=0; i< super_gb[zoneIO].element.length; i++) {
+		if (super_gb[zoneIO].element[i].container.classList.contains("led-black"))
+			state = 0;
+		else 
+			state = 1;
+		cx += (state<<pw);
+		pw += 1;
+	}	
+	c2 = cx&0xFF;
+	c3 = (cx&0xFF00)>>8;
+	const b1 = new Uint8Array([89, 81, c1, c2, c3]);
+	console.debug(b1);
+	sendmsg_onclick(b1);
+
+}
+
+function preset_IOsSuper(ledblock, container_id) {
+	const ledcElement = document.getElementById(container_id);
+//	const att_ledc = document.createAttribute("class");
+//	att_ledc.value = "container overflow-scroll";
+//	ledcElement.setAttributeNode(att_ledc);
+
+	stored_B2.fill(0);
+	stored_B3_AB.fill(0);
+	stored_B3_CD.fill(0);
+	stored_B3_EF.fill(0);
+
+    if (ledblock == b2tooltip) {
+
+		var super_gbx = new Object();
+		super_gb["B2"] = super_gbx;
+		super_gbx.element = new Array();
+		for (let i=0; i<16; i++) {
+			var ball_container = document.getElementById(ledblock[i]+container_id);
+			var elem = new Object({container:ball_container});
+			super_gbx.element.push(elem);
+			var val;
+			try {
+				val = stored_items["B2"][i];
+				}
+			catch (err) {
+				stored_items["B2"][i] = 0;
+				val = 0;
+						}
+			finally {
+				if (val === 0) {
+					ball_container.setAttribute("class",  "led led-black border border-3");					
+				}
+				else {
+					ball_container.setAttribute("class",  "led led-red");		
+					
+				}
+			}	
+		}	
+	}
+	else {
+		var super_gbx = new Object();
+		super_gb["B3-AB"] = super_gbx;
+		super_gbx.element = new Array();
+		for (let i=0; i<8; i++) {
+			var ball_container = document.getElementById(ledblock[i]+container_id);
+			//console.log("ball content", ball_container, i.toString()+container_id)
+			var elem = new Object({container:ball_container});
+			super_gbx.element.push(elem);
+			var val;
+			try {
+				val = stored_items["B3-AB"][i];
+				}
+			catch (err) {
+				stored_items["B3-AB"][i] = 0;
+				val = 0;
+						}
+			finally {
+				if (val === 0) {
+					ball_container.setAttribute("class",  "led led-black border border-3");					
+				}
+				else {
+					ball_container.setAttribute("class",  "led led-red");		
+					
+				}
+			}	
+		}		
+		var super_gbx = new Object();
+		super_gb["B3-CD"] = super_gbx;
+		super_gbx.element = new Array();
+		for (let i=0; i<8; i++) {
+			let j = i+8;
+			var ball_container = document.getElementById(ledblock[j]+container_id);
+			var elem = new Object({container:ball_container});
+			super_gbx.element.push(elem);
+			var val;
+			try {
+				val = stored_items["B3-CD"][i];
+				}
+			catch (err) {
+				stored_items["B3-CD"][i] = 0;
+				val = 0;
+						}
+			finally {
+				if (val === 0) {
+					ball_container.setAttribute("class",  "led led-black border border-3");					
+				}
+				else {
+					ball_container.setAttribute("class",  "led led-red");		
+					
+					}
+				}	
+			}
+			var super_gbx = new Object();
+			super_gb["B3-EF"] = super_gbx;
+			super_gbx.element = new Array();
+			for (let i=0; i<8; i++) {
+				let j = i+16;
+				var ball_container = document.getElementById(ledblock[j]+container_id);
+				var elem = new Object({container:ball_container});
+				super_gbx.element.push(elem);
+				var val;
+				try {
+					val = stored_items["B3-EF"][i];
+					}
+				catch (err) {
+					stored_items["B3-EF"][i] = 0;
+					val = 0;
+							}
+				finally {
+					if (val === 0) {
+						ball_container.setAttribute("class",  "led led-black border border-3");					
+					}
+					else {
+						ball_container.setAttribute("class",  "led led-red");		
+						
+						}
+					}	
+				}
+							
+	}
+		
+
+		
+}
+
+
+function create_IOsSuper(ledblock, container_id) {
+	const ledcElement = document.getElementById(container_id);
+//	const att_ledc = document.createAttribute("class");
+//	att_ledc.value = "container overflow-scroll";
+//	ledcElement.setAttributeNode(att_ledc);
+
+	preset_IOsSuper(ledblock, container_id)
+		
+	ledblock.forEach(initleds);
+	function initleds(n, index) {
+		//get element
+		const ledElem = document.getElementById(n+container_id);
+		ledElem.addEventListener("click", function(event) {
+			//console.log("addeventlistener");
+			if (this.classList.contains("led-red"))
+				this.setAttribute("class",  "led led-black border border-3");
+			else
+				this.setAttribute("class",  "led led-red");		
+			
+			var zoneIO;
+			if (ledblock == b2tooltip)	
+				zoneIO = "B2";
+			else if (ledblock == gpiotooltip) {
+				if (index < 8)
+					zoneIO = "B3-AB";
+				else if (index < 16)
+					zoneIO = "B3-CD";
+				else
+					zoneIO = "B3-EF";
+			}
+			//console.log("testios", n, index, ledblock);
+			set_SuperIOs(zoneIO, index);
+		});
+	}
+		
+}
+
+
 async function start_supervis( ) {
 
 	var checkResetResp;
@@ -206,6 +416,8 @@ async function start_supervis( ) {
 			if (checkResetResp[1] == 0x84) {
 				console.log("locked in supervisor");
 				displayToast("Supervision", "Supervision activated");
+				preset_IOsSuper(gpiotooltip, "gpioled-bar-s");
+				preset_IOsSuper(b2tooltip, "b2led-bar-s");
 				return;
 			}
 		}

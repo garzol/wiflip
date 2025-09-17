@@ -7,6 +7,19 @@ const fpElem = ["fp-0", "fp-1"];
 const crElem = ["cr-0", "cr-1"];
 const ltElem = ["ltry-0", "ltry-1"];
 
+
+function dsplf0(d, eId) {
+	const container = document.getElementById(eId);
+	try {
+		const d0 = d&0x0F;
+		container.innerHTML = d0.toString(16).toUpperCase();//parseInt(d, 16);		
+	}
+	catch(err) {
+		console.debug(err, d, eId);
+		
+	}
+}
+
 function affdspl(typ, data) {
 	
 
@@ -124,11 +137,7 @@ function affdspl(typ, data) {
 			container.innerHTML = d.toString(16).toUpperCase();//parseInt(d, 16);
 	}
 
-	function dsplf0(d, eId) {
-		const container = document.getElementById(eId);
-		const d0 = d&0x0F;
-		container.innerHTML = d0.toString(16).toUpperCase();//parseInt(d, 16);
-	}
+
 
 	function dspll(d, teId) {
 		let container1M = document.getElementById(teId[0]);

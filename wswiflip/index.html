@@ -181,7 +181,7 @@ function connect_onclick() {
     // Change binary type from "blob" to "arraybuffer"
 	//ws.binaryType = "blob";
     update_text("opening websocket " +hostname+"...");
-    //console.log("opening websocket "+hostname+ws+ws.url);
+    //console.log("opening websocket "+hostname+" "+ws+" "+ws.url);
     document.getElementById("ws_state").innerHTML = "CONNECTING";
     ws.onopen = ws_onopen;
     ws.onclose = ws_onclose;
@@ -260,6 +260,7 @@ function ws_onclose(event) {
   const reason = mng_ws_errors(event);
   update_text("closing websocket "+ " ("+event.code+")"); 
   console.log("In onclose websocket "+ reason);
+  console.log("  The event was "+ event);
 
   ws = null;
 
@@ -379,27 +380,41 @@ async function manageFrame(frameTyp, frameArray) {
 	  	    //gpios and b2
 			var dspl_zone = document.getElementById("89-zone");
 			//dspl_zone.innerHTML = frameArray;
+			function myFunction(item, index, arr) {
+			   //console.log("item", item, index);
+			   item.setAttribute("class",  this);  //this is filled with the 2nd param of foreach
+			}
+
 			for (let i=0; i<24; i++) {
 				let byten = 6 - Math.floor(i / 8);
-				let ledElem = document.getElementById(gpiotooltip[i]);
+				let ledElem = document.getElementById(gpiotooltip[i]+"gpioled-bar");
+				let basclass = "ledclass_gpiotooltip"+i;
+				let ledElems = document.getElementsByClassName(basclass);
+				//console.log(typeof(ledElems), ledElems.length);
 				//console.log('frame '+ ' ' + frameArray[byten]+ ' '+ (frameArray[byten]&&(1<<(i%8))) +' '+byten +' '+ i);
 				if ( frameArray[byten]&(1<<(i%8)) ) {
 					ledElem.setAttribute("class",  "led led-green");
+					//Object.values(ledElems).forEach(myFunction, "led led-green "+basclass);
 					}
 				else {
 					ledElem.setAttribute("class",  "led led-black border border-3");
+				    //Object.values(ledElems).forEach(myFunction, "led led-black border border-3 "+basclass);
 					}
 				}
 					
 			for (let i=0; i<16; i++) {
 				let byten = 8 - Math.floor(i / 8);
-				let ledElem = document.getElementById(b2tooltip[i]);
+				let ledElem = document.getElementById(b2tooltip[i]+"b2led-bar");
+				let basclass = "ledclass_b2tooltip"+i;
+				let ledElems = document.getElementsByClassName(basclass);
 				//console.log('frame '+ ' ' + frameArray[byten]+ ' '+ (frameArray[byten]&&(1<<(i%8))) +' '+byten +' '+ i);
 				if ( frameArray[byten]&(1<<(i%8)) ) {
 					ledElem.setAttribute("class",  "led led-black border border-3");
+				    //Object.values(ledElems).forEach(myFunction, "led led-black border border-3 "+basclass);
 					}
 				else {
 					ledElem.setAttribute("class",  "led led-blue");
+				    //Object.values(ledElems).forEach(myFunction, "led led-blue "+basclass);
 					}
 				}
 					
@@ -414,7 +429,7 @@ async function manageFrame(frameTyp, frameArray) {
 			break;
 		case 120:
 			//RSSI frame (free running from server)
-			//console.log("received 4 bytes RSSI", frameArray);
+			console.log("received 4 bytes RSSI", frameArray);
 			const rssi = ((frameArray[3]) << 24)
 			     | ((frameArray[2]) << 16)
 			     | ((frameArray[1]) << 8)
@@ -833,6 +848,8 @@ document.getElementById("hostname").value = x;
 		</div>	
 		<script>create_ledbar(gpiotooltip, "gpioled-bar-s")</script>
 		<script>create_ledbar(b2tooltip, "b2led-bar-s")</script>
+		<script>create_IOsSuper(gpiotooltip, "gpioled-bar-s")</script>
+		<script>create_IOsSuper(b2tooltip, "b2led-bar-s")</script>
 		
 		<!--IOs control end-->
 		

@@ -211,9 +211,9 @@ async function ws_onopen() {
   document.getElementById("main_connect").innerHTML = "Disconnect";
   document.getElementById("chat-messages").innerHTML = "";
 
-  memRequest(0);
-  await sleep(600);
-  populategsData();
+  //memRequest(0);
+  //await sleep(600);
+  //populategsData();
 }
 
 function ws_onerror(event) {
@@ -336,9 +336,10 @@ async function manageFrame(frameTyp, frameArray) {
 			dsplf0(frameArray[1], "Z102");
 			dsplf0(frameArray[2], "Z103");
 			dsplf0(frameArray[3], "Z104");
-			dsplf0(frameArray[4], "Z401");
-			dsplf0(frameArray[5], "Z402");
-			dsplf0(frameArray[6], "Z403");
+			dsplf0(frameArray[4], "Z400");
+			dsplf0(frameArray[5], "Z401");
+			dsplf0(frameArray[6], "Z402");
+			console.log(frameArray);
 	        break;
 	    case 66:
 			var dspl_zone = document.getElementById("dsplB-zone");
@@ -380,14 +381,33 @@ async function manageFrame(frameTyp, frameArray) {
 
 			break;
 	  	case 89:
-	  	    //gpios and b2
-			var dspl_zone = document.getElementById("89-zone");
+	  	    //ports abcd
+			//var dspl_zone = document.getElementById("89-zone");
 			//dspl_zone.innerHTML = frameArray;
-			for (let i=0; i<24; i++) {
-				let byten = 6 - Math.floor(i / 8);
-				let ledElem = document.getElementById(gpiotooltip[i]);
+			for (let i=0; i<8; i++) {
+				let ledElem = document.getElementById(patooltip[i]+"pa-bar");
 				//console.log('frame '+ ' ' + frameArray[byten]+ ' '+ (frameArray[byten]&&(1<<(i%8))) +' '+byten +' '+ i);
-				if ( frameArray[byten]&(1<<(i%8)) ) {
+				if ( frameArray[0]&(1<<(i%8)) ) {
+					ledElem.setAttribute("class",  "led led-green");
+					}
+				else {
+					ledElem.setAttribute("class",  "led led-black border border-3");
+					}
+				}
+			for (let i=0; i<8; i++) {
+				let ledElem = document.getElementById(pbtooltip[i]+"pb-bar");
+				//console.log('frame '+ ' ' + frameArray[byten]+ ' '+ (frameArray[byten]&&(1<<(i%8))) +' '+byten +' '+ i);
+				if ( frameArray[1]&(1<<(i%8)) ) {
+					ledElem.setAttribute("class",  "led led-green");
+					}
+				else {
+					ledElem.setAttribute("class",  "led led-black border border-3");
+					}
+				}
+			for (let i=0; i<8; i++) {
+				let ledElem = document.getElementById(pctooltip[i]+"pc-bar");
+				//console.log('frame '+ ' ' + frameArray[byten]+ ' '+ (frameArray[byten]&&(1<<(i%8))) +' '+byten +' '+ i);
+				if ( frameArray[2]&(1<<(i%8)) ) {
 					ledElem.setAttribute("class",  "led led-green");
 					}
 				else {
@@ -395,19 +415,17 @@ async function manageFrame(frameTyp, frameArray) {
 					}
 				}
 					
-			for (let i=0; i<16; i++) {
-				let byten = 8 - Math.floor(i / 8);
-				let ledElem = document.getElementById(b2tooltip[i]);
+			for (let i=0; i<8; i++) {
+				let ledElem = document.getElementById(pdtooltip[i]+"pd-bar");
 				//console.log('frame '+ ' ' + frameArray[byten]+ ' '+ (frameArray[byten]&&(1<<(i%8))) +' '+byten +' '+ i);
-				if ( frameArray[byten]&(1<<(i%8)) ) {
-					ledElem.setAttribute("class",  "led led-black border border-3");
+				if ( frameArray[3]&(1<<(i%8)) ) {
+					ledElem.setAttribute("class",  "led led-green");
 					}
 				else {
-					ledElem.setAttribute("class",  "led led-blue");
+					ledElem.setAttribute("class",  "led led-black border border-3");
 					}
 				}
-					
-				
+									
 			break;		
 		case 90:		
 	        //read 2 bytes. in Reply to the 5A request
@@ -489,7 +507,7 @@ function handle_ba(ba) {
 				  break;
 			  case 89:
 			      //update_text('display B frame '+idx+' '+ frameIdx+ ' ' + ba.length);
-			      framesz = 9;
+			      framesz = 4;
 			      frameArray = new Uint8Array(framesz);
 			      break;
 			  case 90:
@@ -612,6 +630,40 @@ document.getElementById("hostname").value = x;
 		<div id="Z400" class="d-inline border font-monospace">8</div>
 	</div>
 </div>
+
+<div class="container p-3 my-3 bg-dark text-white rounded">
+	<h3>Port A </h3>
+	<div class="overflow-scroll led-bar-container ">
+
+		<div id="pa-bar" class="d-inline-flex p-1 bg-secondary "> 
+		</div>
+	</div>
+	<h3>Port B </h3>
+	<div class="overflow-scroll led-bar-container ">
+
+		<div id="pb-bar" class="d-inline-flex p-1 bg-secondary "> 
+		</div>
+	</div>
+	<h3>Port C </h3>
+	<div class="overflow-scroll led-bar-container ">
+
+		<div id="pc-bar" class="d-inline-flex p-1 bg-secondary "> 
+		</div>
+	</div>
+	<h3>Port D </h3>
+	<div class="overflow-scroll led-bar-container ">
+
+		<div id="pd-bar" class="d-inline-flex p-1 bg-secondary "> 
+		</div>
+	</div>
+
+</div>	
+<script>create_ledbar(patooltip, "pa-bar")</script>
+<script>create_ledbar(pbtooltip, "pb-bar")</script>
+<script>create_ledbar(pctooltip, "pc-bar")</script>
+<script>create_ledbar(pdtooltip, "pd-bar")</script>
+
+
 
 <div class="container p-3 my-3 rounded border border-3 shadow p-4 mb-4 bg-white">
 <!--
