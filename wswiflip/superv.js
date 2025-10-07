@@ -8,6 +8,20 @@ var stored_B2    = new Array(16).fill(0);
 var stored_B3_AB = new Array(8).fill(0);
 var stored_B3_CD = new Array(8).fill(0);
 var stored_B3_EF = new Array(8).fill(0);
+
+const title_dsplA = ["Player 2/100K", "Player 2/10K", "Player 2/1K", "Player 2/100", "Player 2/10",
+	                 "Player 2/Leds", "Lottery Tens", "Ball in Play/Tilt/Game Over",
+					 "Player 1/100K", "Player 1/10K", "Player 1/1K", "Player 1/100", "Player 1/10", 
+					 "Player 1/Leds", "Extra Balls", "Freeplays"
+				 ];
+
+const title_dsplB = ["Player 3/100K", "Player 3/10K", "Player 3/1K", "Player 3/100", "Player 3/10",
+ 	                 "Player 3/Leds", "N.C.", "N.C.", 
+					 "Player 4/100K", "Player 4/10K", "Player 4/1K", "Player 4/100", "Player 4/10", 
+					 "Player 4/Leds", "Credits 1x", "Credits 10x"
+					 ];
+
+const titlesObj = {dsplA: title_dsplA, dsplB: title_dsplB};
 try {
 	console.log("array A storage is", JSON.parse(localStorage.stored_dsplA));
 	stored_dsplA = JSON.parse(localStorage.stored_dsplA);	
@@ -77,7 +91,12 @@ function create_dsplSuper(typD) {
 		txtx_container.style.overflowY = "hidden";
 		txtx_container.style.overflowX = "hidden";
 		txtx_container.style.resize = "none";
-		txtx_container.title = "my title de bouffon";
+		try {
+			txtx_container.title = titlesObj[typD][i];
+		}
+		catch (err) {
+			txtx_container.title = "my title de bouffon";
+			}
 		dsplXElement.appendChild(txtx_container);
 		
 		var elem = new Object({container:txtx_container});
