@@ -32,6 +32,23 @@ class MySuperv(QtWidgets.QDialog):
         #QtGui.QWidget.__init__(self, parent)
         self.ui = Ui_SupervisDialog()
         self.ui.setupUi(self)
+
+
+        self.title_dsplA = ["Player 2/100K", "Player 2/10K", "Player 2/1K", "Player 2/100", "Player 2/10",
+                     "Player 2/Leds", "Lottery Tens", "Ball in Play/Tilt/Game Over",
+                     "Player 1/100K", "Player 1/10K", "Player 1/1K", "Player 1/100", "Player 1/10", 
+                     "Player 1/Leds", "Extra Balls", "Freeplays"
+                 ]
+
+        self.title_dsplB = ["Player 3/100K", "Player 3/10K", "Player 3/1K", "Player 3/100", "Player 3/10",
+                      "Player 3/Leds", "N.C.", "N.C.", 
+                     "Player 4/100K", "Player 4/10K", "Player 4/1K", "Player 4/100", "Player 4/10", 
+                     "Player 4/Leds", "Credits 1x", "Credits 10x"
+                     ]
+
+        self.titlesObj = {"Display A": self.title_dsplA, "Display B": self.title_dsplB}
+
+
         
         self.create_gbs()
 
@@ -147,8 +164,6 @@ class MySuperv(QtWidgets.QDialog):
                    "B3-EF"    : gbb3ef,
                    }
 
-
-
     def create_ios(self, name, tinitval):
         iosobj = list()
         initval, inittxt = tinitval
@@ -255,6 +270,7 @@ class MySuperv(QtWidgets.QDialog):
             lqla0.returnPressed.connect(partial(self.dspRetPressed, name, idx))
             lqla0.inputRejected.connect(partial(self.dspInpRejected, name, idx))
             lqla0.setInputMask("H;")
+            lqla0.setToolTip(self.titlesObj[name][idx])
             #lbla0.setObjectName("lbla0"+name)
             dspobj.append((lqla0, val, "D"+str(idx)))
             verticalLayout_A0.addWidget(lqla0)
