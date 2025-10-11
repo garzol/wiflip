@@ -98,8 +98,9 @@ const gameSettingsArr =
 			{name: "2nd Coin Rejector",            type: "sel",  addr: {ptr: 0xA1, lnbl: 1, msk: 0x3, dir: 1},        content: selCnRArr   },
 			{name: "3rd Coin Rejector",            type: "hex",  addr: {ptr: 0xB0, lnbl: 1, fmt:"bcd", dir: 1},       content: {placeholder: "1"}       },
 			{name: "1st Coin Rejector - #Coins",   type: "sel",  addr: {ptr: 0xA0, lnbl: 1, msk: 0x4, dir: 1},        content: selCrRArr   },
-			{name: "2nd Coin Rejector - #Coins",   type: "sel",  addr: {ptr: 0xA1, lnbl: 1, msk: 0x4, dir: 1},        content: selCrRArr   },
-			{name: "Price Type",                 toolTip: ttcprt,  type: "sel",  addr: {ptr: 0xA1, lnbl: 1, msk: 0x8, dir: 1},        content: selPrTArr   },
+			//following option is a mistake. Never existed 2025-10-11
+			//{name: "2nd Coin Rejector - #Coins",   type: "sel",  addr: {ptr: 0xA1, lnbl: 1, msk: 0x4, dir: 1},        content: selCrRArr   },
+			{name: "Price Type", toolTip: ttcprt,  type: "sel",  addr: {ptr: 0xA1, lnbl: 1, msk: 0x8, dir: 1},        content: selPrTArr   },
 
 			],
 		

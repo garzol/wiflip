@@ -2,8 +2,8 @@
 #
 # For more details about fixed file info 'ffi' see:
 # http://msdn.microsoft.com/en-us/library/ms646997.aspx
-filevers=(0, 98, 40, 0)
-prodvers=(0, 98, 40, 0)
+filevers=(0, 98, 41, 0)
+prodvers=(0, 98, 41, 0)
 # Contains a bitmask that specifies the valid bits 'flags'r
 mask=0x3f
 # Contains a bitmask that specifies the Boolean attributes of the file.

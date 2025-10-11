@@ -157,7 +157,7 @@ aboutContent = '''
 from .version import prodvers
 print(prodvers)
 VERSION = ".".join(map(str, prodvers)) #"0.95"
-DATE    = "2025-10-08"
+DATE    = "2025-10-11"
 print("release date", DATE)
 
 __version__ = VERSION
@@ -196,6 +196,8 @@ class MyHelp(QtWidgets.QDialog):
         self.ui.toolButton.setText(u"\u2302") #petite maison
         
         self.ui.textBrowser.append('''
+<b>V0.98.41</b> - 2025-10-11<br>Removed non existing option in game settings (number of coins for coin 2).
+<br>
 <b>V0.98.40</b> - 2025-10-08<br>Added Model number (1067) for The Flipper Game. Added tooltip for supervision of displays. Correct field premium price in game settings.
 <br>
 <b>V0.98.2x</b> - 2025-02-23<br>Hidden changes in the machinery to make SW compatible with package structure<br>

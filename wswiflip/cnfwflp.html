@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<!-- saved from url=(0019)http://192.168.0.2/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>wsWiFlip</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!--
+<link rel="icon" href="https://www.pps4.fr/static/img/icons/favicon.ico">
+<link rel="short-icon" href="https://www.pps4.fr/static/img/icons/favicon.ico">
+-->
+
+<!--
+<link rel="icon" href="./wifliplogo.png">
+<link rel="short-icon" href="./wifliplogo.png">
+-->
+<link rel="icon" href="http://garzol.free.fr/wswiflip/wifliplogo.png">
+<link rel="short-icon" href="http://garzol.free.fr/wswiflip/wifliplogo.png">
+
+<link href="bootstrap-5.0.2-dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="bootstrap-icons-1.13.1/bootstrap-icons.css" rel="stylesheet">
+
+<script src="bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script>
+<script src="./events.js"></script>
+<script src="./rscmodels.js"></script>
+<script src="./utils.js"></script>
+<script src="./dsply.js"></script>
+<script src="./gbin.js"></script>
+<script src="./variablecols.js"></script>
+<script src="./superv.js"></script>
+<script src="./gamesettings.js" defer></script>
+
+<style>
+/* Add some basic styling for the chat window */
+body {
+  /*background-color: black;*/
+  /*font-size: 16px;*/
+}
+
+/*raw experimentation*/
+.textarea {
+    transition: height 0.2s ease-in-out;
+}
+
+.chat-container {
+  width: 400px;
+  margin: 0 auto;
+  padding: 10px;
+}
+.chat-messages {
+  height: 250px;
+  overflow-y: auto;
+  border: 1px solid #444;
+  padding: 5px;
+  margin-bottom: 5px;
+}
+.user-input {
+  display: flex;
+  margin-bottom: 20px;
+}
+.user-input input {
+  flex: 1;
+  border: 1px solid #444;
+  padding: 5px;
+}
+.user-input button {
+  margin-left: 5px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.websocket {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.websocket button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.websocket .label {
+  margin-left: auto;
+}
+
+  
+</style>
+
+<style>
+*{box-sizing: border-box;}
+.flexicol{border-collapse:collapse;}
+td,th{padding:5px 15px;text-align:left;}
+.flexicol,th,td{border:1px solid #000;}
+</style>
+
+
+<link rel="stylesheet" href="leds.css">
+
+
+
+
+</head>
+<body > <!-- class="bg-secondary"> -->
+
+<!--    fetch json -->
+<div class="container p-3 my-3 rounded border border-3 shadow p-4 mb-4 bg-white">
+	<h3>Control</h3>
+
+  <div class="d-flex justify-content-between mb-0">
+      <div class="px-2 "><span class="label">Connection: <span id="ws_state"></span></span></div>
+      <div class="px-2 "><span class="label small">Signal strength: <span id="rssi_state"></span></span></div>
+  </div>
+    <!--<div><span class="label">Connection: <span id="ws_state"></span></span><span class="label text-end">RSSI: <span id="rssi_state"></span></span></div>-->
+    <div class="user-input">
+      <button class="connect-button" id="main_connect" onclick="connect_onclick()">Connect</button>
+      <!--<input form="connect-formId" type="text" id="hostname" placeholder="wiflip_xyzt">-->
+    <form id="connect-formId">
+      <input form="connect-formId" type="text" id="hostname" placeholder="wiflip_xyzt" >
+    </form>
+    </div>
+
+
+
+	    	
+    <div class="user-input mt-3">
+      <!--<button onclick="sendmsg_onclick('YCXQZ')">Reset</button>-->
+      <button onclick="sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 90]))">Reset</button>
+	</div>
+	
+</div>	
+
+<!-- The Modal -->
+<div class="modal" id="reprog-myModal" tabindex='-1'>
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title" id="modal-title-id">Reprogramming done</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body" id="modal-body-id">
+        success
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success" id="modal-button-id" data-bs-dismiss="modal">OK</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- end of modal -->
+
+
+
+
+</body></html>

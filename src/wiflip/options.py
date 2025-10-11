@@ -49,9 +49,9 @@ class Combo:
         targetValue   = cx.targetValue[index]
         bitMask       = cx.bitMask
         
-        #print("nibble avant", nibbles[addr], index, addr, item, targetValue, bitMask)
+        print("nibble avant", nibbles[addr], index, addr, item, targetValue, bitMask)
         nibbles[addr] = (nibbles[addr] & (~bitMask)) | targetValue
-        #print("nibble apres", nibbles[addr])
+        print("nibble apres", nibbles[addr])
         
         rbytes = [(x<<4)+y for x,y in zip([x for x in nibbles[1::2]], [x for x in nibbles[::2]])]
         return rbytes        
@@ -399,12 +399,12 @@ class MyOptions(QtWidgets.QDialog):
                                          Hex("00000", 0x63, "bcd", -1, 5)], #adding the length (here: 5) is useless
                                                                             #while "00000" as an example value is used to determine length...
                 
-                u"3rd Coin rejector":[default3rdCoinRejector, 
-                                         Hex, 
-                                         MyOptionsUtils.myValidateHex, 0, 9, 
-                                         "Number of plays per coin",
-                                         CoinSlStr,
-                                         Hex("0", 0xB0, "bcd", 1)],
+                # u"3rd Coin rejector":[default3rdCoinRejector, 
+                #                          Hex, 
+                #                          MyOptionsUtils.myValidateHex, 0, 9, 
+                #                          "Number of plays per coin",
+                #                          CoinSlStr,
+                #                          Hex("0", 0xB0, "bcd", 1)],
                 
                 u"3rd Coin rejector":[default3rdCoinRejector, 
                                          Hex, 
@@ -418,12 +418,13 @@ class MyOptions(QtWidgets.QDialog):
                                          "Number of plays per coin (2nd coin)",
                                          CoinSlStr,
                                          Combo("?Unknown", [(0, "1 play per coin"), (1, "2 plays per coin"), (2, "3 plays per coin"), (3, "4 plays per coin")], 3, 0xA1)],
-                u"2nd Coin rejector - #coins":[default2ndCoinRejNbCoin, 
-                                         Combo, 
-                                         MyOptionsUtils.myValidateCombo, 0, 9, 
-                                         "Number of coins (1st coin rejector)",
-                                         CoinSlStr,
-                                         Combo("?Unknown", [(0, "2 coins"), (4, "1 coin")], 4, 0xA1)],
+                #This option never existed... commented 2025-10-11
+                # u"2nd Coin rejector - #coins":[default2ndCoinRejNbCoin, 
+                #                          Combo, 
+                #                          MyOptionsUtils.myValidateCombo, 0, 9, 
+                #                          "Number of coins (2nd coin rejector)",
+                #                          CoinSlStr,
+                #                          Combo("?Unknown", [(0, "2 coins"), (4, "1 coin")], 4, 0xA1)],
                 u"1st Coin rejector":[default1stCoinRejector, 
                                          Combo, 
                                          MyOptionsUtils.myValidateCombo, 0, 9, 
@@ -445,7 +446,7 @@ WITHOUT PRESSING THE START BUTTON
 (This state affects all 3 coin rejectors)
                                          ''',
                                          CoinSlStr,
-                                         Combo("?Unknown", [(0, "Normal Price"), (4, "Premium Price")], 4, 0xA1)],
+                                         Combo("?Unknown", [(0, "Normal Price"), (8, "Premium Price")], 8, 0xA1)],
                 u"Balls per Play":[defaultBallPerPlay, 
                                          Combo, 
                                          MyOptionsUtils.myValidateCombo, 0, 9, 
@@ -978,6 +979,7 @@ WITHOUT PRESSING THE START BUTTON
                     cexemple.addr,      
                     )
                 bmap = Combo.updateMapFromCombo(bmap, c)
+                
         #print(bmap)
         papa.nvrlist = list(zip([x[0] for x in papa.nvrlist], bmap))
         #print("nvr apres", [(f"{x:02X}", f"{y:02X}") for (x,y) in papa.nvrlist])
