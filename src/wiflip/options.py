@@ -49,9 +49,9 @@ class Combo:
         targetValue   = cx.targetValue[index]
         bitMask       = cx.bitMask
         
-        print("nibble avant", nibbles[addr], index, addr, item, targetValue, bitMask)
+        #print("nibble avant", nibbles[addr], index, addr, item, targetValue, bitMask)
         nibbles[addr] = (nibbles[addr] & (~bitMask)) | targetValue
-        print("nibble apres", nibbles[addr])
+        #print("nibble apres", nibbles[addr])
         
         rbytes = [(x<<4)+y for x,y in zip([x for x in nibbles[1::2]], [x for x in nibbles[::2]])]
         return rbytes        
