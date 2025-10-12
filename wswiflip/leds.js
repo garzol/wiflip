@@ -163,7 +163,7 @@ function create_game_select(container_id) {
 	}	
 }
 
-function update_sm_labels(game_select) {
+function update_sm_labels_turned(game_select) {
 	try {
 		var cur_game = game_select.options[ game_select.selectedIndex ].value;
 		}
@@ -177,6 +177,25 @@ function update_sm_labels(game_select) {
 			let idx = col+(10*row);
 			let lbl_object = document.getElementById("lb-"+idx);
 			lbl_object.innerHTML = RscModelsArr[game_select.selectedIndex].content["Switches short"][col][row];
+			
+		}
+	}	
+}
+
+function update_sm_labels(game_select) {
+	try {
+		var cur_game = game_select.options[ game_select.selectedIndex ].value;
+		}
+	catch(err) {
+		return;
+	}
+	
+    //console.log("cur_game", cur_game);
+	for (let row=0; row<10; row++) {
+		for (let col=0; col<4; col++) {
+			let idx = row+(10*col);
+			let lbl_object = document.getElementById("lb-"+idx);
+			lbl_object.innerHTML = RscModelsArr[game_select.selectedIndex].content["Switches short"][row][col];
 			
 		}
 	}	
@@ -233,6 +252,69 @@ function create_switch_matrix(container_id) {
 			
 			const b1 = new Uint8Array([89, 83, col, (1<<row), 50]);
 			const b2 = new Uint8Array([89, 83, col, (1<<row), 255]);
+
+			led_object.onclick = function() { sendmsg_onclick(b1); };
+			led_object.ondblclick = function() { sendmsg_onclick(b2); };
+//			//led_led.ondblclick = function() { sendmsg_onclick('YS'+col+(1<<row)+127); };
+//			//led_led.onclick = function() { sendmsg_onclick(new Uint8Array([131, 123, col, (1<<row), 50])); };
+
+		}
+	}
+	
+	
+}
+
+function create_switch_matrix_ortho(container_id) {
+	const rlbl = ["A", "B", "C", "D"];
+	const ledcElement = document.getElementById(container_id);
+
+//	var yourSelect = document.getElementById( game_select_id );
+//	console.log(yourSelect, yourSelect.selectedIndex);
+//	var cur_game = yourSelect.options[ yourSelect.selectedIndex ].value;
+	
+	for (let row=0; row<10; row++) {
+		var led_row_container = document.createElement("div");
+		led_row_container.setAttribute("class", "row mt-3");
+		ledcElement.appendChild(led_row_container);
+		
+		var header_row_container = document.createElement("div");
+		header_row_container.setAttribute("class", "col-2");
+		led_row_container.appendChild(header_row_container);
+		var header_row_span = document.createElement("span");
+		header_row_span.setAttribute("class", "fs-6 d-flex justify-content-center overflow-hidden border");
+		header_row_span.innerHTML = row;
+		header_row_container.appendChild(header_row_span);
+		
+		for (let col=3; col>=0; col--) {
+			let idx = row+(10*(col));
+			var col_led = document.createElement("div");
+			col_led.setAttribute("class", "col-2");
+			led_row_container.appendChild(col_led);
+
+			var led_object = document.createElement("div");
+			led_object.setAttribute("class", "cled led-black border");
+			led_object.setAttribute("id", "sm-"+idx);
+
+			var lbl_object = document.createElement("div");
+			lbl_object.setAttribute("class", "d-flex justify-content-center overflow-visible small");
+			lbl_object.setAttribute("id", "lb-"+idx);
+			//console.log(RscModels['Fair Fight']["Switches short"])
+			//lbl_object.innerHTML = RscModels['Alaska']["Switches short"][col][row];
+			lbl_object.innerHTML = RscModelsArr[0]['content']["Switches short"][row][(col)];
+			//lbl_object.innerHTML = row.toString()+ " "+col.toString();
+			
+			var led_wrapper = document.createElement("div");
+			led_wrapper.setAttribute("class", "d-flex justify-content-center");
+
+			led_wrapper.appendChild(led_object);
+			col_led.appendChild(led_wrapper);
+			col_led.appendChild(lbl_object);
+			
+			//<div class="col-1 "><div ><div class="d-flex justify-content-center" ><div class="cled led-green"></div></div><div  class="d-flex justify-content-center overflow-visible small" >Replay.</div></div></div>
+            
+			
+			const b1 = new Uint8Array([89, 83, row, (1<<col), 50]);
+			const b2 = new Uint8Array([89, 83, row, (1<<col), 255]);
 
 			led_object.onclick = function() { sendmsg_onclick(b1); };
 			led_object.ondblclick = function() { sendmsg_onclick(b2); };

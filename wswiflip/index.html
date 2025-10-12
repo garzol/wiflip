@@ -885,229 +885,255 @@ document.getElementById("hostname").value = x;
 
 
 
-<div class="container p-3 my-3 bg-dark text-white rounded">
+  
+  
+  
+   
+<!-- 2 cols zone start-->
+<div class="container shadow">
+<div class="row">
+	<div class="col">
+
+		<!--<div id="switch-matrix-window" class="container p-3 my-3 bg-dark text-white rounded"> -->
+		<div id="switch-matrix-window" class="p-3 my-3 bg-dark text-white rounded">
+		    
+			<h3>Switch matrix </h3>
+			<label class="form-label">Select game:</label>
+		    <select class="form-select form-select-sm" id="game-select" name="game-select" onchange="update_sm_labels(this)">
+		    </select>
+			
+			<div class="row mt-3">
+			<!--
+			<div class="col-1"></div>
+			<div class="col-1"><div class="border text-center">0</div></div>
+			<div class="col-1"><div class="border text-center">1</div></div>
+			<div class="col-1 text-center"><div class="border border-1">2</div></div>
+			<div class="col-1 text-center"><div class="border border-1">3</div></div>
+			<div class="col-1 text-center"><div class="border border-1">4</div></div>
+			<div class="col-1 text-center"><div class="border border-1">5</div></div>
+			<div class="col-1 text-center"><div class="border border-1">6</div></div>
+			<div class="col-1 text-center"><div class="border border-1">7</div></div>
+			<div class="col-1 text-center"><div class="border border-1">8</div></div>
+			<div class="col-1 text-center"><div class="border border-1">9</div></div>
+			-->
+			<div class="col-2"></div>
+			<div class="col-2"><div class="border text-center">D</div></div>
+			<div class="col-2"><div class="border text-center">C</div></div>
+		    <div class="col-2"><div class="border text-center">B</div></div>
+		    <div class="col-2"><div class="border text-center">A</div></div>
+			</div>
+
+		</div>	
+	
+	
+	
+	
+	</div>
+	
+	<div class="col-md-8 col-auto">
+
+		
+
+		
+			
+		<!--Main Displays-->
+		<div class="p-3 my-3 bg-dark text-white rounded">
 
 
 
-	   
-		  <h3>Displays</h3>
-		  
-		  
-		  	<div id="freeplays" class="row">
-		  		<div class="col ms-auto text-end">Freeplays</div>
-		  		<div id="fp-0" class="col-1 border"></div>
-		  		<div id="fp-1" class="col-1 border"></div>
-		  		<div class="col ms-auto text-end"></div>
-		  	</div>
-		 
-		  	<div id="tableau-1" class="row mt-3 border border-3 ">
-		  		<div class="col-1 ms-auto border">P1</div>
-		  		<div class="col-1 border">
-			  		<div id="p1-1M"  class="font-monospace fs-2">1</div> 		  		
-		  		</div>
-		  		<div class="col-8 fs-1 d-inline">
-					<div id="p1-d1-0" class="d-inline p1-d1  text-end">.</div>
-					<div id="p1-0" class="d-inline border font-monospace">8</div>
-					<div id="p1-d1-1" class="d-inline p1-d1  text-end">.</div>
-					<div id="p1-1" class="d-inline border font-monospace">8</div>
-					<div id="p1-d1-2" class="d-inline p1-d1  text-end">.</div>
-					<div id="p1-2" class="d-inline border font-monospace">8</div>
-					<div id="p1-d1-3" class="d-inline p1-d1  text-end">.</div>
-					<div id="p1-3" class="d-inline border font-monospace">8</div>
-					<div id="p1-d1-4" class="d-inline p1-d1  text-end">.</div>
-					<div id="p1-4" class="d-inline border font-monospace">8</div>
-				  	<div id="p1-d1-5" class="d-inline p1-d1  text-end">.</div>
-				  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
-				  	<div id="p1-5" class="d-inline border font-monospace">0</div>
-				</div>
-		  		
-		  		<div class="col-2 border inline-block">
-		  				<div id="p1-l1" class="row miniled led-black border border-1"></div>
-		  				<div id="p1-l2" class="row miniled led-black border border-1"></div>
-		  		</div>
-		    </div>
-		    
-		 
-		  	<div id="tableau-2" class="row mt-3 border border-3">
-		  		<div class="col-1 ms-auto border">P2</div>
-		  		<div class="col-1 border">
-			  		<div id="p2-1M"  class=" font-monospace fs-2">1</div> 		  		
-		  		</div>
-		  		<div class="col-8 fs-1">
-					<div id="p2-d1-0" class="d-inline p2-d1  text-end">.</div>
-					<div id="p2-0" class="d-inline border font-monospace">8</div>
-					<div id="p2-d1-1" class="d-inline p2-d1  text-end">.</div>
-					<div id="p2-1" class="d-inline border font-monospace">8</div>
-					<div id="p2-d1-2" class="d-inline p2-d1  text-end">.</div>
-					<div id="p2-2" class="d-inline border font-monospace">8</div>
-					<div id="p2-d1-3" class="d-inline p2-d1  text-end">.</div>
-					<div id="p2-3" class="d-inline border font-monospace">8</div>
-					<div id="p2-d1-4" class="d-inline p2-d1  text-end">.</div>
-					<div id="p2-4" class="d-inline border font-monospace">8</div>
-				  	<div id="p2-d1-5" class="d-inline p2-d1  text-end">.</div>
-				  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
-				  	<div id="p2-5" class="d-inline border font-monospace">0</div>
-				</div>
-		  		
-		  		<div class="col-2 border">
-		  				<div id="p2-l1" class="row miniled led-black border border-1"></div>
-		  				<div id="p2-l2" class="row miniled led-black border border-1"></div>
-		  		</div>
-		    </div>
-		    
-		 
-		  	<div id="tableau-3" class="row mt-3 border border-3">
-		  		<div class="col-1 border">P3</div>
-		  		<div class="col-1 border">
-			  		<div id="p3-1M"  class=" font-monospace fs-2">1</div> 		  		
-		  		</div>
-		  		<div class="col-8 fs-1">
-					<div id="p3-d1-0" class="d-inline p3-d1  text-end">.</div>
-					<div id="p3-0" class="d-inline border font-monospace">8</div>
-					<div id="p3-d1-1" class="d-inline p3-d1  text-end">.</div>
-					<div id="p3-1" class="d-inline border font-monospace">8</div>
-					<div id="p3-d1-2" class="d-inline p3-d1  text-end">.</div>
-					<div id="p3-2" class="d-inline border font-monospace">8</div>
-					<div id="p3-d1-3" class="d-inline p3-d1  text-end">.</div>
-					<div id="p3-3" class="d-inline border font-monospace">8</div>
-					<div id="p3-d1-4" class="d-inline p3-d1  text-end">.</div>
-					<div id="p3-4" class="d-inline border font-monospace">8</div>
-				  	<div id="p3-d1-5" class="d-inline p3-d1  text-end">.</div>
-				  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
-				  	<div id="p3-5" class="d-inline border font-monospace">0</div>
-				</div>
-		  		
-		  		<div class="col-2 border">
-		  				<div id="p3-l1" class="row miniled led-black border border-1"></div>
-		  				<div id="p3-l2" class="row miniled led-black border border-1"></div>
-		  		</div>
-		    </div>
-		    
-	 
-		  	<div id="tableau-4" class="row mt-3 border border-3">
-		  		<div class="col-1 border">P4</div>
-		  		<div class="col-1 border">
-			  		<div id="p4-1M"  class=" font-monospace fs-2">1</div> 		  		
-		  		</div>
-		  		<div class="col-8 fs-1">
-					<div id="p4-d1-0" class="d-inline p4-d1  text-end">.</div>
-					<div id="p4-0" class="d-inline border font-monospace">8</div>
-					<div id="p4-d1-1" class="d-inline p4-d1  text-end">.</div>
-					<div id="p4-1" class="d-inline border font-monospace">8</div>
-					<div id="p4-d1-2" class="d-inline p4-d1  text-end">.</div>
-					<div id="p4-2" class="d-inline border font-monospace">8</div>
-					<div id="p4-d1-3" class="d-inline p4-d1  text-end">.</div>
-					<div id="p4-3" class="d-inline border font-monospace">8</div>
-					<div id="p4-d1-4" class="d-inline p4-d1  text-end">.</div>
-					<div id="p4-4" class="d-inline border font-monospace">8</div>
-				  	<div id="p4-d1-5" class="d-inline p4-d1  text-end">.</div>
-				  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
-				  	<div id="p4-5" class="d-inline border font-monospace">0</div>
-				</div>
-		  		
-		  		<div class="col-2 border">
-		  			<div >
-		  				<div id="p4-l1" class="row miniled led-black border border-1"></div>
-		  				<div id="p4-l2" class="row miniled led-black border border-1"></div>
-		  			</div>
-		  		</div>
-		    </div>
-		    
+			   
+				  <h3>Displays</h3>
+				  
+				  
+				  	<div id="freeplays" class="row">
+				  		<div class="col ms-auto text-end">Freeplays</div>
+				  		<div id="fp-0" class="col-1 border"></div>
+				  		<div id="fp-1" class="col-1 border"></div>
+				  		<div class="col ms-auto text-end"></div>
+				  	</div>
+				 
+				  	<div id="tableau-1" class="row mt-3 border border-3 ">
+				  		<div class="col-1 ms-auto border">P1</div>
+				  		<div class="col-1 border">
+					  		<div id="p1-1M"  class="font-monospace fs-2">1</div> 		  		
+				  		</div>
+				  		<div class="col-8 fs-2 d-inline">
+							<div id="p1-d1-0" class="d-inline p1-d1  text-end">.</div>
+							<div id="p1-0" class="d-inline border font-monospace">8</div>
+							<div id="p1-d1-1" class="d-inline p1-d1  text-end">.</div>
+							<div id="p1-1" class="d-inline border font-monospace">8</div>
+							<div id="p1-d1-2" class="d-inline p1-d1  text-end">.</div>
+							<div id="p1-2" class="d-inline border font-monospace">8</div>
+							<div id="p1-d1-3" class="d-inline p1-d1  text-end">.</div>
+							<div id="p1-3" class="d-inline border font-monospace">8</div>
+							<div id="p1-d1-4" class="d-inline p1-d1  text-end">.</div>
+							<div id="p1-4" class="d-inline border font-monospace">8</div>
+						  	<div id="p1-d1-5" class="d-inline p1-d1  text-end">.</div>
+						  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
+						  	<div id="p1-5" class="d-inline border font-monospace">0</div>
+						</div>
+				  		
+				  		<div class="col-2 border inline-block">
+				  				<div id="p1-l1" class="row miniled led-black border border-1"></div>
+				  				<div id="p1-l2" class="row miniled led-black border border-1"></div>
+				  		</div>
+				    </div>
 				    
+				 
+				  	<div id="tableau-2" class="row mt-3 border border-3">
+				  		<div class="col-1 ms-auto border">P2</div>
+				  		<div class="col-1 border">
+					  		<div id="p2-1M"  class=" font-monospace fs-2">1</div> 		  		
+				  		</div>
+				  		<div class="col-8 fs-2">
+							<div id="p2-d1-0" class="d-inline p2-d1  text-end">.</div>
+							<div id="p2-0" class="d-inline border font-monospace">8</div>
+							<div id="p2-d1-1" class="d-inline p2-d1  text-end">.</div>
+							<div id="p2-1" class="d-inline border font-monospace">8</div>
+							<div id="p2-d1-2" class="d-inline p2-d1  text-end">.</div>
+							<div id="p2-2" class="d-inline border font-monospace">8</div>
+							<div id="p2-d1-3" class="d-inline p2-d1  text-end">.</div>
+							<div id="p2-3" class="d-inline border font-monospace">8</div>
+							<div id="p2-d1-4" class="d-inline p2-d1  text-end">.</div>
+							<div id="p2-4" class="d-inline border font-monospace">8</div>
+						  	<div id="p2-d1-5" class="d-inline p2-d1  text-end">.</div>
+						  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
+						  	<div id="p2-5" class="d-inline border font-monospace">0</div>
+						</div>
+				  		
+				  		<div class="col-2 border">
+				  				<div id="p2-l1" class="row miniled led-black border border-1"></div>
+				  				<div id="p2-l2" class="row miniled led-black border border-1"></div>
+				  		</div>
+				    </div>
+				    
+				 
+				  	<div id="tableau-3" class="row mt-3 border border-3">
+				  		<div class="col-1 border">P3</div>
+				  		<div class="col-1 border">
+					  		<div id="p3-1M"  class=" font-monospace fs-2">1</div> 		  		
+				  		</div>
+				  		<div class="col-8 fs-2">
+							<div id="p3-d1-0" class="d-inline p3-d1  text-end">.</div>
+							<div id="p3-0" class="d-inline border font-monospace">8</div>
+							<div id="p3-d1-1" class="d-inline p3-d1  text-end">.</div>
+							<div id="p3-1" class="d-inline border font-monospace">8</div>
+							<div id="p3-d1-2" class="d-inline p3-d1  text-end">.</div>
+							<div id="p3-2" class="d-inline border font-monospace">8</div>
+							<div id="p3-d1-3" class="d-inline p3-d1  text-end">.</div>
+							<div id="p3-3" class="d-inline border font-monospace">8</div>
+							<div id="p3-d1-4" class="d-inline p3-d1  text-end">.</div>
+							<div id="p3-4" class="d-inline border font-monospace">8</div>
+						  	<div id="p3-d1-5" class="d-inline p3-d1  text-end">.</div>
+						  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
+						  	<div id="p3-5" class="d-inline border font-monospace">0</div>
+						</div>
+				  		
+				  		<div class="col-2 border">
+				  				<div id="p3-l1" class="row miniled led-black border border-1"></div>
+				  				<div id="p3-l2" class="row miniled led-black border border-1"></div>
+				  		</div>
+				    </div>
+				    
+			 
+				  	<div id="tableau-4" class="row mt-3 border border-3">
+				  		<div class="col-1 border">P4</div>
+				  		<div class="col-1 border">
+					  		<div id="p4-1M"  class=" font-monospace fs-2">1</div> 		  		
+				  		</div>
+				  		<div class="col-8 fs-2">
+							<div id="p4-d1-0" class="d-inline p4-d1  text-end">.</div>
+							<div id="p4-0" class="d-inline border font-monospace">8</div>
+							<div id="p4-d1-1" class="d-inline p4-d1  text-end">.</div>
+							<div id="p4-1" class="d-inline border font-monospace">8</div>
+							<div id="p4-d1-2" class="d-inline p4-d1  text-end">.</div>
+							<div id="p4-2" class="d-inline border font-monospace">8</div>
+							<div id="p4-d1-3" class="d-inline p4-d1  text-end">.</div>
+							<div id="p4-3" class="d-inline border font-monospace">8</div>
+							<div id="p4-d1-4" class="d-inline p4-d1  text-end">.</div>
+							<div id="p4-4" class="d-inline border font-monospace">8</div>
+						  	<div id="p4-d1-5" class="d-inline p4-d1  text-end">.</div>
+						  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
+						  	<div id="p4-5" class="d-inline border font-monospace">0</div>
+						</div>
+				  		
+				  		<div class="col-2 border">
+				  			<div >
+				  				<div id="p4-l1" class="row miniled led-black border border-1"></div>
+				  				<div id="p4-l2" class="row miniled led-black border border-1"></div>
+				  			</div>
+				  		</div>
+				    </div>
+				    
+						    
+
+				
+				  	<div id="credits" class="row mt-3 ">
+				  		<div class="col ms-auto text-end">Credits</div>
+				  		<div id="cr-0" class="col-1 border"></div>
+				  		<div id="cr-1" class="col-1 border"></div>
+				  		<div class="col ms-auto text-end"></div>
+				  	</div>
+				
+				  	<div id="lottery" class="row mt-2">
+				  		<div class="col ms-auto text-end">Lottery</div>
+				  		<div id="ltry-0" class="col-1 border"></div>
+				  		<div id="ltry-1" class="col-1 border"></div>
+				  		<div class="col ms-auto text-end"></div>
+				  	</div>
+				
+				
+				  	<div id="binplay" class="row mt-3 fs-2">
+				  		<div id="bip-1" class="col text-warning"><i class="bi bi-1-circle-fill"></i></div>
+				  		<div id="bip-2" class="col text-warning"><i class="bi bi-2-circle-fill"></i></div>
+				  		<div id="bip-3" class="col text-warning"><i class="bi bi-3-circle-fill"></i></div>
+				  		<div id="bip-4" class="col text-warning"><i class="bi bi-4-circle-fill"></i></div>
+				  		<div id="bip-5" class="col text-warning"><i class="bi bi-5-circle-fill"></i></div>
+				  		<div id="bip-tilt" class="col bg-warning text-center">Tilt</div>
+				  		<div id="bip-go" class="col fs-3 bg-warning text-center">G.Over</div>
+				  	</div>
+				
+				
+		  	
+		  </div>
+		  
+		  <!--End of Main Displays-->
+		
+		
+
+		  <div class="p-3 my-3 bg-dark text-white rounded">
+		  	<h3>GPIO Coils and lamps</h3>
+		  	<div class="overflow-scroll led-bar-container ">
+		  	
+		  		<div id="gpioled-bar" class="d-inline-flex p-3 bg-secondary "> 
+		  		</div>
+		  	</div>
+		  </div>	
+		  <div class="p-3 my-3 bg-dark text-white rounded">
+		  	<h3>B2 lamps </h3>
+		  	<div class="overflow-scroll led-bar-container ">
+		  	
+		  		<div id="b2led-bar" class="d-inline-flex p-3 bg-secondary "> 
+		  		</div>
+		  	</div>
+		  </div>	
 
 		
-		  	<div id="credits" class="row mt-3 ">
-		  		<div class="col ms-auto text-end">Credits</div>
-		  		<div id="cr-0" class="col-1 border"></div>
-		  		<div id="cr-1" class="col-1 border"></div>
-		  		<div class="col ms-auto text-end"></div>
-		  	</div>
-		
-		  	<div id="lottery" class="row mt-2">
-		  		<div class="col ms-auto text-end">Lottery</div>
-		  		<div id="ltry-0" class="col-1 border"></div>
-		  		<div id="ltry-1" class="col-1 border"></div>
-		  		<div class="col ms-auto text-end"></div>
-		  	</div>
 		
 		
-		  	<div id="binplay" class="row mt-3 fs-2">
-		  		<div id="bip-1" class="col text-warning"><i class="bi bi-1-circle-fill"></i></div>
-		  		<div id="bip-2" class="col text-warning"><i class="bi bi-2-circle-fill"></i></div>
-		  		<div id="bip-3" class="col text-warning"><i class="bi bi-3-circle-fill"></i></div>
-		  		<div id="bip-4" class="col text-warning"><i class="bi bi-4-circle-fill"></i></div>
-		  		<div id="bip-5" class="col text-warning"><i class="bi bi-5-circle-fill"></i></div>
-		  		<div id="bip-tilt" class="col bg-warning text-center">Tilt</div>
-		  		<div id="bip-go" class="col fs-3 bg-warning text-center">G.Over</div>
-		  	</div>
 		
-		
-  	
-  </div>
-  
-  
+	</div> <!--col div-->
 
-<div class="container p-3 my-3 bg-dark text-white rounded">
-	<h3>GPIO Coils and lamps</h3>
-	<div class="overflow-scroll led-bar-container ">
-	
-		<div id="gpioled-bar" class="d-inline-flex p-3 bg-secondary "> 
-		</div>
-	</div>
-</div>	
-<div class="container p-3 my-3 bg-dark text-white rounded">
-	<h3>B2 lamps </h3>
-	<div class="overflow-scroll led-bar-container ">
-	
-		<div id="b2led-bar" class="d-inline-flex p-3 bg-secondary "> 
-		</div>
-	</div>
-</div>	
+</div> <!--row div-->
+</div>
 <script>create_ledbar(gpiotooltip, "gpioled-bar")</script>
 <script>create_ledbar(b2tooltip, "b2led-bar")</script>
 
-<div id="switch-matrix-window" class="container p-3 my-3 bg-dark text-white rounded">
-    
-	<h3>Switch matrix </h3>
-	<label class="form-label">Select game:</label>
-    <select class="form-select form-select-sm" id="game-select" name="game-select" onchange="update_sm_labels(this)">
-    </select>
-	
-	<div class="row mt-5">
-	<div class="col-1"></div>
-	<div class="col-1"><div class="border text-center">0</div></div>
-	<div class="col-1"><div class="border text-center">1</div></div>
-	<div class="col-1 text-center"><div class="border border-1">2</div></div>
-	<div class="col-1 text-center"><div class="border border-1">3</div></div>
-	<div class="col-1 text-center"><div class="border border-1">4</div></div>
-	<div class="col-1 text-center"><div class="border border-1">5</div></div>
-	<div class="col-1 text-center"><div class="border border-1">6</div></div>
-	<div class="col-1 text-center"><div class="border border-1">7</div></div>
-	<div class="col-1 text-center"><div class="border border-1">8</div></div>
-	<div class="col-1 text-center"><div class="border border-1">9</div></div>
-	</div>
-
-	<!--
-	
-	<div class="row mt-3">
-	<div class="col-1"><span class="fs-6 d-flex justify-content-center overflow-hidden">A</span></div>
-	<div class="col-1 "><div ><div class="d-flex justify-content-center" ><div class="cled led-green"></div></div><div  class="d-flex justify-content-center overflow-visible small" >Replay.</div></div></div>
-	<div class="col-1 "><div ><div class="d-flex justify-content-center" ><div class="cled led-green"></div></div><div  class="d-flex justify-content-center overflow-visible small" >Replay.</div></div></div>
-	<div class="col-1 "><div ><div class="d-flex justify-content-center" ><div class="cled led-green"></div></div><div  class="d-flex justify-content-center overflow-visible small" >Replayklklkl.</div></div></div>
-	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
-	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
-	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
-	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
-	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
-	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
-	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
-	</div>
-	
-	-->
-</div>	
 
 <script>window.onload = create_game_select("game-select")</script>
-<script>window.onload = create_switch_matrix("switch-matrix-window")</script>
+<script>window.onload = create_switch_matrix_ortho("switch-matrix-window")</script>
+<!-- 2 cols zone end-->
+
 
 <div class="container p-3 my-3 bg-dark text-white rounded">
     <h3>WiFlip (ws console)</h3>
@@ -1125,8 +1151,8 @@ document.getElementById("hostname").value = x;
 
 </div>
 
-<div class="container shadow p-4 mb-4 bg-white">
-    <img src="./wifliplogo.png" class="rounded me-2 w-50" alt="icon wiflip logo"> 
+<div class="container  d-flex align-items-center justify-content-center shadow p-4 mb-4 bg-white">
+    <img src="./wifliplogo.png" class="rounded me-2 w-25" alt="icon wiflip logo"> 
 </div>
 
 <!--	
