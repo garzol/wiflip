@@ -27,7 +27,8 @@
 <script src="./gbin.js"></script>
 <script src="./variablecols.js"></script>
 <script src="./superv.js"></script>
-<script src="./gamesettings.js" defer></script>
+<script src="./gamesettings.js?ts=20251012984901" defer></script>
+<script src="leds.js?ts=20251012984901"></script>
 
 <style>
 /* Add some basic styling for the chat window */
@@ -101,7 +102,6 @@ td,th{padding:5px 15px;text-align:left;}
 
 
 
-<script src="leds.js"></script>
 <script>
 var ws;
 var wsm_max_len = 4096; /* bigger length causes uart0 buffer overflow with low speed smart device */
@@ -550,7 +550,6 @@ function ws_onmessage(e_msg) {
 
 </head>
 <body > <!-- class="bg-secondary"> -->
-
 <div class="container p-3 my-3 rounded border border-3 shadow p-4 mb-4 bg-white">
 	<h3>Control</h3>
 
@@ -565,22 +564,50 @@ function ws_onmessage(e_msg) {
     <form id="connect-formId">
       <input form="connect-formId" type="text" id="hostname" placeholder="wiflip_xyzt" >
     </form>
+
+	<div class="px-2 d-flex flex-grow-1 align-items-center">
+ 	  <i data-bs-toggle="tooltip0"  
+									  		title="Enter the raw IP address of the wiflip client (Something 
+											like 192.168.50.21 (shown in the registration page after successful registration)<br>
+											Or just enter XYZT, the very short name of the wiflip device.
+											Or enter wiflip_XYZT (without .local extension, case insensitive)." 
+											data-bs-html="true" 
+											data-bs-trigger="focus hover" 
+											data-bs-template = '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div style="min-width:350px" class="tooltip-inner bg-secondary text-start"></div></div>'
+									  		class="bi bi-question-circle-fill"></i>
+	</div>
+	
+	
     </div>
 
-
- <script>
-   const x = localStorage.getItem("ls-hostname"); 
- 
-document.getElementById("hostname").value = x;
-</script>
 
 	    	
     <div class="user-input mt-3">
       <!--<button onclick="sendmsg_onclick('YCXQZ')">Reset</button>-->
       <button onclick="sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 90]))">Reset</button>
+
+	  <div class="px-2 d-flex flex-grow-1 align-items-center">
+	    <i data-bs-toggle="tooltip0"  
+	  		title="Restart the pinball software. " 
+			data-bs-html="true" 
+			data-bs-trigger="focus hover" 
+			data-bs-template = '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div style="min-width:350px" class="tooltip-inner bg-secondary text-start"></div></div>'
+	  		class="bi bi-question-circle-fill"></i>
+	  </div>
+
+	  
 	</div>
+
 	
 </div>	
+
+<script>
+  const x = localStorage.getItem("ls-hostname"); 
+
+  document.getElementById("hostname").value = x;
+</script>
+
+
 
 <!-- The Modal -->
 <div class="modal" id="reprog-myModal" tabindex='-1'>
@@ -953,11 +980,11 @@ document.getElementById("hostname").value = x;
 				  	</div>
 				 
 				  	<div id="tableau-1" class="row mt-3 border border-3 ">
-				  		<div class="col-1 ms-auto border">P1</div>
+				  		<div class="col-1 ms-auto border d-flex align-items-center justify-content-center">P1</div>
 				  		<div class="col-1 border">
-					  		<div id="p1-1M"  class="font-monospace fs-2">1</div> 		  		
+					  		<div id="p1-1M"  class="font-monospace fs-5">1</div> 		  		
 				  		</div>
-				  		<div class="col-8 fs-2 d-inline">
+				  		<div class="col fs-3">
 							<div id="p1-d1-0" class="d-inline p1-d1  text-end">.</div>
 							<div id="p1-0" class="d-inline border font-monospace">8</div>
 							<div id="p1-d1-1" class="d-inline p1-d1  text-end">.</div>
@@ -973,7 +1000,7 @@ document.getElementById("hostname").value = x;
 						  	<div id="p1-5" class="d-inline border font-monospace">0</div>
 						</div>
 				  		
-				  		<div class="col-2 border inline-block">
+				  		<div class="col-1 border inline-block">
 				  				<div id="p1-l1" class="row miniled led-black border border-1"></div>
 				  				<div id="p1-l2" class="row miniled led-black border border-1"></div>
 				  		</div>
@@ -981,11 +1008,11 @@ document.getElementById("hostname").value = x;
 				    
 				 
 				  	<div id="tableau-2" class="row mt-3 border border-3">
-				  		<div class="col-1 ms-auto border">P2</div>
+				  		<div class="col-1 ms-auto border d-flex align-items-center justify-content-center">P2</div>
 				  		<div class="col-1 border">
-					  		<div id="p2-1M"  class=" font-monospace fs-2">1</div> 		  		
+					  		<div id="p2-1M"  class=" font-monospace fs-5">1</div> 		  		
 				  		</div>
-				  		<div class="col-8 fs-2">
+				  		<div class="col fs-3">
 							<div id="p2-d1-0" class="d-inline p2-d1  text-end">.</div>
 							<div id="p2-0" class="d-inline border font-monospace">8</div>
 							<div id="p2-d1-1" class="d-inline p2-d1  text-end">.</div>
@@ -1001,7 +1028,7 @@ document.getElementById("hostname").value = x;
 						  	<div id="p2-5" class="d-inline border font-monospace">0</div>
 						</div>
 				  		
-				  		<div class="col-2 border">
+				  		<div class="col-1 border">
 				  				<div id="p2-l1" class="row miniled led-black border border-1"></div>
 				  				<div id="p2-l2" class="row miniled led-black border border-1"></div>
 				  		</div>
@@ -1009,11 +1036,11 @@ document.getElementById("hostname").value = x;
 				    
 				 
 				  	<div id="tableau-3" class="row mt-3 border border-3">
-				  		<div class="col-1 border">P3</div>
+				  		<div class="col-1 border d-flex align-items-center justify-content-center">P3</div>
 				  		<div class="col-1 border">
-					  		<div id="p3-1M"  class=" font-monospace fs-2">1</div> 		  		
+					  		<div id="p3-1M"  class=" font-monospace fs-5">1</div> 		  		
 				  		</div>
-				  		<div class="col-8 fs-2">
+				  		<div class="col fs-3">
 							<div id="p3-d1-0" class="d-inline p3-d1  text-end">.</div>
 							<div id="p3-0" class="d-inline border font-monospace">8</div>
 							<div id="p3-d1-1" class="d-inline p3-d1  text-end">.</div>
@@ -1029,7 +1056,7 @@ document.getElementById("hostname").value = x;
 						  	<div id="p3-5" class="d-inline border font-monospace">0</div>
 						</div>
 				  		
-				  		<div class="col-2 border">
+				  		<div class="col-1 border">
 				  				<div id="p3-l1" class="row miniled led-black border border-1"></div>
 				  				<div id="p3-l2" class="row miniled led-black border border-1"></div>
 				  		</div>
@@ -1037,11 +1064,11 @@ document.getElementById("hostname").value = x;
 				    
 			 
 				  	<div id="tableau-4" class="row mt-3 border border-3">
-				  		<div class="col-1 border">P4</div>
+				  		<div class="col-1 border d-flex align-items-center justify-content-center">P4</div>
 				  		<div class="col-1 border">
-					  		<div id="p4-1M"  class=" font-monospace fs-2">1</div> 		  		
+					  		<div id="p4-1M"  class=" font-monospace fs-5">1</div> 		  		
 				  		</div>
-				  		<div class="col-8 fs-2">
+				  		<div class="col fs-3">
 							<div id="p4-d1-0" class="d-inline p4-d1  text-end">.</div>
 							<div id="p4-0" class="d-inline border font-monospace">8</div>
 							<div id="p4-d1-1" class="d-inline p4-d1  text-end">.</div>
@@ -1057,7 +1084,7 @@ document.getElementById("hostname").value = x;
 						  	<div id="p4-5" class="d-inline border font-monospace">0</div>
 						</div>
 				  		
-				  		<div class="col-2 border">
+				  		<div class="col-1 border">
 				  			<div >
 				  				<div id="p4-l1" class="row miniled led-black border border-1"></div>
 				  				<div id="p4-l2" class="row miniled led-black border border-1"></div>
@@ -1154,9 +1181,24 @@ document.getElementById("hostname").value = x;
 <div class="container  d-flex align-items-center justify-content-center shadow p-4 mb-4 bg-white">
     <img src="./wifliplogo.png" class="rounded me-2 w-25" alt="icon wiflip logo"> 
 </div>
+<div class="container  d-flex align-items-center justify-content-center shadow p-4 mb-4 bg-white">
+<p class="small">Version 0.91.0b 2025-10-14</p>
+</div>
 
 <!--	
 <iframe src="wswiflip.html?interframe=true" style="height:380px;width:50%" title="Iframe Example"></iframe>	
 -->
+<!--Activation of basic tooltips (tooltip0)-->
+<!--The other tooltips (from gamesettings) are tooltip (without 0) -->
+<!--They do not exist until the game settings are actually opened -->
+<!--This is why we have two kinds of tooltips (see in gamesettings.js)...-->
+<script>
+const tooltipConnectStr = "zobi";
+var tooltip0TriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip0"]'))
+var tooltip0List = tooltip0TriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+
+</script>
 
 </body></html>

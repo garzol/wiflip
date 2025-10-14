@@ -29,6 +29,7 @@ for (i = 0; i < tabEl.length; i++) {
   })
 }
 
+
 const selBpPArr = {option: {"8": "3 balls per play", "0": "5 balls per play"}};	
 const selCnRArr = {option: {"0": "1 Play per Coin", "1": "2 Plays per Coin", "2": "3 Plays per Coin", "3": "4 Plays per Coin",}};	
 const selCrRArr = {option: {"0": "2 Coins", "4": "1 Coin",}};	
