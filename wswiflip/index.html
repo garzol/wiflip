@@ -9,13 +9,14 @@
 <link rel="short-icon" href="https://www.pps4.fr/static/img/icons/favicon.ico">
 -->
 
-<!--
+
 <link rel="icon" href="./wifliplogo.png">
 <link rel="short-icon" href="./wifliplogo.png">
--->
+
+<!--
 <link rel="icon" href="http://garzol.free.fr/wswiflip/wifliplogo.png">
 <link rel="short-icon" href="http://garzol.free.fr/wswiflip/wifliplogo.png">
-
+-->
 <link href="bootstrap-5.0.2-dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="bootstrap-icons-1.13.1/bootstrap-icons.css" rel="stylesheet">
 
@@ -112,6 +113,11 @@ var wsm_max_len = 4096; /* bigger length causes uart0 buffer overflow with low s
 
 if (!("WebSocket" in window)) {
 	alert("Your browser does not support websockets. Choose another one");
+    console.log("Your browser does not support websockets. Choose another one");
+}
+else {
+	console.log("Your browser does support websockets. Cool!");
+	
 }
 
 function update_text(text) {
@@ -177,11 +183,18 @@ function connect_onclick() {
     else {
      		hostname = "ws://" + hostname + ".local:81";       	
     }
-    ws = new WebSocket(hostname);
+	
+	try {
+    	ws = new WebSocket(hostname);
+		}
+	catch (err) {
+		console.log("error can't create websocket", err);
+	}
     // Change binary type from "blob" to "arraybuffer"
 	//ws.binaryType = "blob";
     update_text("opening websocket " +hostname+"...");
-    //console.log("opening websocket "+hostname+" "+ws+" "+ws.url);
+	//update_text("(opening websocket "+hostname+" "+ws+" "+ws.url+")");
+	//console.log("opening websocket "+hostname+" "+ws+" "+ws.url);
     document.getElementById("ws_state").innerHTML = "CONNECTING";
     ws.onopen = ws_onopen;
     ws.onclose = ws_onclose;
@@ -217,7 +230,29 @@ async function ws_onopen() {
 }
 
 function ws_onerror(event) {
-	console.log("ws error", event);
+	var reason = mng_ws_errors(event);
+	console.log("ws error callback called", event);
+	console.log("ws error because: ", reason);
+	console.log("  current url: ", window.location.href);
+	if (window.location.href.startsWith("https://")) {
+		alert("Websocket error. Use the http url, not the https. (" + window.location.href +")" );
+	}
+	else {
+		alert("Connection lost. Retry... ", reason);
+	}
+	
+	
+		try {
+			//ws.onopen = null;
+			ws_oncloseforced(event);
+			//ws.onmessage = null;
+			//ws.onerror = ws_onerror;
+		    //ws.close(3001, "zobi la mouche");
+		    //ws=null;
+			}
+		catch(err) {
+			console.log("catching error close", err);
+		    }
 	event.preventDefault();
 
 }
@@ -567,14 +602,14 @@ function ws_onmessage(e_msg) {
 
 	<div class="px-2 d-flex flex-grow-1 align-items-center">
  	  <i data-bs-toggle="tooltip0"  
-									  		title="Enter the raw IP address of the wiflip client (Something 
-											like 192.168.50.21 (shown in the registration page after successful registration)<br>
-											Or just enter XYZT, the very short name of the wiflip device.
-											Or enter wiflip_XYZT (without .local extension, case insensitive)." 
-											data-bs-html="true" 
-											data-bs-trigger="focus hover" 
-											data-bs-template = '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div style="min-width:350px" class="tooltip-inner bg-secondary text-start"></div></div>'
-									  		class="bi bi-question-circle-fill"></i>
+				  		title="Enter the raw IP address of the wiflip client (Something 
+						like 192.168.50.21 - shown in the registration page after successful registration)<br>
+						Or just enter XYZT, the very short name of the wiflip device.
+						Or enter wiflip_XYZT (without .local extension, case insensitive)." 
+						data-bs-html="true" 
+						data-bs-trigger="focus hover" 
+						data-bs-template = '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div style="min-width:350px" class="tooltip-inner bg-secondary text-start"></div></div>'
+				  		class="bi bi-question-circle-fill"></i>
 	</div>
 	
 	
