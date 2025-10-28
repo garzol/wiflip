@@ -8,8 +8,48 @@ const crElem = ["cr-0", "cr-1"];
 const ltElem = ["ltry-0", "ltry-1"];
 
 
+function sevenseg2value(inval) {
+	switch(inval) {
+		case 0:
+			return(-1);
+		case 6:
+			return(1);
+		
+		case 7:
+			return(7);
+			
+		case 63:
+			return(0);
+		case 79:
+			return(3);
+		case 91:
+			return(2);
+		case 102:
+			return(4);
+			case 109:
+				return(5);
+		case 111:
+			return(9);
+		case 125:
+			return(6);
+			
+		case 127:
+			return(8);
+		default:
+			return(14);
+		
+	}
+	
+}
+
+
 function dsplf0(d, eId) {
 	const container = document.getElementById(eId);
+	if (d==-1) {
+		container.innerHTML = "&nbsp;";	
+		return;	
+		
+	}
 	try {
 		const d0 = d&0x0F;
 		container.innerHTML = d0.toString(16).toUpperCase();//parseInt(d, 16);		

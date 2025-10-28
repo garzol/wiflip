@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- saved from url=(0019)http://192.168.0.2/ -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>wsWiFlip</title>
+<title>wsC3C Rowe Companion</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!--
@@ -28,6 +28,7 @@
 <script src="./variablecols.js"></script>
 <script src="./superv.js"></script>
 <script src="./gamesettings.js" defer></script>
+<script src="leds.js?ts=20251012984901"></script>
 
 <style>
 /* Add some basic styling for the chat window */
@@ -99,9 +100,6 @@ td,th{padding:5px 15px;text-align:left;}
 
 <link rel="stylesheet" href="leds.css">
 
-
-
-<script src="leds.js"></script>
 <script>
 var ws;
 var wsm_max_len = 4096; /* bigger length causes uart0 buffer overflow with low speed smart device */
@@ -313,33 +311,56 @@ async function manageFrame(frameTyp, frameArray) {
 			update_text('reset ack frame: '+frameArray);
 			console.log("reset ack");
 			OnResetReceived(frameArray);
-			memRequest(0);
-			await sleep(300);
-			memRequest(1);
-			await sleep(300);
+			//memRequest(0);
+			//await sleep(300);
+			//memRequest(1);
+			//await sleep(300);
 			if (frameArray[1]==132 || frameArray[1]==200) {
 				supervisionState ="Supervision is ON";
-				document.getElementById("supervision-btnId").innerHTML = "Stop Supervision";
+				//document.getElementById("supervision-btnId").innerHTML = "Stop Supervision";
 				
 				
 			}
 			else {
 				supervisionState ="Supervision is OFF";
-				document.getElementById("supervision-btnId").innerHTML = "Start Supervision";
+				//document.getElementById("supervision-btnId").innerHTML = "Start Supervision";
 				
 			}
-			document.getElementById("supervision-statusId").innerHTML = supervisionState;
+			//document.getElementById("supervision-statusId").innerHTML = supervisionState;
 			
 			break;
 	    case 65:
-			dsplf0(frameArray[0], "Z101");
-			dsplf0(frameArray[1], "Z102");
-			dsplf0(frameArray[2], "Z103");
-			dsplf0(frameArray[3], "Z104");
-			dsplf0(frameArray[4], "Z400");
-			dsplf0(frameArray[5], "Z401");
-			dsplf0(frameArray[6], "Z402");
-			console.log(frameArray);
+			dsplf0(sevenseg2value(frameArray[0]), "Z101");
+			dsplf0(sevenseg2value(frameArray[1]), "Z102");
+			dsplf0(sevenseg2value(frameArray[2]), "Z103");
+			dsplf0(sevenseg2value(frameArray[3]), "Z104");
+			dsplf0(sevenseg2value(frameArray[4]), "Z400");
+			dsplf0(sevenseg2value(frameArray[5]), "Z401");
+			dsplf0(sevenseg2value(frameArray[6]), "Z402");
+			//console.log("code 65: ", frameArray);
+			//console.log(frameArray[0], ": Z101");
+			//console.log(frameArray[1], ": Z102");
+			//console.log(frameArray[2], ": Z103");
+			//console.log(frameArray[3], ": Z104");
+			
+			
+			const acols = 8;
+			const arows = 10;
+			for (let r=0; r<arows; r++) {
+				for (let c=0; c<acols; c++) {
+					let idx = r+10*(7-c);
+				    let ledElem = document.getElementById("sm-"+idx);
+
+					if (frameArray[7+r]&(1<<c))
+						ledElem.setAttribute("class",  "cled led-yellow");
+					else
+						ledElem.setAttribute("class",  "cled led-black border border-3");
+					}
+
+				
+				}
+			
+			
 	        break;
 	    case 66:
 			var dspl_zone = document.getElementById("dsplB-zone");
@@ -356,29 +377,24 @@ async function manageFrame(frameTyp, frameArray) {
 			break;
 	  	case 83:
 	  	    //switch matrix
+			console.log("switches: ", frameArray);
 			var dspl_zone = document.getElementById("83-zone");
 			//dspl_zone.innerHTML = frameArray;
-			const cols = 4;
+			const cols = 8;
 			const rows = 10;
-            for (let ix=0; ix<40; ix++) {
-                let bitnumber  = ix%8;
-                let bytenumber = Math.floor(ix / 8);
-                let c = cols-1 - ix%cols;
-                let r = bytenumber*2;
-                if (bitnumber<4)
-                    r+=1;
-                let idx = r+10*c;
-                let ledElem = document.getElementById("sm-"+idx);
-                //print(i, bitnumber, bytenumber, r,c)
-                //console.log("ledElem "+idx+' '+c+' '+r+' '+bitnumber+' '+bytenumber+' '+ledElem);
-                //console.log("ledElem "+ix+' '+bitnumber+' '+bytenumber+' '+r+' '+c);
-                if (frameArray[bytenumber]&(1<<bitnumber))
-					ledElem.setAttribute("class",  "cled led-yellow");
-                else
-					ledElem.setAttribute("class",  "cled led-black border border-3");
+			for (let r=0; r<rows; r++) {
+				for (let c=0; c<cols; c++) {
+					let idx = r+10*c;
+				    let ledElem = document.getElementById("sm-"+idx);
+
+					if (frameArray[r]&(1<<c))
+						ledElem.setAttribute("class",  "cled led-yellow");
+					else
+						ledElem.setAttribute("class",  "cled led-black border border-3");
+					}
+
+				
 				}
-
-
 			break;
 	  	case 89:
 	  	    //ports abcd
@@ -586,6 +602,9 @@ document.getElementById("hostname").value = x;
       <!--<button onclick="sendmsg_onclick('YCXQZ')">Reset</button>-->
       <button onclick="sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 90]))">Reset</button>
 	</div>
+
+
+
 	
 </div>	
 
@@ -664,229 +683,56 @@ document.getElementById("hostname").value = x;
 <script>create_ledbar(pdtooltip, "pd-bar")</script>
 
 
+<div class="container shadow">
 
-<div class="container p-3 my-3 rounded border border-3 shadow p-4 mb-4 bg-white">
-<!--
-  <h3>Toggleable Tabs</h3>
-  <br>
--->
-  <!-- Nav tabs -->
-  <ul class="nav nav-tabs" role="tablist">  
-    <li class="nav-item">
-      <a title="Status" class="nav-link active" data-bs-toggle="tab" id="htab-status-Id" href="#status"><span class="fs-2 d-block d-md-none"><i class="bi bi-list-check"></i></span><span class="d-none d-md-block">Status</span></a>  
-      
-    </li>
-    <li class="nav-item">
-      <a title="Reprog" class="nav-link" data-bs-toggle="tab" id="htab-reprog-Id" href="#reprog"><span class="fs-2 d-block d-md-none"><i class="bi bi-download"></i></span><span class="d-none d-md-block">Reprog</span></a>  
-    </li>
-    <li class="nav-item">
-      <a title="System Settings" class="nav-link" data-bs-toggle="tab" id="htab-sys-settings-Id" href="#system-settings"><span class="fs-2 d-block d-md-none"><i class="bi bi-gear"></i></span><span class="d-none d-md-block">Sys. Settings</span></a>
-    </li>
-	<li class="nav-item">  
-	  <a title="Game Settings" class="nav-link" data-bs-toggle="tab" id="htab-game-settings-Id" href="#game-settings"><span class="fs-2 d-block d-md-none"><i class="bi bi-sliders"></i></span><span class="d-none d-md-block">Game Settings</span></a>
-	</li>
-	<li class="nav-item">  
-	  <a title="Supervision" class="nav-link" data-bs-toggle="tab" id="htab-supervision-Id" href="#supervision"><span class="fs-2 d-block d-md-none"><i class="bi bi-hand-index-thumb"></i></span><span class="d-none d-md-block">Supervision</span></a>
-	</li>
-  </ul>
-
-  <!-- Tab panes -->
-  <div class="tab-content">
-  
- <!--game data -->
-    <div id="status" class="container tab-pane active"><br>
-	<div class="row">
-	    <div class="col">
-	
-			  <fieldset disabled>
-			    <legend>Active Game</legend>
-					<div class="input-group input-group-sm mb-3">
-					  <span class="input-group-text">Name</span>
-					  <input id="name-cgId" type="text" class="form-control text-white" aria-label="Active game" aria-describedby="Active game">
-					</div>
-					<div class="input-group input-group-sm mb-3">
-					  <span class="input-group-text">#Model</span>
-					  <input id="modl-cgId" type="text" class="form-control monospace text-uppercase" aria-label="Active model number" aria-describedby="Active model number">
-					</div>
-					<div class="input-group input-group-sm mb-3">
-					  <span class="input-group-text">CRC</span>
-					  <input id="crc-cgId" type="text" class="form-control monospace text-uppercase" aria-label="crc" aria-describedby="Active crc">
-					</div>
-			  </fieldset>
-	
-	
-	    </div>
-	    <div class="col">
-			  <fieldset disabled>
-			    <legend>Active Boot</legend>
-					<div class="input-group input-group-sm mb-3">
-					  <span class="input-group-text">Name</span>
-					  <input id="name-crId" type="text" class="form-control text-white" aria-label="Active boot" aria-describedby="Active boot">
-					</div>
-					<div class="input-group input-group-sm mb-3">
-					  <span class="input-group-text">CRC</span>
-					  <input id="crc-crId" type="text" class="form-control monospace text-uppercase" aria-label="crc" aria-describedby="Active crc">
-					</div>
-			  </fieldset>
-			
-	    </div>
-	</div>
-</div>
-	<!--end game data -->
-	 
-  
-  
-    <!--start reprog tab -->
-    <div id="reprog" class="container tab-pane fade"><br>
-		<label class="form-label">Select game:</label>
-	    <select class="form-select form-select-sm" id="game-select-reprog" name="game-select-reprog" onchange="update_sm_labels(this)">
-	    </select>
-	
-     <div class="user-input mt-3">
-      <!--<button onclick="sendmsg_onclick('YBXQR')">go into reprog mode</button>-->
-      <button onclick="start_reprog()">Reprog</button>
-      
-	</div>
-
-
-
-
-    <h3 class="small">Reprog console</h3>
-    <div class="chat-messages small" id="reprog-messages"></div>
- 
-
-</div>
+<!--<div id="switch-matrix-window" class="container p-3 my-3 bg-dark text-white rounded"> -->
+<div id="switch-matrix-window" class="p-3 my-3 bg-dark text-white rounded">
     
-    
-    <script>window.onload = create_game_select("game-select-reprog")</script>
-    <!--end reprog tab -->
+	<h3>Rowe Switch matrix </h3>
 
-    <!--start system settings tab -->    
-    <div id="system-settings" class="container tab-pane fade"><br>
-      <p>Click the button Apply&Reset to get your changes applied.</p>
+	<div class="container shadow">
+		
+		
+		<input type="radio" class="btn-check" name="options-outlined" id="success-outlined" autocomplete="off"  onclick="sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 0x32]))">
+		<label class="btn btn-outline-success" for="success-outlined">Real Switch Matrix</label>
 
-	<div class="row">
-	    <div class="col">
-	
-			  <fieldset>
-			    <!--<legend>Options</legend>-->
-					<div class="input-group input-group-sm mb-3">
-						<div class="form-check">
-						  <input class="form-check-input" type="checkbox" value="" id="coin-rejector-optId" onclick="checkAddress(this)">
-						  <label class="form-check-label" for="flexCheckDefault">
-						    Coin rejector off
-						  </label>
-						</div>
-					</div>
-					<div class="input-group input-group-sm mb-3">
-						<div class="form-check">
-						  <input class="form-check-input" type="checkbox" value="" id="skip-coiltest-optId" onclick="checkAddress(this)">
-						  <label class="form-check-label" for="flexCheckDefault">
-						    Skip coils self-test
-						  </label>
-						</div>
-					</div>
-					<div class="input-group input-group-sm mb-3">
-						<div class="form-check">
-						  <input class="form-check-input" type="checkbox" value="" id="standalone-switchmatrix-optId" onclick="checkAddress(this)">
-						  <label class="form-check-label" for="flexCheckDefault">
-						    Stand alone switch matrix
-						  </label>
-						</div>
-					</div>
-					<div class="input-group input-group-sm mb-3">
-						<div class="form-check">
-						  <input class="form-check-input" type="checkbox" value="" id="unprotect-coils-optId" onclick="checkAddress(this)">
-						  <label class="form-check-label" for="flexCheckDefault">
-						    Unprotect coil channels
-						  </label>
-						</div>
-					</div>
-			  </fieldset>
-	
-	
-	    </div>
-	    <div class="col">
-			  <fieldset>
-			    <!--<legend>Control</legend>-->
-					<div class="d-grid gap-3">
-						<button type="button" class="btn btn-sm btn-primary btn-block" id="sys-apply-btnId" onclick="applySysOptions(req_sc_flags1)" disabled>Apply&Reset</button>
-						<button type="button" class="btn btn-sm btn-success btn-block" onclick="cancelSysChanges()">Cancel</button>
-						<button type="button" class="btn btn-sm btn-danger btn-block"  onclick="applySysFactory()">Factory reset</button>
-					</div>
-			  </fieldset>
-			
-	    </div>
+		<input type="radio" class="btn-check" name="options-outlined" id="danger-outlined" autocomplete="off" onclick="sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 0x31]))">
+		<label class="btn btn-outline-danger" for="danger-outlined">Simulated Switch Matrix</label>
 	</div>
-
-
-
-    </div>
-    <!--end system settings-->
-    
-    <!--start game settings tab -->    
-    <div id="game-settings" class="container tab-pane fade"><br>
-      <p>Apply and reset for your changes to take effect.</p>
- 		<div>
-			<button type="button" class="btn btn-sm btn-primary border-radius w-100 me-2 mb-3" id="gameset-apply-btnId" onclick="checkandwriteGS()">Apply&Reset</button>
- 		</div>
-        <div class="overflow-auto border"   style="height: 380px">
-				<table class="table table-striped monospace flexicol" id="game-settings-tableId">
-				 <thead>
-				  <tr>
-				   <th class="text-center">Property</th>
-				   <th class="text-center">Value</th>
-				  </tr>
-				 </thead>
-				 <tbody>
-				  <tr>
-				  </tr>
-				 </tbody>
-				</table> 
-		</div> 
-      
-    </div>
-    <!--end game settings-->
-
-	
-	<!--start supervision tab -->    
-	<div id="supervision" class="container tab-pane fade"><br>
-	  <p id="supervision-statusId">Take control of outputs</p>
+		
 	  
-		<div>
-			<button type="button" class="btn btn-sm btn-primary border-radius w-100 me-2 mb-3" id="supervision-btnId" onclick="start_supervis();">Start Supervision</button>
-		</div>
-
-		<div class="container p-3 my-3 bg-dark text-white rounded">
-			<h3>Display A</h3>
-			<div id='dsplA-errorvalidate'></div>
-
-			<div class="overflow-scroll d-flex align-items-center justify-content-center ">
-				<div id="dsplA-superId" class="d-inline-flex p-3 bg-secondary "> 
-				</div>
-			</div>
-			<div class="mt-2">
-				<button type="button" class="btn btn-sm btn-primary border-radius w-100 me-2 mb-3" id="supervision-applAId" onclick="setDspls('dsplA');">Apply Display A</button>
-			    <button type="button" class="btn btn-sm btn-primary border-radius w-100 me-2 mb-3"                          onclick="setInitVals('dsplA', 'F');">Reset data of Display A</button>
-			</div>
-			<h3 class="mt-3">Display B</h3>
-			<div id='dsplB-errorvalidate'></div>
-			<div class="overflow-scroll d-flex align-items-center justify-content-center ">
-	
-				<div id="dsplB-superId" class="d-inline-flex p-3 bg-secondary "> 
-				</div>
-			</div>
-			<div class="mt-2">
-			<button type="button" class="btn btn-sm btn-primary border-radius w-100 me-2 mb-3" id="supervision-applAId" onclick="setDspls('dsplB');">Apply Display B</button>
-		    <button type="button" class="btn btn-sm btn-primary border-radius w-100 me-2 mb-3"                          onclick="setInitVals('dsplB', 'F');">Reset data of Display B</button>
-			</div>
-		</div>	
-
-			  
+	  
+	  
+	<div class="row mt-3">
+	<!--
+	<div class="col-1"></div>
+	<div class="col-1"><div class="border text-center">0</div></div>
+	<div class="col-1"><div class="border text-center">1</div></div>
+	<div class="col-1 text-center"><div class="border border-1">2</div></div>
+	<div class="col-1 text-center"><div class="border border-1">3</div></div>
+	<div class="col-1 text-center"><div class="border border-1">4</div></div>
+	<div class="col-1 text-center"><div class="border border-1">5</div></div>
+	<div class="col-1 text-center"><div class="border border-1">6</div></div>
+	<div class="col-1 text-center"><div class="border border-1">7</div></div>
+	<div class="col-1 text-center"><div class="border border-1">8</div></div>
+	<div class="col-1 text-center"><div class="border border-1">9</div></div>
+	-->
+	<div class="col-1"></div>
+	<div class="col-1"><div class="border text-center">0</div></div>
+	<div class="col-1"><div class="border text-center">1</div></div>
+	<div class="col-1"><div class="border text-center">2</div></div>
+	<div class="col-1"><div class="border text-center">3</div></div>
+    <div class="col-1"><div class="border text-center">4</div></div>
+    <div class="col-1"><div class="border text-center">5</div></div>
+    <div class="col-1"><div class="border text-center">6</div></div>
+    <div class="col-1"><div class="border text-center">7</div></div>
 	</div>
-	<script>create_dsplSuper("dsplA")</script>
-	<script>create_dsplSuper("dsplB")</script>
-	<!--end supervision-->
+
+</div>	
+</div>
+<script>window.onload = create_rowe_switch_matrix("switch-matrix-window")</script>
+
+
 
 <!--general purpose toast-->
 <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
@@ -910,229 +756,7 @@ document.getElementById("hostname").value = x;
 
 
 
-<div class="container p-3 my-3 bg-dark text-white rounded">
 
-
-
-	   
-		  <h3>Displays</h3>
-		  
-		  
-		  	<div id="freeplays" class="row">
-		  		<div class="col ms-auto text-end">Freeplays</div>
-		  		<div id="fp-0" class="col-1 border"></div>
-		  		<div id="fp-1" class="col-1 border"></div>
-		  		<div class="col ms-auto text-end"></div>
-		  	</div>
-		 
-		  	<div id="tableau-1" class="row mt-3 border border-3 ">
-		  		<div class="col-1 ms-auto border">P1</div>
-		  		<div class="col-1 border">
-			  		<div id="p1-1M"  class="font-monospace fs-2">1</div> 		  		
-		  		</div>
-		  		<div class="col-8 fs-1 d-inline">
-					<div id="p1-d1-0" class="d-inline p1-d1  text-end">.</div>
-					<div id="p1-0" class="d-inline border font-monospace">8</div>
-					<div id="p1-d1-1" class="d-inline p1-d1  text-end">.</div>
-					<div id="p1-1" class="d-inline border font-monospace">8</div>
-					<div id="p1-d1-2" class="d-inline p1-d1  text-end">.</div>
-					<div id="p1-2" class="d-inline border font-monospace">8</div>
-					<div id="p1-d1-3" class="d-inline p1-d1  text-end">.</div>
-					<div id="p1-3" class="d-inline border font-monospace">8</div>
-					<div id="p1-d1-4" class="d-inline p1-d1  text-end">.</div>
-					<div id="p1-4" class="d-inline border font-monospace">8</div>
-				  	<div id="p1-d1-5" class="d-inline p1-d1  text-end">.</div>
-				  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
-				  	<div id="p1-5" class="d-inline border font-monospace">0</div>
-				</div>
-		  		
-		  		<div class="col-2 border inline-block">
-		  				<div id="p1-l1" class="row miniled led-black border border-1"></div>
-		  				<div id="p1-l2" class="row miniled led-black border border-1"></div>
-		  		</div>
-		    </div>
-		    
-		 
-		  	<div id="tableau-2" class="row mt-3 border border-3">
-		  		<div class="col-1 ms-auto border">P2</div>
-		  		<div class="col-1 border">
-			  		<div id="p2-1M"  class=" font-monospace fs-2">1</div> 		  		
-		  		</div>
-		  		<div class="col-8 fs-1">
-					<div id="p2-d1-0" class="d-inline p2-d1  text-end">.</div>
-					<div id="p2-0" class="d-inline border font-monospace">8</div>
-					<div id="p2-d1-1" class="d-inline p2-d1  text-end">.</div>
-					<div id="p2-1" class="d-inline border font-monospace">8</div>
-					<div id="p2-d1-2" class="d-inline p2-d1  text-end">.</div>
-					<div id="p2-2" class="d-inline border font-monospace">8</div>
-					<div id="p2-d1-3" class="d-inline p2-d1  text-end">.</div>
-					<div id="p2-3" class="d-inline border font-monospace">8</div>
-					<div id="p2-d1-4" class="d-inline p2-d1  text-end">.</div>
-					<div id="p2-4" class="d-inline border font-monospace">8</div>
-				  	<div id="p2-d1-5" class="d-inline p2-d1  text-end">.</div>
-				  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
-				  	<div id="p2-5" class="d-inline border font-monospace">0</div>
-				</div>
-		  		
-		  		<div class="col-2 border">
-		  				<div id="p2-l1" class="row miniled led-black border border-1"></div>
-		  				<div id="p2-l2" class="row miniled led-black border border-1"></div>
-		  		</div>
-		    </div>
-		    
-		 
-		  	<div id="tableau-3" class="row mt-3 border border-3">
-		  		<div class="col-1 border">P3</div>
-		  		<div class="col-1 border">
-			  		<div id="p3-1M"  class=" font-monospace fs-2">1</div> 		  		
-		  		</div>
-		  		<div class="col-8 fs-1">
-					<div id="p3-d1-0" class="d-inline p3-d1  text-end">.</div>
-					<div id="p3-0" class="d-inline border font-monospace">8</div>
-					<div id="p3-d1-1" class="d-inline p3-d1  text-end">.</div>
-					<div id="p3-1" class="d-inline border font-monospace">8</div>
-					<div id="p3-d1-2" class="d-inline p3-d1  text-end">.</div>
-					<div id="p3-2" class="d-inline border font-monospace">8</div>
-					<div id="p3-d1-3" class="d-inline p3-d1  text-end">.</div>
-					<div id="p3-3" class="d-inline border font-monospace">8</div>
-					<div id="p3-d1-4" class="d-inline p3-d1  text-end">.</div>
-					<div id="p3-4" class="d-inline border font-monospace">8</div>
-				  	<div id="p3-d1-5" class="d-inline p3-d1  text-end">.</div>
-				  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
-				  	<div id="p3-5" class="d-inline border font-monospace">0</div>
-				</div>
-		  		
-		  		<div class="col-2 border">
-		  				<div id="p3-l1" class="row miniled led-black border border-1"></div>
-		  				<div id="p3-l2" class="row miniled led-black border border-1"></div>
-		  		</div>
-		    </div>
-		    
-	 
-		  	<div id="tableau-4" class="row mt-3 border border-3">
-		  		<div class="col-1 border">P4</div>
-		  		<div class="col-1 border">
-			  		<div id="p4-1M"  class=" font-monospace fs-2">1</div> 		  		
-		  		</div>
-		  		<div class="col-8 fs-1">
-					<div id="p4-d1-0" class="d-inline p4-d1  text-end">.</div>
-					<div id="p4-0" class="d-inline border font-monospace">8</div>
-					<div id="p4-d1-1" class="d-inline p4-d1  text-end">.</div>
-					<div id="p4-1" class="d-inline border font-monospace">8</div>
-					<div id="p4-d1-2" class="d-inline p4-d1  text-end">.</div>
-					<div id="p4-2" class="d-inline border font-monospace">8</div>
-					<div id="p4-d1-3" class="d-inline p4-d1  text-end">.</div>
-					<div id="p4-3" class="d-inline border font-monospace">8</div>
-					<div id="p4-d1-4" class="d-inline p4-d1  text-end">.</div>
-					<div id="p4-4" class="d-inline border font-monospace">8</div>
-				  	<div id="p4-d1-5" class="d-inline p4-d1  text-end">.</div>
-				  	<!-- <div id="p1-d1-5" class="col p1-d1 text-end">.</div> -->
-				  	<div id="p4-5" class="d-inline border font-monospace">0</div>
-				</div>
-		  		
-		  		<div class="col-2 border">
-		  			<div >
-		  				<div id="p4-l1" class="row miniled led-black border border-1"></div>
-		  				<div id="p4-l2" class="row miniled led-black border border-1"></div>
-		  			</div>
-		  		</div>
-		    </div>
-		    
-				    
-
-		
-		  	<div id="credits" class="row mt-3 ">
-		  		<div class="col ms-auto text-end">Credits</div>
-		  		<div id="cr-0" class="col-1 border"></div>
-		  		<div id="cr-1" class="col-1 border"></div>
-		  		<div class="col ms-auto text-end"></div>
-		  	</div>
-		
-		  	<div id="lottery" class="row mt-2">
-		  		<div class="col ms-auto text-end">Lottery</div>
-		  		<div id="ltry-0" class="col-1 border"></div>
-		  		<div id="ltry-1" class="col-1 border"></div>
-		  		<div class="col ms-auto text-end"></div>
-		  	</div>
-		
-		
-		  	<div id="binplay" class="row mt-3 fs-2">
-		  		<div id="bip-1" class="col text-warning"><i class="bi bi-1-circle-fill"></i></div>
-		  		<div id="bip-2" class="col text-warning"><i class="bi bi-2-circle-fill"></i></div>
-		  		<div id="bip-3" class="col text-warning"><i class="bi bi-3-circle-fill"></i></div>
-		  		<div id="bip-4" class="col text-warning"><i class="bi bi-4-circle-fill"></i></div>
-		  		<div id="bip-5" class="col text-warning"><i class="bi bi-5-circle-fill"></i></div>
-		  		<div id="bip-tilt" class="col bg-warning text-center">Tilt</div>
-		  		<div id="bip-go" class="col fs-3 bg-warning text-center">G.Over</div>
-		  	</div>
-		
-		
-  	
-  </div>
-  
-  
-
-<div class="container p-3 my-3 bg-dark text-white rounded">
-	<h3>GPIO Coils and lamps</h3>
-	<div class="overflow-scroll led-bar-container ">
-	
-		<div id="gpioled-bar" class="d-inline-flex p-3 bg-secondary "> 
-		</div>
-	</div>
-</div>	
-<div class="container p-3 my-3 bg-dark text-white rounded">
-	<h3>B2 lamps </h3>
-	<div class="overflow-scroll led-bar-container ">
-	
-		<div id="b2led-bar" class="d-inline-flex p-3 bg-secondary "> 
-		</div>
-	</div>
-</div>	
-<script>create_ledbar(gpiotooltip, "gpioled-bar")</script>
-<script>create_ledbar(b2tooltip, "b2led-bar")</script>
-
-<div id="switch-matrix-window" class="container p-3 my-3 bg-dark text-white rounded">
-    
-	<h3>Switch matrix </h3>
-	<label class="form-label">Select game:</label>
-    <select class="form-select form-select-sm" id="game-select" name="game-select" onchange="update_sm_labels(this)">
-    </select>
-	
-	<div class="row mt-5">
-	<div class="col-1"></div>
-	<div class="col-1"><div class="border text-center">0</div></div>
-	<div class="col-1"><div class="border text-center">1</div></div>
-	<div class="col-1 text-center"><div class="border border-1">2</div></div>
-	<div class="col-1 text-center"><div class="border border-1">3</div></div>
-	<div class="col-1 text-center"><div class="border border-1">4</div></div>
-	<div class="col-1 text-center"><div class="border border-1">5</div></div>
-	<div class="col-1 text-center"><div class="border border-1">6</div></div>
-	<div class="col-1 text-center"><div class="border border-1">7</div></div>
-	<div class="col-1 text-center"><div class="border border-1">8</div></div>
-	<div class="col-1 text-center"><div class="border border-1">9</div></div>
-	</div>
-
-	<!--
-	
-	<div class="row mt-3">
-	<div class="col-1"><span class="fs-6 d-flex justify-content-center overflow-hidden">A</span></div>
-	<div class="col-1 "><div ><div class="d-flex justify-content-center" ><div class="cled led-green"></div></div><div  class="d-flex justify-content-center overflow-visible small" >Replay.</div></div></div>
-	<div class="col-1 "><div ><div class="d-flex justify-content-center" ><div class="cled led-green"></div></div><div  class="d-flex justify-content-center overflow-visible small" >Replay.</div></div></div>
-	<div class="col-1 "><div ><div class="d-flex justify-content-center" ><div class="cled led-green"></div></div><div  class="d-flex justify-content-center overflow-visible small" >Replayklklkl.</div></div></div>
-	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
-	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
-	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
-	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
-	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
-	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
-	<div class="col-1"><div class="m-0 led led-black border border-1"></div></div>
-	</div>
-	
-	-->
-</div>	
-
-<script>window.onload = create_game_select("game-select")</script>
-<script>window.onload = create_switch_matrix("switch-matrix-window")</script>
 
 <div class="container p-3 my-3 bg-dark text-white rounded">
     <h3>WiFlip (ws console)</h3>
@@ -1150,12 +774,34 @@ document.getElementById("hostname").value = x;
 
 </div>
 
-<div class="container shadow p-4 mb-4 bg-white">
-    <img src="./wifliplogo.png" class="rounded me-2 w-50" alt="icon wiflip logo"> 
+
+<div class="container  d-flex align-items-center justify-content-center shadow p-4 mb-4 bg-white">
+    <img src="./wifliplogo.png" class="rounded me-2 w-25" alt="icon wiflip logo"> 
 </div>
+<div class="container  d-flex align-items-center justify-content-center shadow p-4 mb-4 bg-white">
+<p class="small">C3C Companion Version 0.91.0b 2025-10-25</p>
+</div>
+
+
 
 <!--	
 <iframe src="wswiflip.html?interframe=true" style="height:380px;width:50%" title="Iframe Example"></iframe>	
 -->
+
+<!--	
+<iframe src="wswiflip.html?interframe=true" style="height:380px;width:50%" title="Iframe Example"></iframe>	
+-->
+<!--Activation of basic tooltips (tooltip0)-->
+<!--The other tooltips (from gamesettings) are tooltip (without 0) -->
+<!--They do not exist until the game settings are actually opened -->
+<!--This is why we have two kinds of tooltips (see in gamesettings.js)...-->
+<script>
+var tooltip1TriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltip1List = tooltip1TriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+
+</script>
+
 
 </body></html>
