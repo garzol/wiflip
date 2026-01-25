@@ -347,14 +347,14 @@ const rowe_sw_tooltip = [
 const rowe_sw_lbl = [
 	["PR1", "PR2", "PR4", "PR8", "$B1", "0/5", "Cancel", "+8on"],
 	["1PP1", "1PP2", "1PP4", "1PP8", "$B2", "1/5", "S107", "S106"],
-	["Crd1 5c", "Crd1 10c", "Crd1 20c", "Crd1 40c", "C. R.", "2/5", "S105", "S104"],
+	["C 5c", "C 10c", "C 20c", "C 40c", "C. R.", "2/5", "S105", "S104"],
 	["Card1 1", "Card1 2", "Card1 4", "Card1 8", "1,2,4,8", "3/5", "S100", "3/7"],
 	["Card2 1", "Card2 2", "Card2 4", "Card2 8", "1,2,5,10", "1,2,3,5", "S102", "S101"],
-	["Card3 1", "Card3 2", "Card3 4", "Card3 8", "16P+", "5/5", "Play Timer", "5/7"],
-	["Card4 1", "Card4 2", "Card4 4", "Card4 8", "O. Cam", "I. Cam", "Optic Home", "Optic Index"],
+	["Card3 1", "Card3 2", "Card3 4", "Card3 8", "16P+", "5/5", "Timer", "5/7"],
+	["Card4 1", "Card4 2", "Card4 4", "Card4 8", "O. Cam", "I. Cam", "Op H", "Op I"],
 	["RESET", "POP", "160 P", "5c Sw", "10c Sw", "25c Sw", "50c Sw", "$1 Sw"],
 	["1", "2", "3", "4", "5", "RI-3", "8/6", "8/7"],
-	["6", "7", "8", "9", "0", "Prem. K.", "9/6", "9/7"]
+	["6", "7", "8", "9", "0", "Prem K", "9/6", "9/7"]
 
 ];
 function create_rowe_switch_matrix(container_id) {
@@ -374,7 +374,7 @@ function create_rowe_switch_matrix(container_id) {
 		header_row_container.setAttribute("class", "col-1");
 		led_row_container.appendChild(header_row_container);
 		var header_row_span = document.createElement("span");
-		header_row_span.setAttribute("class", "fs-6 d-flex justify-content-center overflow-hidden border");
+		header_row_span.setAttribute("class", "d-flex justify-content-center overflow-hidden border");
 		header_row_span.innerHTML = row;
 		header_row_container.appendChild(header_row_span);
 		
@@ -414,7 +414,7 @@ function create_rowe_switch_matrix(container_id) {
 			//<div class="col-1 "><div ><div class="d-flex justify-content-center" ><div class="cled led-green"></div></div><div  class="d-flex justify-content-center overflow-visible small" >Replay.</div></div></div>
             
 			
-			const b1 = new Uint8Array([89, 83, row, (1<<col), 50]);
+			const b1 = new Uint8Array([89, 83, row, (1<<col), 20]);
 			const b2 = new Uint8Array([89, 83, row, (1<<col), 255]);
 
 			led_object.onclick = function() { console.log(b1); sendmsg_onclick(b1); };

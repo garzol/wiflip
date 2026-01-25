@@ -48,7 +48,7 @@ body {
   padding: 10px;
 }
 .chat-messages {
-  height: 250px;
+  height: 450px;
   overflow-y: auto;
   border: 1px solid #444;
   padding: 5px;
@@ -87,6 +87,15 @@ body {
   margin-left: auto;
 }
 
+
+.lbldiag{
+    width: 80px;
+    float: left;
+	margin-left: -12px;
+	margin-bottom: 12px;
+    transform:rotate(-50deg);
+-ms-transform:rotate(-50deg); /* IE 9 */
+-webkit-transform:rotate(-50deg); /* Opera, Chrome, and Safari */}
   
 </style>
 
@@ -117,6 +126,11 @@ function update_text(text) {
   var chat_messages = document.getElementById("chat-messages");
   chat_messages.innerHTML += text + '<br>';
   chat_messages.scrollTop = chat_messages.scrollHeight;
+}
+function update_text_inline(text) {
+  //console.log("write text to console "+text);
+  var chat_messages = document.getElementById("chat-messages");
+  chat_messages.innerHTML += text;
 }
 
 function update_rconsole(text) {
@@ -371,7 +385,21 @@ async function manageFrame(frameTyp, frameArray) {
 	        //read 128 bytes ram
 			//var dspl_zone = document.getElementById("dsplB-zone");
 			//dspl_zone.innerHTML = frameArray;
-			console.log("128 bytes ram");
+			update_text('dump ram: ');
+			update_text('    00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F');
+			for (let adidx=0; adidx<16; adidx++) {
+				update_text_inline(String("0" + adidx.toString(16).toUpperCase()).slice(-2)+'  ');
+				for (let adjdx=0; adjdx<16; adjdx++) {
+					let idx = adidx*16 + adjdx;
+					let obj = String("0" + frameArray[idx].toString(16).toUpperCase()).slice(-2);
+					update_text_inline(obj+' ');
+				}
+				update_text("");
+
+			}
+			update_text('End of dump');
+		
+			console.log("256 bytes ram");
 			console.log(frameArray);
 			OnDumpReceived(frameArray);
 			break;
@@ -397,7 +425,7 @@ async function manageFrame(frameTyp, frameArray) {
 				}
 			break;
 	  	case 89:
-	  	    //ports abcd
+	  	    //ports abcd + cr40x
 			//var dspl_zone = document.getElementById("89-zone");
 			//dspl_zone.innerHTML = frameArray;
 			for (let i=0; i<8; i++) {
@@ -441,7 +469,69 @@ async function manageFrame(frameTyp, frameArray) {
 					ledElem.setAttribute("class",  "led led-black border border-3");
 					}
 				}
-									
+			//frameArray[4]		
+			//<div class="col-2"><div class=" lbldiag  small">Make any selection</div></div>
+			//<div class="col-2"><div class=" lbldiag  small">Make std. selection</div></div>
+			//<div class="col-2"><div class=" lbldiag  small">Most popular</div></div>
+			//<div class="col-2"><div class=" lbldiag  small">Sel. being made</div></div>
+			//<div class="col-2"><div class=" lbldiag  small">Selection playing</div></div>
+			//<div class="col-2"><div class=" lbldiag  small">Sels remaining</div></div>
+			//A=CR400 (PD0)
+			//B=CR401 (PD1)
+			//E=CR402 (PD5)
+			//D=CR403 (PD4)
+			//F=CR404 (PD6)
+			//G=CR405 (PD7)
+			//Make any selection "A"
+			let cr400Elem = document.getElementById("CR400");
+			if ( frameArray[4]&(1) ) {
+				cr400Elem.setAttribute("class",  "led led-green");
+				}
+			else {
+				cr400Elem.setAttribute("class",  "led led-black border border-3");
+				}
+			//Make std. selection "B"
+			let cr401Elem = document.getElementById("CR401");
+			if ( frameArray[4]&(2) ) {
+				cr401Elem.setAttribute("class",  "led led-green");
+				}
+			else {
+				cr401Elem.setAttribute("class",  "led led-black border border-3");
+				}
+			//Most popular "E"
+			let cr402Elem = document.getElementById("CR402");
+			if ( frameArray[4]&(16) ) {
+				cr402Elem.setAttribute("class",  "led led-green");
+				}
+			else {
+				cr402Elem.setAttribute("class",  "led led-black border border-3");
+				}
+			//Sel. being made "D"				
+			let cr403Elem = document.getElementById("CR403");
+			if ( frameArray[4]&(8) ) {
+				cr403Elem.setAttribute("class",  "led led-green");
+				}
+			else {
+				cr403Elem.setAttribute("class",  "led led-black border border-3");
+				}
+
+			//Selection playing, "F" PD6, or bit 5	
+			let cr404Elem = document.getElementById("CR404");
+			if ( frameArray[4]&(32) ) {
+				cr404Elem.setAttribute("class",  "led led-green");
+				}
+			else {
+				cr404Elem.setAttribute("class",  "led led-black border border-3");
+				}	
+
+			//Selections remaining "G" or PD7, or bit 6
+			let cr405Elem = document.getElementById("CR405");
+			if ( frameArray[4]&(64) ) {
+				cr405Elem.setAttribute("class",  "led led-green");
+				}
+			else {
+				cr405Elem.setAttribute("class",  "led led-black border border-3");
+				}																			
 			break;		
 		case 90:		
 	        //read 2 bytes. in Reply to the 5A request
@@ -511,9 +601,9 @@ function handle_ba(ba) {
 			      frameArray = new Uint8Array(framesz);
 			      break;
 			  case 82:
-			  	  //128 bytes ram fram
-				  //update_text('ram dump 128 bytes '+idx+' '+ frameIdx+ ' ' + ba.length);
-				  framesz = 128;
+			  	  //256 bytes ram fram
+				  update_text('ram dump 256 bytes '+idx+' '+ frameIdx+ ' ' + ba.length);
+				  framesz = 256;
 				  frameArray = new Uint8Array(framesz);
 				  break;
 			  case 83:
@@ -523,7 +613,7 @@ function handle_ba(ba) {
 				  break;
 			  case 89:
 			      //update_text('display B frame '+idx+' '+ frameIdx+ ' ' + ba.length);
-			      framesz = 4;
+			      framesz = 5;
 			      frameArray = new Uint8Array(framesz);
 			      break;
 			  case 90:
@@ -597,12 +687,6 @@ function ws_onmessage(e_msg) {
 document.getElementById("hostname").value = x;
 </script>
 
-	    	
-    <div class="user-input mt-3">
-      <!--<button onclick="sendmsg_onclick('YCXQZ')">Reset</button>-->
-      <button onclick="sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 90]))">Reset</button>
-	</div>
-
 
 
 	
@@ -634,21 +718,101 @@ document.getElementById("hostname").value = x;
 </div>
 <!-- end of modal -->
 
-<div class="container p-3 my-3 rounded border border-3">
-	<h3>Z101..Z104</h3>
-	<div class="col-8 fs-1 d-inline">
-		<div id="Z101" class="d-inline border font-monospace">8</div>
-		<div id="Z102" class="d-inline border font-monospace">8</div>
-		<div id="Z103" class="d-inline border font-monospace">8</div>
-	    <div id="Z104" class="d-inline border font-monospace">8</div>
+
+
+<div class="container shadow">
+
+<!--<div id="switch-matrix-window" class="container p-3 my-3 bg-dark text-white rounded"> -->
+<div id="switch-matrix-window" class="p-3 my-3 bg-dark text-white rounded">
+    
+	<h3>Rowe Switch matrix </h3>
+
+	<div class="container shadow">
+		
+		
+		<input type="radio" class="btn-check" name="options-outlined" id="success-outlined" autocomplete="off"  onclick="sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 0x32]))">
+		<label class="btn btn-outline-success" for="success-outlined">Real Switch Matrix</label>
+
+		<input type="radio" class="btn-check" name="options-outlined" id="danger-outlined" autocomplete="off" onclick="sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 0x31]))">
+		<label class="btn btn-outline-danger" for="danger-outlined">Simulated Switch Matrix</label>
 	</div>
-	<h3 class="mt-3">Z402..Z400</h3>
-	<div class="col-8 fs-1 d-inline">
-		<div id="Z402" class="d-inline border font-monospace">8</div>
-		<div id="Z401" class="d-inline border font-monospace">8</div>
-		<div id="Z400" class="d-inline border font-monospace">8</div>
+		
+	  
+	  
+	  
+	<div class="row mt-3 ">
+	<!--
+	<div class="col-1"></div>
+	<div class="col-1"><div class="border text-center">0</div></div>
+	<div class="col-1"><div class="border text-center">1</div></div>
+	<div class="col-1 text-center"><div class="border border-1">2</div></div>
+	<div class="col-1 text-center"><div class="border border-1">3</div></div>
+	<div class="col-1 text-center"><div class="border border-1">4</div></div>
+	<div class="col-1 text-center"><div class="border border-1">5</div></div>
+	<div class="col-1 text-center"><div class="border border-1">6</div></div>
+	<div class="col-1 text-center"><div class="border border-1">7</div></div>
+	<div class="col-1 text-center"><div class="border border-1">8</div></div>
+	<div class="col-1 text-center"><div class="border border-1">9</div></div>
+	-->
+	<div class="col-1"></div>
+	<div class="col-1"><div class="border text-center">0</div></div>
+	<div class="col-1"><div class="border text-center">1</div></div>
+	<div class="col-1"><div class="border text-center">2</div></div>
+	<div class="col-1"><div class="border text-center">3</div></div>
+    <div class="col-1"><div class="border text-center">4</div></div>
+    <div class="col-1"><div class="border text-center">5</div></div>
+    <div class="col-1"><div class="border text-center">6</div></div>
+    <div class="col-1"><div class="border text-center">7</div></div>
 	</div>
+
+</div>	
 </div>
+<script>window.onload = create_rowe_switch_matrix("switch-matrix-window")</script>
+
+<div class="container p-3 my-3 rounded border border-3">
+	<div class="container shadow mt-1 p-3">
+	<h4 class="text-secondary small">Z101..Z104 (ccc displays)</h4>
+	<div class="col-8 fs-1 d-inline">
+		<div id="Z101" class="d-inline border font-monospace fs-3">8</div>
+		<div id="Z102" class="d-inline border font-monospace fs-3">8</div>
+		<div id="Z103" class="d-inline border font-monospace fs-3">8</div>
+	    <div id="Z104" class="d-inline border font-monospace fs-3">8</div>
+	</div>
+	</div>
+	
+	<div class="container shadow mt-1 p-3">
+	<h4 class="text-secondary small">Z402..Z400 (Display board)</h4>
+	<div class="col-6 fs-1 d-inline">
+		<div id="Z402" class="d-inline border font-monospace fs-3">8</div>
+		<div id="Z401" class="d-inline border font-monospace fs-3">8</div>
+		<div id="Z400" class="d-inline border font-monospace fs-3">8</div>
+	</div>
+    </div>
+	
+	<div class="container shadow mt-1 p-3">
+	<h4 class="text-secondary small">Leds - Display board</h4>
+	<div class="row my-3">
+		<div class="col-2"><div class=" lbldiag  small">Make any selection</div></div>
+		<div class="col-2"><div class=" lbldiag  small">Make std. selection</div></div>
+		<div class="col-2"><div class=" lbldiag  small">Most popular</div></div>
+		<div class="col-2"><div class=" lbldiag  small">Sel. being made</div></div>
+		<div class="col-2"><div class=" lbldiag  small">Selection playing</div></div>
+	    <div class="col-2"><div class=" lbldiag  small">Sels remaining</div></div>
+	</div>
+	<div class="row my-3">
+		<div class="col-2"><div id="CR400" class="cled led-black border"></div></div>
+		<div class="col-2"><div id="CR401" class="cled led-black border"></div></div>
+		<div class="col-2"><div id="CR402" class="cled led-black border"></div></div>
+		<div class="col-2"><div id="CR403" class="cled led-black border"></div></div>
+		<div class="col-2"><div id="CR404" class="cled led-black border"></div></div>
+	    <div class="col-2"><div id="CR405" class="cled led-black border"></div></div>
+	</div>
+    </div>
+	
+</div>
+
+
+
 
 <div class="container p-3 my-3 bg-dark text-white rounded">
 	<h3>Port A </h3>
@@ -683,55 +847,6 @@ document.getElementById("hostname").value = x;
 <script>create_ledbar(pdtooltip, "pd-bar")</script>
 
 
-<div class="container shadow">
-
-<!--<div id="switch-matrix-window" class="container p-3 my-3 bg-dark text-white rounded"> -->
-<div id="switch-matrix-window" class="p-3 my-3 bg-dark text-white rounded">
-    
-	<h3>Rowe Switch matrix </h3>
-
-	<div class="container shadow">
-		
-		
-		<input type="radio" class="btn-check" name="options-outlined" id="success-outlined" autocomplete="off"  onclick="sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 0x32]))">
-		<label class="btn btn-outline-success" for="success-outlined">Real Switch Matrix</label>
-
-		<input type="radio" class="btn-check" name="options-outlined" id="danger-outlined" autocomplete="off" onclick="sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 0x31]))">
-		<label class="btn btn-outline-danger" for="danger-outlined">Simulated Switch Matrix</label>
-	</div>
-		
-	  
-	  
-	  
-	<div class="row mt-3">
-	<!--
-	<div class="col-1"></div>
-	<div class="col-1"><div class="border text-center">0</div></div>
-	<div class="col-1"><div class="border text-center">1</div></div>
-	<div class="col-1 text-center"><div class="border border-1">2</div></div>
-	<div class="col-1 text-center"><div class="border border-1">3</div></div>
-	<div class="col-1 text-center"><div class="border border-1">4</div></div>
-	<div class="col-1 text-center"><div class="border border-1">5</div></div>
-	<div class="col-1 text-center"><div class="border border-1">6</div></div>
-	<div class="col-1 text-center"><div class="border border-1">7</div></div>
-	<div class="col-1 text-center"><div class="border border-1">8</div></div>
-	<div class="col-1 text-center"><div class="border border-1">9</div></div>
-	-->
-	<div class="col-1"></div>
-	<div class="col-1"><div class="border text-center">0</div></div>
-	<div class="col-1"><div class="border text-center">1</div></div>
-	<div class="col-1"><div class="border text-center">2</div></div>
-	<div class="col-1"><div class="border text-center">3</div></div>
-    <div class="col-1"><div class="border text-center">4</div></div>
-    <div class="col-1"><div class="border text-center">5</div></div>
-    <div class="col-1"><div class="border text-center">6</div></div>
-    <div class="col-1"><div class="border text-center">7</div></div>
-	</div>
-
-</div>	
-</div>
-<script>window.onload = create_rowe_switch_matrix("switch-matrix-window")</script>
-
 
 
 <!--general purpose toast-->
@@ -764,7 +879,16 @@ document.getElementById("hostname").value = x;
       <button class="connect-button" id="bt_connect" onclick="connect_onclick()">Connect</button>
       <!-- <span class="label">WebSocket: <span id="ws_state"><span style="color:blue">CLOSED</span></span></span> -->
     </div>
-    <div class="chat-messages" id="chat-messages"></div>
+
+	<!-- <script>/*	-->    	
+	    <div class="user-input mt-3">
+	      <!--<button onclick="sendmsg_onclick('YCXQZ')">Reset</button>-->
+	      <button onclick="sendmsg_onclick(new Uint8Array([89, 82, 0, 0, 0]))">Dump NVRAM</button>
+		</div>
+	<!-- */</script> -->
+	
+	
+	    <div class="chat-messages font-monospace" id="chat-messages"></div>
     <!--
     <div class="user-input">
       <input type="text" id="message" placeholder="Type your message...">
