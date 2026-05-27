@@ -386,7 +386,7 @@ async function manageFrame(frameTyp, frameArray) {
 			//var dspl_zone = document.getElementById("dsplB-zone");
 			//dspl_zone.innerHTML = frameArray;
 			update_text('dump ram: ');
-			update_text('    00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F');
+			update_text('  xx  00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F');
 			for (let adidx=0; adidx<16; adidx++) {
 				update_text_inline(String("0" + adidx.toString(16).toUpperCase()).slice(-2)+'  ');
 				for (let adjdx=0; adjdx<16; adjdx++) {
@@ -534,11 +534,22 @@ async function manageFrame(frameTyp, frameArray) {
 				}																			
 			break;		
 		case 90:		
-	        //read 2 bytes. in Reply to the 5A request
+		    //read 2 bytes. in Reply to the 5A request
 			//Fletcher code
 			//dspl_zone.innerHTML = frameArray;
 			console.log("received 2 bytes fletcher", frameArray);
 			OnFletcherReceived(frameArray);
+			break;
+		case 91:		
+		    //read 3 bytes. code of [ fifo reading
+			let obj = String("0" + frameArray[0].toString(16).toUpperCase()).slice(-2);
+			update_text_inline(obj+' ');
+			let obj2 = String("0" + frameArray[1].toString(16).toUpperCase()).slice(-2);
+			update_text_inline(obj2+' ');
+			let obj3 = String("0" + frameArray[2].toString(16).toUpperCase()).slice(-2);
+			update_text_inline(obj3+' ');
+			update_text('');
+			//console.log("received 2 bytes from fifo", frameArray);
 			break;
 		case 120:
 			//RSSI frame (free running from server)
@@ -619,6 +630,11 @@ function handle_ba(ba) {
 			  case 90:
 				  //update_text('display B frame '+idx+' '+ frameIdx+ ' ' + ba.length);
 				  framesz = 2;
+				  frameArray = new Uint8Array(framesz);
+				  break;
+			  case 91:
+				  //update_text('display B frame '+idx+' '+ frameIdx+ ' ' + ba.length);
+				  framesz = 3;
 				  frameArray = new Uint8Array(framesz);
 				  break;
 		      case 120:
@@ -881,11 +897,11 @@ document.getElementById("hostname").value = x;
     </div>
 
 	<!-- <script>/*	-->    	
+	<!-- */</script> -->
 	    <div class="user-input mt-3">
-	      <!--<button onclick="sendmsg_onclick('YCXQZ')">Reset</button>-->
+	      <button onclick="sendmsg_onclick(new Uint8Array([89, 0x43, 0x58, 0x51, 0x5A]))">Reset</button>
 	      <button onclick="sendmsg_onclick(new Uint8Array([89, 82, 0, 0, 0]))">Dump NVRAM</button>
 		</div>
-	<!-- */</script> -->
 	
 	
 	    <div class="chat-messages font-monospace" id="chat-messages"></div>
