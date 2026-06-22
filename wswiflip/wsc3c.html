@@ -110,6 +110,16 @@ td,th{padding:5px 15px;text-align:left;}
 <link rel="stylesheet" href="leds.css">
 
 <script>
+const encoder = new TextEncoder();
+const header = encoder.encode("MYHDR"); // Uint8Array
+//const chunk100ms = [header];
+const chunk100ms = [];
+const chunkportb = [];
+const chunksens  = [];
+let   data_recording = true;
+var sample_num1 = 0;
+var sample_num2 = 0;
+
 var ws;
 var wsm_max_len = 4096; /* bigger length causes uart0 buffer overflow with low speed smart device */
 
@@ -357,7 +367,11 @@ async function manageFrame(frameTyp, frameArray) {
 			//console.log(frameArray[2], ": Z103");
 			//console.log(frameArray[3], ": Z104");
 			
-			
+			//data recording
+			if (data_recording) 
+				chunk100ms.push(new Uint8Array([65, frameArray[7+6]]));  //Strobe6
+			const tsr = (Date.now() - start) / 1000;
+			chunksens.push(new Uint32Array([sample_num1, frameArray[7+6]]));
 			const acols = 8;
 			const arows = 10;
 			for (let r=0; r<arows; r++) {
@@ -385,10 +399,11 @@ async function manageFrame(frameTyp, frameArray) {
 	        //read 128 bytes ram
 			//var dspl_zone = document.getElementById("dsplB-zone");
 			//dspl_zone.innerHTML = frameArray;
-			update_text('dump ram: ');
-			update_text('  xx  00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F');
+			update_text('dump mem: ');
+			update_text('  xx\u00A0\u00A0\u00A0 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F');
+			update_text('');
 			for (let adidx=0; adidx<16; adidx++) {
-				update_text_inline(String("0" + adidx.toString(16).toUpperCase()).slice(-2)+'  ');
+				update_text_inline(String("0" + adidx.toString(16).toUpperCase()).slice(-2)+'  '+'\u00A0\u00A0\u00A0');
 				for (let adjdx=0; adjdx<16; adjdx++) {
 					let idx = adidx*16 + adjdx;
 					let obj = String("0" + frameArray[idx].toString(16).toUpperCase()).slice(-2);
@@ -405,9 +420,12 @@ async function manageFrame(frameTyp, frameArray) {
 			break;
 	  	case 83:
 	  	    //switch matrix
-			console.log("switches: ", frameArray);
+			//console.log("switches: ", frameArray);
 			var dspl_zone = document.getElementById("83-zone");
 			//dspl_zone.innerHTML = frameArray;
+
+			
+			
 			const cols = 8;
 			const rows = 10;
 			for (let r=0; r<rows; r++) {
@@ -428,6 +446,17 @@ async function manageFrame(frameTyp, frameArray) {
 	  	    //ports abcd + cr40x
 			//var dspl_zone = document.getElementById("89-zone");
 			//dspl_zone.innerHTML = frameArray;
+			
+			//data recording
+			if (data_recording) 
+				chunk100ms.push(new Uint8Array([89, frameArray[1]]));  //Port B
+			//chunk100ms.push(new Uint8Array(frameArray));  //Port B
+
+			const tpb = (Date.now() - start) / 1000;
+			sample_num1 = sample_num1+1;
+			sample_num2 = sample_num2+1;
+			chunkportb.push(new Uint32Array([sample_num1, frameArray[1]]));
+            //console.log("frame 89", frameArray[1]);
 			for (let i=0; i<8; i++) {
 				let ledElem = document.getElementById(patooltip[i]+"pa-bar");
 				//console.log('frame '+ ' ' + frameArray[byten]+ ' '+ (frameArray[byten]&&(1<<(i%8))) +' '+byten +' '+ i);
@@ -886,6 +915,159 @@ document.getElementById("hostname").value = x;
 </div>
 
 
+<div id="plot" style="height:600px;" class="container p-3 my-3 "></div>
+<!-- <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script> -->
+<script src="./vendor/plotly-3.6.0.min.js"></script>
+<script>
+const N = 500; // points max affichés
+let xp = [];
+let yp = [];
+let yp2 = [];
+let _tims =[];
+let _s6r7 =[];
+let _s6r6 =[];
+
+
+
+const start = Date.now();
+
+const trace1 = {
+  x: [],
+  y: [],
+  type: "scatter",
+  mode: "lines",
+  name: "Optic index"
+};
+
+const trace2 = {
+  x: [],
+  y: [],
+  type: "scatter",
+  mode: "lines",
+  name: "Optic home"
+};
+
+const trace3 = {
+  x: [],
+  y: [],
+  type: "scatter",
+  mode: "lines",
+  name: "Inner cam"
+};
+
+const trace4 = {
+  x: [],
+  y: [],
+  type: "scatter",
+  mode: "lines",
+  name: "Outer cam"
+};
+
+const trace5 = {
+  x: [],
+  y: [],
+  type: "scatter",
+  mode: "lines",
+  name: "PB7 - Detent"
+};
+
+const trace6 = {
+  x: [],
+  y: [],
+  type: "scatter",
+  mode: "lines",
+  name: "PB6 - Magazine motor"
+};
+
+const trace7 = {
+  x: [],
+  y: [],
+  type: "scatter",
+  mode: "lines",
+  name: "PB5 - Transfer motor"
+};
+
+const trace8 = {
+  x: [],
+  y: [],
+  type: "scatter",
+  mode: "lines",
+  name: "PB4 - Turntable motor"
+};
+
+const trace9 = {
+  x: [],
+  y: [],
+  type: "scatter",
+  mode: "lines",
+  name: "PB3 - Toggle"
+};
+
+const trace10 = {
+  x: [],
+  y: [],
+  type: "scatter",
+  mode: "lines",
+  name: "PB2 - Play control"
+};
+
+const layout = {
+  title: "Signaux tout ou rien",
+  xaxis: { title: "Sample" },
+  yaxis: { title: "" },
+  legend: { orientation: "v" }
+};
+
+const config = { responsive: true };
+
+Plotly.newPlot("plot", [trace1, trace2, trace3, trace4, 
+	                    trace5, trace6, trace7, trace8,
+					    trace9, trace10], layout, config);
+
+setInterval(() => {
+
+	while (chunkportb.length > N)
+	    { chunkportb.shift();  }
+
+	while (chunksens.length > N)
+	    { chunksens.shift();  }
+
+  const time = chunkportb.map(x => x[0]);
+  const pb   = chunkportb.map(x => x[1]);
+  const pb7  = chunkportb.map(x => ((x[1]&0x80)>>7)+15);
+  const pb6  = chunkportb.map(x => ((x[1]&0x40)>>6)+12);
+  const pb5  = chunkportb.map(x => ((x[1]&0x20)>>5)+9);
+  const pb4  = chunkportb.map(x => ((x[1]&0x10)>>4)+6);
+  const pb3  = chunkportb.map(x => ((x[1]&0x08)>>3)+3);
+  const pb2  = chunkportb.map(x => ((x[1]&0x04)>>2));
+  //console.log(pb);
+  //console.log(pb7);
+  
+  //Plotly.update('plot', {x: [time], y: [val]});
+  
+  const tims = chunksens.map(x => x[0]);
+  const vals  = chunksens.map(x => x[1]);
+  //Plotly.update('plot', {x: [time], y: [pb6]});
+  const s6r7 = chunksens.map(x => (x[1]&0x01)+18);
+  const s6r6 = chunksens.map(x => ((x[1]&0x02)>>1)+21);
+  const s6r5 = chunksens.map(x => ((x[1]&0x04)>>2)+24);
+  const s6r4 = chunksens.map(x => ((x[1]&0x08)>>3)+27);
+  
+  
+  
+  // trace 0 = première courbe, trace 1 = deuxième courbe
+  Plotly.update('plot', {
+    x: [tims,tims,tims,tims, time,time,time,time,time,time],
+    y: [s6r7,s6r6,s6r5,s6r4, pb7,pb6,pb5,pb4,pb3,pb2],
+    'line.color': ['red','green','blue','yellow', 'purple', 
+		           'pink', 'black', 'CornflowerBlue', 'Indigo', 'Chartreuse']   // ex: ['#e41a1c','#377eb8']
+  });
+
+  //Plotly.update('plot', traces, { legend: {orientation:'h'} });
+  
+}, 500);
+</script>
+
 
 
 
@@ -900,7 +1082,9 @@ document.getElementById("hostname").value = x;
 	<!-- */</script> -->
 	    <div class="user-input mt-3">
 	      <button onclick="sendmsg_onclick(new Uint8Array([89, 0x43, 0x58, 0x51, 0x5A]))">Reset</button>
-	      <button onclick="sendmsg_onclick(new Uint8Array([89, 82, 0, 0, 0]))">Dump NVRAM</button>
+		  <button onclick="sendmsg_onclick(new Uint8Array([89, 82, 0, 0, 0]))">Dump RAM</button>
+	      <button onclick="sendmsg_onclick(new Uint8Array([89, 82, 1, 0, 0]))">Dump NVRAM</button>
+          <button onclick="saveData()"> <i class="bi bi-download"></i> Save</button>		
 		</div>
 	
 	
@@ -915,12 +1099,14 @@ document.getElementById("hostname").value = x;
 </div>
 
 
+
 <div class="container  d-flex align-items-center justify-content-center shadow p-4 mb-4 bg-white">
     <img src="./wifliplogo.png" class="rounded me-2 w-25" alt="icon wiflip logo"> 
 </div>
 <div class="container  d-flex align-items-center justify-content-center shadow p-4 mb-4 bg-white">
-<p class="small">C3C Companion Version 0.91.0b 2025-10-25</p>
+<p class="small">C3C Companion Version 0.93.0a 2026-06-20</p>
 </div>
+
 
 
 
@@ -942,6 +1128,28 @@ var tooltip1List = tooltip1TriggerList.map(function (tooltipTriggerEl) {
 })
 
 </script>
+<script>
+function saveData() {
+	// fusion
+	let total = 0;
+	for (const c of chunk100ms) total += c.length;
 
-
+	const merged = new Uint8Array(total);
+	let offset = 0;
+	for (const c of chunk100ms) {
+	  merged.set(c, offset);
+	  offset += c.length;
+	}
+	const blob = new Blob([merged], { type: "application/octet-stream" });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement('a');
+	a.href = url;
+	//a.textContent = "Télécharger mon fichier";
+	a.download = 'wsc3_record.txt';
+	document.body.appendChild(a);
+	a.click();
+	a.remove();
+	URL.revokeObjectURL(url);
+	}
+</script>
 </body></html>
