@@ -255,7 +255,7 @@ function create_switch_matrix(container_id) {
 			//<div class="col-1 "><div ><div class="d-flex justify-content-center" ><div class="cled led-green"></div></div><div  class="d-flex justify-content-center overflow-visible small" >Replay.</div></div></div>
             
 			
-			const b1 = new Uint8Array([89, 83, col, (1<<row), 50]);
+			const b1 = new Uint8Array([89, 83, col, (1<<row), 30]);
 			const b2 = new Uint8Array([89, 83, col, (1<<row), 255]);
 
 			led_object.onclick = function() { sendmsg_onclick(b1); };
