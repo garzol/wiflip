@@ -318,7 +318,7 @@ function create_switch_matrix_ortho(container_id) {
 			//<div class="col-1 "><div ><div class="d-flex justify-content-center" ><div class="cled led-green"></div></div><div  class="d-flex justify-content-center overflow-visible small" >Replay.</div></div></div>
             
 			
-			const b1 = new Uint8Array([89, 83, row, (1<<col), 50]);
+			const b1 = new Uint8Array([89, 83, row, (1<<col), 30]);
 			const b2 = new Uint8Array([89, 83, row, (1<<col), 255]);
 
 			led_object.onclick = function() { sendmsg_onclick(b1); };
@@ -414,7 +414,7 @@ function create_rowe_switch_matrix(container_id) {
 			//<div class="col-1 "><div ><div class="d-flex justify-content-center" ><div class="cled led-green"></div></div><div  class="d-flex justify-content-center overflow-visible small" >Replay.</div></div></div>
             
 			
-			const b1 = new Uint8Array([89, 83, row, (1<<col), 20]);
+			const b1 = new Uint8Array([89, 83, row, (1<<col), 10]);
 			const b2 = new Uint8Array([89, 83, row, (1<<col), 255]);
 
 			led_object.onclick = function() { console.log(b1); sendmsg_onclick(b1); };
