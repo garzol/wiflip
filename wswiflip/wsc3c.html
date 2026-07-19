@@ -4,7 +4,7 @@
 <title>wsC3C Rowe Companion</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!--
+<!-- 00 01
 <link rel="icon" href="https://www.pps4.fr/static/img/icons/favicon.ico">
 <link rel="short-icon" href="https://www.pps4.fr/static/img/icons/favicon.ico">
 -->
@@ -33,6 +33,7 @@
 <script src="./gamesettings.js" defer></script>
 <script src="leds.js?ts=20251012984901"></script>
 <script src="./myplot.js" defer></script>
+<script src="./ejukmodel.js"></script>
 
 <style>
 /* Add some basic styling for the chat window */
@@ -52,7 +53,7 @@ body {
   padding: 10px;
 }
 .chat-messages {
-  height: 450px;
+  height: 650px;
   overflow-y: auto;
   border: 1px solid #444;
   padding: 5px;
@@ -153,7 +154,7 @@ function update_rconsole(text) {
   chat_messages.scrollTop = chat_messages.scrollHeight;
 }
 
-function sendmsg_onclick(message) {
+async function sendmsg_onclick(message) {
   if(ws != null) {
     
     if (message) {
@@ -161,6 +162,10 @@ function sendmsg_onclick(message) {
       //console.log(message, b);
       ws.send(b, { binary: true });
       //ws.send('YCXQZ', { binary: true });
+	  console.log(message, "sent");
+	  //await sleep(100);
+
+	  //await (ms => new Promise(r=>setTimeout(r,ms)))(50);	  
       	
     }
   }
@@ -332,6 +337,7 @@ function blobToByteArray(blob) {
 
 var timerRef;
 var supervisionState = "Unknown";
+var ejk_disc_num;
 async function manageFrame(frameTyp, frameArray) {
 	switch(frameTyp) {
 		case 64:
@@ -399,6 +405,18 @@ async function manageFrame(frameTyp, frameArray) {
 			//dspl_zone.innerHTML = frameArray;
 			affdspl(66, frameArray);
 			break;
+			
+		case 76:
+			var jk_disc_num_el =  document.getElementById("jk-disc-num");
+			var jk_trsf_num_el =  document.getElementById("jk-trsf-num");
+			//console.log("2 bytes emul data");
+			//console.log(frameArray);
+			ejk_disc_num = frameArray[0];
+			jk_disc_num_el.innerHTML = frameArray[0];
+			jk_trsf_num_el.innerHTML = frameArray[1];
+
+			break;
+			
 	    case 82:
 	        //read 128 bytes ram
 			//var dspl_zone = document.getElementById("dsplB-zone");
@@ -407,7 +425,7 @@ async function manageFrame(frameTyp, frameArray) {
 			update_text('  xx\u00A0\u00A0\u00A0 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F');
 			update_text('');
 			for (let adidx=0; adidx<16; adidx++) {
-				update_text_inline(String("0" + adidx.toString(16).toUpperCase()).slice(-2)+'  '+'\u00A0\u00A0\u00A0');
+				update_text_inline(String(adidx.toString(16).toUpperCase()).slice(-2)+"0" + '  '+'\u00A0\u00A0\u00A0');
 				for (let adjdx=0; adjdx<16; adjdx++) {
 					let idx = adidx*16 + adjdx;
 					let obj = String("0" + frameArray[idx].toString(16).toUpperCase()).slice(-2);
@@ -644,6 +662,14 @@ function handle_ba(ba) {
 			      framesz = 9;
 			      frameArray = new Uint8Array(framesz);
 			      break;
+				  
+			  case 76:
+				  //'L' is the emul data magazine pos and transfer pos
+			      framesz = 2;
+			      frameArray = new Uint8Array(framesz);
+			      break;
+
+				  				  
 			  case 82:
 			  	  //256 bytes ram fram
 				  update_text('ram dump 256 bytes '+idx+' '+ frameIdx+ ' ' + ba.length);
@@ -778,12 +804,16 @@ document.getElementById("hostname").value = x;
 
 	<div class="container shadow">
 		
+		<div class="btn-group btn-group-toggle" data-toggle="buttons">
 		
-		<input type="radio" class="btn-check" name="options-outlined" id="success-outlined" autocomplete="off"  onclick="sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 0x32]))">
-		<label class="btn btn-outline-success" for="success-outlined">Real Switch Matrix</label>
+			<input type="radio" class="btn-check" name="options-outlined" id="success-outlined" autocomplete="off"  checked onclick="vjukOn=false;sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 0x32]))">
+			<label class="btn btn-group btn-group-toggle btn-outline-success" for="success-outlined">Real Switch Matrix</label>
+	
+			<input type="radio" class="btn-check" name="options-outlined" id="danger-outlined" autocomplete="off" onclick="vjukOn=true; sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 0x31]))">
+			<label class="btn btn-group btn-group-toggle btn-outline-danger" for="danger-outlined">Simulated Switch Matrix</label>
 
-		<input type="radio" class="btn-check" name="options-outlined" id="danger-outlined" autocomplete="off" onclick="sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 0x31]))">
-		<label class="btn btn-outline-danger" for="danger-outlined">Simulated Switch Matrix</label>
+		</div>
+		
 	</div>
 		
 	  
@@ -818,48 +848,6 @@ document.getElementById("hostname").value = x;
 </div>
 <script>window.onload = create_rowe_switch_matrix("switch-matrix-window")</script>
 
-<div class="container p-3 my-3 rounded border border-3">
-	<div class="container shadow mt-1 p-3">
-	<h4 class="text-secondary small">Z101..Z104 (ccc displays)</h4>
-	<div class="col-8 fs-1 d-inline">
-		<div id="Z101" class="d-inline border font-monospace fs-3">8</div>
-		<div id="Z102" class="d-inline border font-monospace fs-3">8</div>
-		<div id="Z103" class="d-inline border font-monospace fs-3">8</div>
-	    <div id="Z104" class="d-inline border font-monospace fs-3">8</div>
-	</div>
-	</div>
-	
-	<div class="container shadow mt-1 p-3">
-	<h4 class="text-secondary small">Z402..Z400 (Display board)</h4>
-	<div class="col-6 fs-1 d-inline">
-		<div id="Z402" class="d-inline border font-monospace fs-3">8</div>
-		<div id="Z401" class="d-inline border font-monospace fs-3">8</div>
-		<div id="Z400" class="d-inline border font-monospace fs-3">8</div>
-	</div>
-    </div>
-	
-	<div class="container shadow mt-1 p-3">
-	<h4 class="text-secondary small">Leds - Display board</h4>
-	<div class="row my-3">
-		<div class="col-2"><div class=" lbldiag  small">Make any selection</div></div>
-		<div class="col-2"><div class=" lbldiag  small">Make std. selection</div></div>
-		<div class="col-2"><div class=" lbldiag  small">Most popular</div></div>
-		<div class="col-2"><div class=" lbldiag  small">Sel. being made</div></div>
-		<div class="col-2"><div class=" lbldiag  small">Selection playing</div></div>
-	    <div class="col-2"><div class=" lbldiag  small">Sels remaining</div></div>
-	</div>
-	<div class="row my-3">
-		<div class="col-2"><div id="CR400" class="cled led-black border"></div></div>
-		<div class="col-2"><div id="CR401" class="cled led-black border"></div></div>
-		<div class="col-2"><div id="CR402" class="cled led-black border"></div></div>
-		<div class="col-2"><div id="CR403" class="cled led-black border"></div></div>
-		<div class="col-2"><div id="CR404" class="cled led-black border"></div></div>
-	    <div class="col-2"><div id="CR405" class="cled led-black border"></div></div>
-	</div>
-    </div>
-	
-</div>
-
 
 
 
@@ -890,10 +878,369 @@ document.getElementById("hostname").value = x;
 	</div>
 
 </div>	
+
+
+<div class="container shadow mt-1 p-3">
+<h4 class="text-secondary small">Z101..Z104 (ccc displays)</h4>
+<div class="col-8 fs-1 d-inline">
+	<div id="Z101" class="d-inline border font-monospace fs-3">8</div>
+	<div id="Z102" class="d-inline border font-monospace fs-3">8</div>
+	<div id="Z103" class="d-inline border font-monospace fs-3">8</div>
+    <div id="Z104" class="d-inline border font-monospace fs-3">8</div>
+</div>
+</div>
+
+
+<div class="container shadow mt-1 p-3">
+<h4 class="text-secondary small">Z402..Z400 (Display board)</h4>
+<div class="col-6 fs-1 d-inline">
+	<div id="Z402" class="d-inline border font-monospace fs-3">8</div>
+	<div id="Z401" class="d-inline border font-monospace fs-3">8</div>
+	<div id="Z400" class="d-inline border font-monospace fs-3">8</div>
+</div>
+</div>
+
+
+
+<div class="container d-flex shadow p-2 mb-2 bg-white">
+		
+	
+	
+	<!--<div class="container  d-flex justify-content-between shadow  bg-white">-->
+
+		<style>
+		  .jukebox{
+		    width: 36px;
+		    height: 36px;
+		    margin: 10px;
+		    border-radius: 12px;
+		    border: 2px solid #111;
+		    cursor: pointer;
+		    font: 700 13px/1 system-ui, sans-serif;
+		    color: #fff;
+		    background:
+		      radial-gradient(circle at 30% 25%, rgba(255,255,255,.35), transparent 45%),
+		      linear-gradient(#d11a2a, #7a0f19);
+		    box-shadow:
+		      inset 0 0 0 2px rgba(0,0,0,.15),
+		      0 7px 0 rgba(0,0,0,.35);
+		    transform: translateY(0);
+		    transition: transform .04s ease, box-shadow .04s ease, filter .1s ease;
+		    user-select: none;
+		    outline: none;
+		  }
+		  .jukebox:active{
+		    transform: translateY(7px);
+		    box-shadow:
+		      inset 0 0 0 2px rgba(0,0,0,.15),
+		      0 0 0 rgba(0,0,0,.35);
+		    filter: brightness(.95);
+		  }
+		  .jukebox:focus-visible{
+		    box-shadow:
+		      inset 0 0 0 2px rgba(0,0,0,.15),
+		      0 7px 0 rgba(0,0,0,.35),
+		      0 0 0 3px rgba(255,255,255,.35);
+		  }
+
+		  .pad{
+		    display:d-flex;
+		    gap: 0;
+		    flex-wrap: wrap;
+		    justify-content:center;
+		    align-items:center;
+		    padding: 20px;
+		    background:#1b1b1b;
+		    border-radius: 16px;
+		    width: fit-content;
+		    margin: 20px auto;
+		    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+		  }
+		</style>
+
+		
+		<div class="container pad">
+			<div class="row">
+				<div class="col"><div class="mx-auto text-center text-white fs-2">Selection</div></div>
+			</div>
+			<div class="row">
+				<div class="col-2"><button class="jukebox" onclick="sendmsg_onclick(new Uint8Array([89, 83, 8, (1<<0), 5]))">1</button></div>
+			    <div class="col-2"><button class="jukebox" onclick="sendmsg_onclick(new Uint8Array([89, 83, 8, (1<<1), 5]))">2</button></div>
+			    <div class="col-2"><button class="jukebox" onclick="sendmsg_onclick(new Uint8Array([89, 83, 8, (1<<2), 5]))">3</button></div>
+			    <div class="col-2"><button class="jukebox" onclick="sendmsg_onclick(new Uint8Array([89, 83, 8, (1<<3), 5]))">4</button></div>
+			    <div class="col-2"><button class="jukebox" onclick="sendmsg_onclick(new Uint8Array([89, 83, 8, (1<<4), 5]))">5</button></div>
+			</div>
+			<div class="row">
+				<div class="col-2"><button class="jukebox" onclick="sendmsg_onclick(new Uint8Array([89, 83, 9, (1<<0), 5]))">6</button></div>
+			    <div class="col-2"><button class="jukebox" onclick="sendmsg_onclick(new Uint8Array([89, 83, 9, (1<<1), 5]))">7</button></div>
+			    <div class="col-2"><button class="jukebox" onclick="sendmsg_onclick(new Uint8Array([89, 83, 9, (1<<2), 5]))">8</button></div>
+			    <div class="col-2"><button class="jukebox" onclick="sendmsg_onclick(new Uint8Array([89, 83, 9, (1<<3), 5]))">9</button></div>
+			    <div class="col-2"><button class="jukebox" onclick="sendmsg_onclick(new Uint8Array([89, 83, 9, (1<<4), 5]))">0</button></div>
+			</div>
+			<div class="row">
+				<div class="col-2"><button title="Clear"   class="jukebox" onclick="sendmsg_onclick(new Uint8Array([89, 83, 7, (1<<0), 5]))">C</button></div>
+				<div class="col-2"><button title="Popular" class="jukebox" onclick="sendmsg_onclick(new Uint8Array([89, 83, 7, (1<<1), 5]))">P</button></div>
+				<div class="col-2"><button class="jukebox" ></button></div>
+				<div class="col-2"><button class="jukebox" ></button></div>
+				<div class="col-2"><button title="Interrupt Playing"   class="jukebox" onclick="sendmsg_onclick(new Uint8Array([89, 83, 0, (1<<6), 5]))">S</button></div>
+			</div>
+		</div>
+
+
+	
+		<!--</div>		-->
+	
+
+		<!--  test monnayeur-->
+		<style>
+		  :root{
+		    --slotW: 110px;
+		    --slotH: 240px;
+
+		    --openingW: 54px;
+		    --openingH: 132px;
+
+		    --frame1:#d7dde5;
+		    --frame2:#8a95a8;
+		    --frame3:#3b4351;
+
+		    --coin: 30px;
+		    --coinH: 8px;
+
+		    --travel: 118px; /* descente mécanique */
+		  }
+
+
+
+		  .slot{
+		    width:var(--slotW);
+		    height:var(--slotH);
+		    position:relative;
+		    border-radius:18px;
+		    background:
+		      linear-gradient(to right, rgba(255,255,255,.25), rgba(255,255,255,0) 40%),
+		      linear-gradient(to bottom, var(--frame1), var(--frame2) 55%, var(--frame3));
+		    box-shadow:
+		      inset 0 2px 0 rgba(255,255,255,.35),
+		      inset 0 -10px 26px rgba(0,0,0,.45),
+		      0 22px 55px rgba(0,0,0,.62);
+		    overflow:hidden;
+		  }
+
+		  .slot::before{
+		    content:"";
+		    position:absolute;
+		    left:50%;
+		    top:50%;
+		    width:var(--openingW);
+		    height:var(--openingH);
+		    transform:translate(-50%,-50%);
+		    border-radius:12px;
+		    background:
+		      radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), rgba(255,255,255,0) 48%),
+		      linear-gradient(to bottom, #2b313e, #0f131c);
+		    box-shadow:
+		      inset 0 2px 0 rgba(255,255,255,.08),
+		      inset 0 -22px 35px rgba(0,0,0,.75);
+		    z-index:1;
+		  }
+
+		  .slot::after{
+		    content:"";
+		    position:absolute;
+		    left:50%;
+		    top:50%;
+		    width:calc(var(--openingW) - 12px);
+		    height:46px;
+		    transform:translate(-50%,-50%) translateY(calc(var(--openingH)/2 - 30px));
+		    border-radius:10px;
+		    background:
+		      radial-gradient(circle at 50% 0%, rgba(255,255,255,.10), rgba(255,255,255,0) 55%),
+		      linear-gradient(to bottom, #05070c, #020305);
+		    box-shadow: inset 0 18px 30px rgba(0,0,0,.85);
+		    opacity:.95;
+		    z-index:1;
+		  }
+
+		  .shine{
+		    position:absolute;
+		    left:18px;
+		    right:18px;
+		    top:16px;
+		    height:20px;
+		    border-radius:12px;
+		    background: linear-gradient(to right, rgba(255,255,255,.35), rgba(255,255,255,0));
+		    opacity:.22;
+		    pointer-events:none;
+		    z-index:2;
+		  }
+
+		  .insert{
+		    position:absolute;
+		    inset:0;
+		    display:grid;
+		    place-items:start center;
+		    padding-top:24px;
+		    z-index:3; /* au-dessus du cadre intérieur */
+		  }
+
+		  .coin{
+		    width:var(--coin);
+		    height:var(--coin);
+		    border-radius:50%;
+		    position:relative;
+		    transform: translateY(0);
+		    transition: transform 220ms linear;
+		    background: radial-gradient(circle at 30% 20%, #fff6c8, #d6a73e 50%, #6b3f0f 100%);
+		    box-shadow:
+		      inset 0 6px 10px rgba(255,255,255,.28),
+		      inset 0 -10px 16px rgba(0,0,0,.35),
+		      0 10px 20px rgba(0,0,0,.5);
+		  }
+
+		  /* tranche visuelle */
+		  .coin::before{
+		    content:"";
+		    position:absolute;
+		    left:-1px; right:-1px;
+		    bottom:-2px;
+		    height:var(--coinH);
+		    border-radius:50%;
+		    background: linear-gradient(to bottom, rgba(255,255,255,.2), rgba(0,0,0,.45));
+		    filter:saturate(1.1);
+		  }
+
+		  /* symbole */
+		  .coin .sym{
+		    position:absolute;
+		    inset:0;
+		    display:grid;
+		    place-items:center;
+		    font-weight:900;
+		    color:rgba(25,18,6,.75);
+		    text-shadow: 0 1px 0 rgba(255,255,255,.25);
+		    font-size:13px;
+		    letter-spacing:.2px;
+		  }
+
+		  /* descente mécanique */
+		  .slot:active .coin{
+		    transform: translateY(var(--travel));
+		  }
+
+		  /* argent */
+		  .slot.silver .coin{
+		    background: radial-gradient(circle at 30% 20%, #f7fbff, #b9c7db 50%, #4f5f78 100%);
+		  }
+		  .slot.silver .coin .sym{
+		    color:rgba(15,18,22,.72);
+		  }
+		</style>
+
+		<div class="container d-flex align-items-center justify-content-center  mt-1 p-3">
+
+		<div class="row">
+			<div class="slot col" aria-label="Fente à monnaie - 1$">
+			  <div class="shine"></div>
+			  <div class="insert">
+			    <button class="coin" type="button" aria-label="Insérer 1 dollar" onclick="sendmsg_onclick(new Uint8Array([89, 83, 7, (1<<7), 5]))">
+			      <div class="sym">$1</div>
+			    </button>
+			  </div>
+			</div>
+
+			<div class="slot silver col" aria-label="Fente à monnaie - 50c">
+			  <div class="shine"></div>
+			  <div class="insert">
+			    <button class="coin" type="button" aria-label="Insérer 50 centimes" onclick="sendmsg_onclick(new Uint8Array([89, 83, 7, (1<<6), 5]))">
+			      <div class="sym">50c</div>
+			    </button>
+			  </div>
+			</div>
+
+			<div class="slot silver col" aria-label="Fente à monnaie - 25c">
+			  <div class="shine"></div>
+			  <div class="insert">
+			    <button class="coin" type="button" aria-label="Insérer 25 centimes" onclick="sendmsg_onclick(new Uint8Array([89, 83, 7, (1<<5), 5]))">
+			      <div class="sym">25c</div>
+			    </button>
+			  </div>
+			</div>
+
+			<script>
+			  // Optionnel: au clic sur la pièce, on déclenche la descente "mécanique"
+			  // (le :active marche déjà, mais ceci aide sur mobile si besoin).
+			  document.querySelectorAll('.coin').forEach(btn=>{
+			    btn.addEventListener('click', (e)=>{
+			      const slot = e.currentTarget.closest('.slot');
+			      slot.classList.add('dropping');
+			      // forcer un style via active-like (sans rotation)
+			      btn.style.transition = 'transform 220ms linear';
+			      btn.style.transform = 'translateY(var(--travel))';
+			      setTimeout(()=>{
+			        btn.style.transform = 'translateY(0)';
+			      }, 260);
+			    });
+			  });
+			</script>
+
+		</div>
+		</div>
+		<!-- fin test monnayeur-->
+		
+		
+				
+		
+	
+	
+</div>
+
+
+
+<div class="container p-3 my-3 rounded border border-3 shadow mt-1 ">
+	
+	<!--<div class="container shadow mt-1 p-3">-->
+	<h4 class="text-secondary small">Leds - Display board</h4>
+	<div class="row my-3">
+		<div class="col-2"><div class=" lbldiag  small">Make any selection</div></div>
+		<div class="col-2"><div class=" lbldiag  small">Make std. selection</div></div>
+		<div class="col-2"><div class=" lbldiag  small">Most popular</div></div>
+		<div class="col-2"><div class=" lbldiag  small">Sel. being made</div></div>
+		<div class="col-2"><div class=" lbldiag  small">Selection playing</div></div>
+	    <div class="col-2"><div class=" lbldiag  small">Sels remaining</div></div>
+	</div>
+	<div class="row my-3">
+		<div class="col-2"><div id="CR400" class="cled led-black border"></div></div>
+		<div class="col-2"><div id="CR401" class="cled led-black border"></div></div>
+		<div class="col-2"><div id="CR402" class="cled led-black border"></div></div>
+		<div class="col-2"><div id="CR403" class="cled led-black border"></div></div>
+		<div class="col-2"><div id="CR404" class="cled led-black border"></div></div>
+	    <div class="col-2"><div id="CR405" class="cled led-black border"></div></div>
+	</div>
+    <!--</div>-->
+	
+</div>
+
+
+
+<!-- -->
+<div class="container shadow mt-1 p-3">
+	<h4>Virtual Juke</h4> 
+	<h5>Disc number: <span class="text-center fs-2" id="jk-disc-num"></span></h5>
+	<h5>Transfer arm pos: <span class="text-center fs-2" id="jk-trsf-num"></span></h5>
+	<h5>Now playing: <span class="text-center fs-4" id="jk-file-playing"></span></h5>
+</div>
+<!--<script>create_juke(96)</script>-->
+<script>create_ejuke()</script>
+
+
+
 <script>create_ledbar(patooltip, "pa-bar")</script>
 <script>create_ledbar(pbtooltip, "pb-bar")</script>
 <script>create_ledbar(pctooltip, "pc-bar")</script>
 <script>create_ledbar(pdtooltip, "pd-bar")</script>
+
+
 
 
 
@@ -917,6 +1264,8 @@ document.getElementById("hostname").value = x;
 
   </div>
 </div>
+
+
 
 
 <div id="plot" style="height:600px;" class="container p-3 my-3 "></div>
@@ -953,12 +1302,24 @@ document.getElementById("hostname").value = x;
 </div>
 
 
+<div class="container  d-flex align-items-center justify-content-center shadow p-4 mb-4 bg-white">
+
+
+<form action="/wswiflip/upload.php" method="post" enctype="multipart/form-data">
+    <label for="file-upload">Select a file:</label>
+    <input type="file" id="file-upload" name="files" accept=".txt" />
+    <button type="submit">Upload File</button>
+</form>
+
+ <!-- <h2><a href="./upload_final.php">Upload my files</a></h2>
+	-->
+</div>
 
 <div class="container  d-flex align-items-center justify-content-center shadow p-4 mb-4 bg-white">
     <img src="./wifliplogo.png" class="rounded me-2 w-25" alt="icon wiflip logo"> 
 </div>
 <div class="container  d-flex align-items-center justify-content-center shadow p-4 mb-4 bg-white">
-<p class="small">C3C Companion Version 0.93.0a 2026-06-20</p>
+<p class="small">C3C Companion Version 0.94.0a 2026-06-25</p>
 </div>
 
 
