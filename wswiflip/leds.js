@@ -415,7 +415,7 @@ function create_rowe_switch_matrix(container_id) {
             
 			//console.log("led_object", led_object.id);
 			
-			const b1 = new Uint8Array([89, 83, row, (1<<col), 20]);
+			const b1 = new Uint8Array([89, 83, row, (1<<col), 30]);
 			const b2 = new Uint8Array([89, 83, row, (1<<col), 255]);
 
 			led_object.onclick = function() { console.log(b1); sendmsg_onclick(b1); };

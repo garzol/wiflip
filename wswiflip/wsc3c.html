@@ -186,9 +186,8 @@ function send_onclick() {
 
 
 function connect_onclick() {
-  const re_mac4 = new RegExp("^([0-9]|[A-F]){4}$", "i");
+  const re_mac4 = new RegExp("^([0-9]|[A-F]|K){4}$", "i");
   
-  console.log("connect_onclick", ws)
   if(ws == null) {
     var hostname = document.getElementById("hostname").value;
     localStorage.setItem("ls-hostname", hostname); 
@@ -209,6 +208,7 @@ function connect_onclick() {
      		hostname = "ws://" + hostname + ".local:81";       	
     }
     ws = new WebSocket(hostname);
+	console.log("connect_onclick", ws)
     // Change binary type from "blob" to "arraybuffer"
 	//ws.binaryType = "blob";
     update_text("opening websocket " +hostname+"...");
@@ -218,7 +218,8 @@ function connect_onclick() {
     ws.onclose = ws_onclose;
     ws.onmessage = ws_onmessage;
 	ws.onerror = ws_onerror;
-	
+	//ws.enableHeartbeat(15000, 3000, 2);
+    //ws.webSocketEvent = 
   } else {
 	console.log("In connectonclick, call close websocket ");
 	try {
@@ -288,6 +289,12 @@ function mng_ws_errors(event) {
 }
 function ws_onclose(event) {
 
+	console.log({
+	    code: event.code,
+	    reason: event.reason,
+	    wasClean: event.wasClean
+	});
+	
   const reason = mng_ws_errors(event);
   update_text("closing websocket "+ " ("+event.code+")"); 
   console.log("In onclose websocket "+ reason);
@@ -725,6 +732,26 @@ function handle_ba(ba) {
 }
 
 function ws_onmessage(e_msg) {
+	
+//	if (typeof event.data === "string") {
+//	    // Text message
+//	    console.log("Text:", event.data);
+//
+//	    // If it contains JSON:
+//	    try {
+//	        const data = JSON.parse(event.data);
+//	        console.log("JSON:", data);
+//	    } catch {
+//	        // It was ordinary text, not JSON
+//	    }
+//	} else if (event.data instanceof ArrayBuffer) {
+//	    // Binary message
+//	    const bytes = new Uint8Array(event.data);
+//	    console.log("Binary bytes:", bytes);
+//	} else if (event.data instanceof Blob) {
+//	    // Binary message when binaryType is "blob"
+//	    console.log("Binary Blob:", event.data);
+//	}	
   e_msg = e_msg || window.event; // MessageEvent
   //console.log(e_msg.data);
   //update_text('<span style="color:blue">' + e_msg.data + '</span>');
@@ -809,8 +836,11 @@ document.getElementById("hostname").value = x;
 			<input type="radio" class="btn-check" name="options-outlined" id="success-outlined" autocomplete="off"  checked onclick="vjukOn=false;sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 0x32]))">
 			<label class="btn btn-group btn-group-toggle btn-outline-success" for="success-outlined">Real Switch Matrix</label>
 	
-			<input type="radio" class="btn-check" name="options-outlined" id="danger-outlined" autocomplete="off" onclick="vjukOn=true; sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 0x31]))">
+			<input type="radio" class="btn-check" name="options-outlined" id="danger-outlined" autocomplete="off" onclick="vjukOn=false; sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 0x31]))">
 			<label class="btn btn-group btn-group-toggle btn-outline-danger" for="danger-outlined">Simulated Switch Matrix</label>
+
+		    <input type="radio" class="btn-check" name="options-outlined" id="info-outlined" autocomplete="off" onclick="vjukOn=true; sendmsg_onclick(new Uint8Array([89, 67, 88, 81, 0x31]))">
+		    <label class="btn btn-group btn-group-toggle btn-outline-info" for="info-outlined">Simulated Switch Matrix & virtual juke</label>
 
 		</div>
 		
